@@ -1,0 +1,1 @@
+export const BedSpace_Stats = 'BedSpace_Stats';

@@ -1,0 +1,194 @@
+import config from "../../config";
+import models from "../../models";
+import studentBioMethod from "../studentBio";
+const date = require("date-and-time");
+
+const { getStudentData } = studentBioMethod.common;
+
+export const findTransaction = async (transactionId, session) => {
+  const trans = await models.Transaction.findOne({ transactionId }).session(
+    session
+  );
+  return () => {
+    if (trans) {
+      return trans;
+    }
+    throw new Error("Transaction not found");
+  };
+};
+
+export const addUserToAllocatedBedSpace = async (
+  transaction,
+  transactionSession
+) => {
+  const {
+    session,
+    regNumber,
+    roomDetails: { roomNumber, hallName, bedSpace, roomId, hallId },
+  } = transaction;
+
+  const student = await getStudentData(regNumber, transactionSession);
+
+  const newbedSlot = new models.BedSpaceAllocation({
+    hallId,
+    hallName,
+    roomId,
+    studentId: student._id,
+    session,
+    regNumber,
+    studentName: student.name,
+    roomNumber,
+    bedSpace,
+  });
+
+  newbedSlot.save({ session: transactionSession });
+  return student;
+};
+
+export const markRoomAsOccupied = async (bedId, transactionSession) => {
+  await models.BedSpace.updateOne(
+    { _id: bedId },
+    { $set: { bedStatus: "occupied" } }
+  ).session(transactionSession);
+};
+
+export const checkForBedspaceReservation = async (regNumber, session) => {
+  const now = new Date();
+  let yesterday = date.addDays(now, -1);
+  const bedReserved = await models.OnHoldBed.findOne({
+    session: session,
+    regNumber: regNumber,
+    lockStart: { $gte: yesterday },
+  });
+  //we still have a reservation lets
+  if (bedReserved) {
+    //check transaction if we have an existing transaction
+    return bedReserved;
+  } else {
+    throw new Error(
+      "you do not have a hostel bed reservation. You can not effect payment"
+    );
+  }
+};
+
+export const saveNewTransaction = async (
+  student,
+  session,
+  bed,
+  transactionSession
+) => {
+  debugger;
+  const { regNumber, name } = student;
+
+  const amount = await getHostelFee({
+    regNumber: regNumber,
+    bedId: bed._id,
+    session,
+    transactionSession,
+  });
+  if (!amount) throw new Error("Hostel fee is required");
+  const transactionId = _setTransactionId();
+  const payerName = name;
+  const date = new Date();
+  const roomDetails = {
+    roomNumber: bed.roomNumber,
+    hallName: bed.hallName,
+    bedSpace: bed.bedNumber,
+    roomNumber: bed.roomNumber,
+    roomId: bed.roomId,
+    hallId: bed.hallId,
+    location: bed.location,
+    roomType: bed.roomType,
+    bedId: bed._id,
+  };
+
+  const successful = false;
+  const newTransaction = new models.Transaction({
+    session,
+    amount,
+    transactionId,
+    regNumber: regNumber,
+    payerName,
+    date,
+    roomDetails,
+    successful,
+  });
+  await newTransaction.save({ session: transactionSession });
+  return newTransaction;
+};
+
+export const updateTransactionWithRRR = async (
+  transId,
+  rrr,
+  transactionSession
+) => {
+  await models.Transaction.updateOne(
+    { _id: transId },
+    { transactionStatus: "025", rrr: rrr }
+  ).session(transactionSession);
+
+  return true;
+};
+
+export const getHostelFee = async ({
+  regNumber,
+  bedId,
+  session,
+  transactionSession,
+}) => {
+  //bedspace on hold that the person wants to pay for
+  const spaceOnHold = await models.OnHoldBed.findOne({
+    bedId: bedId,
+    regNumber: regNumber,
+    session: session,
+  }).session(transactionSession);
+
+  if (spaceOnHold) {
+    const bed = await models.BedSpace.findById(bedId).session(
+      transactionSession
+    );
+    const hallId = bed && bed.hallId;
+    //get the associated hall and return the hostel fees associated with it
+    const hostel = await models.Hostel.findOne({ _id: hallId })
+      .lean()
+      .session(transactionSession);
+
+    const fees = hostel && hostel.hostelFee;
+    return fees;
+  }
+
+  return null;
+};
+
+const _setTransactionId = () => {
+  const date = new Date();
+  const alphabet = "ABCDEFGHIJKLMNPQRSTUVWXYZ";
+  let text = "";
+  const components = [
+    date.getDate(),
+    date.getHours(),
+    date.getMinutes(),
+    date.getSeconds(),
+    date.getMilliseconds(),
+  ];
+  for (let i = 0; i < 2; i++) {
+    text += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+  }
+  const id = components.join("");
+  return id + text;
+};
+
+export const checkTransactionAlreadyWithRRR = async (
+  regNumber,
+  session,
+  transactionSession
+) => {
+  const transaction = await models.Transaction.findOne({
+    regNumber: regNumber,
+    session: session,
+    rrr: { $exists: true, $ne: null },
+    successful: false,
+  }).session(transactionSession);
+
+  return transaction;
+};
