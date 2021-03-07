@@ -1,45 +1,24 @@
-import mongoose from "mongoose";
-import models from "../models";
+import dbConn from "../connections";
 import bcrypt from "bcrypt";
 import util from "../utils";
-import config from "../config";
 let saltRounds = 10;
 
-const { DB_HOST, DB_PORT, DB_USER, DB_DATABASE, DB_PASSWORD } = process.env;
 
-const collectionNames = [
-  "rooms",
-  "bedspaces",
-  "confirmphonenumbers",
-  "hostels",
-  "adminroomallocations",
-  "studentbios",
-  "bedspaceallocations",
-  "users",
-  "messages",
-  "faculties",
-  "transactions",
-  "onholdbeds",
-  "sessiontables",
-  "confirmphonetables",
-  "departments",
-];
-class DbConnection {
+class InitTask {
   constructor() {
-    this._connect();
     this._createAdmin();
     this._createDepartmentsAndFaculties();
-    this._uploadStudentData();
+    this._uploadStudentData()
   }
 
   async _createAdmin() {
     try {
-      const findAdmin = await models.User.findOne({
+      const findAdmin = await dbConn.fastConn.models.User.findOne({
         email: "jamiebones147@gmail.com",
       });
 
       if (findAdmin) {
-        console.log("admin is found");
+        console.log("admin is found. no need creating admin again");
       } else {
         const hash = await bcrypt.hash("blazing147", saltRounds);
         const admin = {
@@ -47,93 +26,12 @@ class DbConnection {
           password: hash,
           accessLevel: "super-admin",
           userType: "staff",
+          name: "James Oshomah",
         };
-        const adminUser = new models.User(admin);
+        const adminUser = new dbConn.fastConn.models.User(admin);
         await adminUser.save();
         console.log("admin saved");
       }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async _connect() {
-    try {
-      let url;
-      url = `mongodb://mongo1:27017,mongo2:27018,mongo3:27019/${DB_DATABASE}`;
-      // mongodb://<HOSTNAME>:27017,<HOSTNAME>:27018,<HOSTNAME>:27019/<DBNAME>
-      if ( process.env.NODE_ENV === "production"){
-       // url = `mongodb://admin:blazing147server@mongo1:27017,mongo2:27018,mongo3:27019/${DB_DATABASE}`
-      }
-      const connection = await mongoose.connect(url, {
-        useNewUrlParser: true,
-        useFindAndModify: false,
-        useUnifiedTopology: true,
-        useCreateIndex: true,
-        keepAlive: true,
-        //authSource: "admin",
-
-        replicaSet: "rs0",
-      });
-
-      const conn = mongoose.connection;
-
-      const collectionArray = await conn.db.listCollections().toArray();
-
-      collectionArray.map((collection) => {
-        const colName = collection.name;
-        //check the index in the collection array
-        const collectionIndex = collectionNames.indexOf(colName);
-
-        if (collectionIndex === -1) {
-          switch (colName) {
-            case "rooms":
-              models.Room.createCollection();
-              break;
-            case "bedspaces":
-              models.BedSpace.createCollection();
-              break;
-            case "confirmphonenumbers":
-              models.ConfirmPhoneNumber.createCollection();
-              break;
-            case "hostels":
-              models.Hostel.createCollection();
-              break;
-            case "adminroomallocations":
-              models.AdminRoomAllocation.createCollection();
-              break;
-            case "studentbios":
-              models.StudentBio.createCollection();
-              break;
-            case "bedspaceallocations":
-              models.BedSpaceAllocation.createCollection();
-              break;
-            case "users":
-              models.User.createCollection();
-              break;
-            case "messages":
-              models.Message.createCollection();
-              break;
-            case "faculties":
-              models.Faculty.createCollection();
-              break;
-            case "transactions":
-              models.Transaction.createCollection();
-              break;
-            case "onholdbeds":
-              models.OnHoldBed.createCollection();
-              break;
-            case "sessiontables":
-              models.SessionTable.createCollection();
-              break;
-            case "departments":
-              models.Department.createCollection();
-              break;
-          }
-        }
-      });
-      console.log("connection to database successful");
-      return connection;
     } catch (error) {
       console.log(error);
     }
@@ -149,20 +47,12 @@ class DbConnection {
         await models.Department.insertMany(departments),
         await models.Faculty.insertMany(faculties),
       ]);
-
-      //stringinfy the content before saving
-      // const stringifyDepts = JSON.stringify(departments);
-      // const stringifyFac = JSON.stringify(faculties);
-
-      // await config.redisClient.setAsync("departments", stringifyDepts);
-      // await config.redisClient.setAsync("faculties", stringifyFac);
-
       console.log("departments and faculties inserted into database");
     }
   }
 
   async _uploadStudentData() {
-    const findStudent = await models.StudentBio.findOne({});
+    const findStudent = await dbConn.fastConn.models.StudentBio.findOne({});
     if (!findStudent) {
       let savedRecords = 0;
       const students = util.StudentData;
@@ -193,7 +83,7 @@ class DbConnection {
           passport,
           email,
         } = student;
-        const newStudentBio = new models.StudentBio();
+        const newStudentBio = new dbConn.fastConn.models.StudentBio();
 
         let studentEntryMode;
 
@@ -263,4 +153,4 @@ class DbConnection {
   }
 }
 
-export default new DbConnection();
+export default new InitTask();

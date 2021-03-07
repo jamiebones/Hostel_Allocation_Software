@@ -1,33 +1,24 @@
-import Message from "./message";
-import User from "./user";
-import Transaction from "./transaction";
-import StudentBio from "./studentBio";
-import SessionTable from "./sessionTable";
-import AdminRoomAllocation from "./adminRoomAllocation";
-import Room from "./room";
-import OnHoldBed from "./onHoldBed";
-import Hostel from "./hostel";
-import Faculty from "./faculty";
-import ConfirmPhoneNumber from "./confirmPhoneNumber";
-import BedSpaceAllocation from "./bedSpaceAllocation";
-import BedSpace from "./bedSpace";
-import Department from "./department";
-import LuckyCode from "./luckyCode";
 
-export default {
-  Message,
-  User,
-  Transaction,
-  StudentBio,
-  SessionTable,
-  AdminRoomAllocation,
-  Room,
-  OnHoldBed,
-  Hostel,
-  Faculty,
-  ConfirmPhoneNumber,
-  BedSpaceAllocation,
-  BedSpace,
-  Department,
-  LuckyCode,
+export default (db) => {
+  const schemas = [
+    "AdminRoomAllocation",
+    "BedSpace",
+    "BedSpaceAllocation",
+    "ConfirmPhoneNumber",
+    "Department",
+    "Faculty",
+    "Hostel",
+    "Message",
+    "OnHoldBed",
+    "Room",
+    "SessionTable",
+    "StudentBio",
+    "Transaction",
+    "User"
+  ];
+  for (const schema of schemas) {
+    const schemaInLowerForm = schema[0].toLowerCase() + schema.substr(1,schema.length)
+    db.model(schema, import (`./${schemaInLowerForm}.js`));
+  }
+  return db;
 };

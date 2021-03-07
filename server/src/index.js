@@ -3,7 +3,6 @@ import express from "express";
 import schema from "./schema";
 import resolvers from "./resolvers";
 import { ApolloServer } from "apollo-server-express";
-import models from "./models";
 import http from "http";
 import DataLoader from "dataloader";
 import loaders from "./loaders";
@@ -11,6 +10,7 @@ import init from "./modules";
 import config from "./config";
 import cron from "node-cron";
 import utils from "./utils";
+import dbConnection from "./connections";
 
 const morgan = require("morgan");
 
@@ -34,21 +34,24 @@ async function StartUp() {
     resolvers,
     context: async ({ req, connection }) => {
       const user = config.isAuth(req);
+      const { slowConn, fastConn } = dbConnection;
       if (connection) {
         console.log("connection started here please");
-        return { models, config, req, user };
+        return { slowConn, fastConn, config, req, user };
       }
 
       if (req) {
         //console.log("reg is here");
+        //slowConn and fastConn represents the database connections
         return {
           user,
-          models,
+          slowConn,
+          fastConn,
           config,
           req,
           loaders: {
             user: new DataLoader((keys) =>
-              loaders.user.batchUsers(keys, models)
+              loaders.user.batchUsers(keys, slowConn)
             ),
           },
         };
@@ -61,7 +64,9 @@ async function StartUp() {
     },
   });
 
-  await init.DBConnection;
+  await init.InitTask;
+  //create the collection models if it does not already exists
+  config.createCollection;
 
   app.use((err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
@@ -83,8 +88,9 @@ async function StartUp() {
   httpServer.listen({ port: 8000 }, () => {
     console.log("Apollo Server on http://localhost:8000/graphql");
   });
-  process.on('uncaughtException', function (err) {
+  process.on("uncaughtException", function (err) {
+    //log all uncaught exceptions
     console.log(err);
-});
-
+  });
+  
 }

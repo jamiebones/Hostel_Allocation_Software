@@ -1,9 +1,10 @@
 import date from "date-and-time";
-import models from "../models";
-const { OnHoldBed, BedSpace } = models;
+import dbConn from "../connections";
+
 
 export default async () => {
   try {
+    const { OnHoldBed, BedSpace } = dbConn.slowConn.models
     const now = new Date();
     let oneDayAgo = date.addHours(now, -24);
 

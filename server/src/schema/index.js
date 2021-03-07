@@ -14,7 +14,6 @@ import facultySchema from "./faculty";
 import bedSpaceAllocationSchema from "./bedSpaceAllocation";
 import bedSpaceSchema from "./bedSpace";
 import departmentSchema from "./department";
-import luckyCodeSchema from "./luckyCode";
 import adminAllocationSchema from "./adminRoomAllocation"
 const linkSchema = gql`
   scalar Date
@@ -47,6 +46,5 @@ export default [
   bedSpaceAllocationSchema,
   bedSpaceSchema,
   departmentSchema,
-  luckyCodeSchema,
   adminAllocationSchema
 ];
