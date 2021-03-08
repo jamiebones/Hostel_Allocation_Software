@@ -6,11 +6,12 @@ import { ApolloServer } from "apollo-server-express";
 import http from "http";
 import DataLoader from "dataloader";
 import loaders from "./loaders";
-import init from "./modules";
+import initTask from "./modules/init";
 import config from "./config";
 import cron from "node-cron";
 import utils from "./utils";
-import dbConnection from "./connections";
+import fastConnection from "./connections/fast";
+import slowConnection from "./connections/slow";
 
 const morgan = require("morgan");
 
@@ -19,10 +20,11 @@ StartUp();
 async function StartUp() {
   const app = express();
   app.use(cors());
-
+  const fastConn = await fastConnection();
+  const slowConn = await slowConnection();
   cron.schedule("*/10 * * * *", async function () {
-    await utils.RemoveOnHoldBed();
-    console.log("running a task every ten minute");
+    await utils.RemoveOnHoldBed(slowConn);
+    console.log("running a task every ten minute.");
   });
 
   if (process.env.NODE_ENV === "production") {
@@ -34,7 +36,7 @@ async function StartUp() {
     resolvers,
     context: async ({ req, connection }) => {
       const user = config.isAuth(req);
-      const { slowConn, fastConn } = dbConnection;
+      //const { models } = slowConn;
       if (connection) {
         console.log("connection started here please");
         return { slowConn, fastConn, config, req, user };
@@ -51,7 +53,7 @@ async function StartUp() {
           req,
           loaders: {
             user: new DataLoader((keys) =>
-              loaders.user.batchUsers(keys, slowConn)
+              loaders.user.batchUsers(keys, models)
             ),
           },
         };
@@ -64,9 +66,9 @@ async function StartUp() {
     },
   });
 
-  await init.InitTask;
+  await initTask(fastConn);
   //create the collection models if it does not already exists
-  config.createCollection;
+  await config.createCollection(fastConn);
 
   app.use((err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
@@ -86,11 +88,10 @@ async function StartUp() {
   server.installSubscriptionHandlers(httpServer);
 
   httpServer.listen({ port: 8000 }, () => {
-    console.log("Apollo Server on http://localhost:8000/graphql");
+    console.log("Apollo Server running on http://localhost:8000/graphql");
   });
   process.on("uncaughtException", function (err) {
     //log all uncaught exceptions
-    console.log(err);
+    console.log("error from uncaught exception", err);
   });
-  
 }

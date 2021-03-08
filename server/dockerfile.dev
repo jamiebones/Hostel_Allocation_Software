@@ -1,0 +1,11 @@
+#FROM node:12.18.3-alpine
+FROM node:12.20.1-stretch-slim
+
+WORKDIR /usr/app
+
+COPY ./package.json .
+RUN npm install
+
+COPY . .
+
+CMD [ "npm", "run", "dev" ]

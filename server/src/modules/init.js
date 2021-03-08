@@ -1,19 +1,24 @@
-import dbConn from "../connections";
 import bcrypt from "bcrypt";
 import util from "../utils";
 let saltRounds = 10;
 
+const Initialization = async (conn) => {
+  new InitTask(conn);
+};
+
+export default Initialization;
 
 class InitTask {
-  constructor() {
-    this._createAdmin();
-    this._createDepartmentsAndFaculties();
-    this._uploadStudentData()
+  constructor(conn) {
+    this._createAdmin(conn);
+    this._createDepartmentsAndFaculties(conn);
+    this._uploadStudentData(conn);
   }
 
-  async _createAdmin() {
+  async _createAdmin(conn) {
     try {
-      const findAdmin = await dbConn.fastConn.models.User.findOne({
+      const { models } = conn;
+      const findAdmin = await models.User.findOne({
         email: "jamiebones147@gmail.com",
       });
 
@@ -28,7 +33,7 @@ class InitTask {
           userType: "staff",
           name: "James Oshomah",
         };
-        const adminUser = new dbConn.fastConn.models.User(admin);
+        const adminUser = new models.User(admin);
         await adminUser.save();
         console.log("admin saved");
       }
@@ -37,7 +42,8 @@ class InitTask {
     }
   }
 
-  async _createDepartmentsAndFaculties() {
+  async _createDepartmentsAndFaculties(conn) {
+    const { models } = conn;
     const findDept = await models.Department.findOne({});
     const findFaculty = await models.Faculty.findOne({});
     if (!findDept && !findFaculty) {
@@ -51,8 +57,9 @@ class InitTask {
     }
   }
 
-  async _uploadStudentData() {
-    const findStudent = await dbConn.fastConn.models.StudentBio.findOne({});
+  async _uploadStudentData(conn) {
+    const { models } = conn;
+    const findStudent = await models.StudentBio.findOne({});
     if (!findStudent) {
       let savedRecords = 0;
       const students = util.StudentData;
@@ -83,7 +90,7 @@ class InitTask {
           passport,
           email,
         } = student;
-        const newStudentBio = new dbConn.fastConn.models.StudentBio();
+        const newStudentBio = new models.StudentBio();
 
         let studentEntryMode;
 
@@ -147,10 +154,9 @@ class InitTask {
         newStudentBio.profileImage = passport;
         newStudentBio.save();
         savedRecords++;
+      
       });
       console.log("records saved", savedRecords);
     }
   }
 }
-
-export default new InitTask();
