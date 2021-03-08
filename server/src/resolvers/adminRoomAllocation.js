@@ -1,7 +1,7 @@
 export default {
   Query: {
-    adminAllocationBySession: async (parent, { session }, { models }) => {
-      const roomDashedByAdmin = await models.AdminRoomAllocation.find({
+    adminAllocationBySession: async (parent, { session }, { fastConn, slowConn }) => {
+      const roomDashedByAdmin = await fastConn.models.AdminRoomAllocation.find({
         session: session,
       });
       return roomDashedByAdmin;
@@ -9,8 +9,8 @@ export default {
   },
 
   AdminRoomAllocation: {
-    student: async (parent, {}, { models }) => {
-      const student = await models.StudentBio.findOne({
+    student: async (parent, {}, { fastConn, slowConn }) => {
+      const student = await fastConn.models.StudentBio.findOne({
         regNumber: parent.regNumber.toLowerCase(),
       });
       return student;

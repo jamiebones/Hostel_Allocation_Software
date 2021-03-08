@@ -4,8 +4,8 @@ const { runInTransaction } = require("mongoose-transact-utils");
 
 export default {
   Query: {
-    studentData: async (_, { regNumber }, { models }) => {
-      const student = await models.StudentBio.findOne({
+    studentData: async (_, { regNumber }, { fastConn, slowConn }) => {
+      const student = await fastConn.models.StudentBio.findOne({
         regNumber: regNumber.toLowerCase(),
       });
       if (!student) {
@@ -13,13 +13,13 @@ export default {
       }
       return student;
     },
-    contactUniuyoPortal: async (_, args, { models }) => {
+    contactUniuyoPortal: async (_, args, { fastConn }) => {
       const { regNumber } = args;
       //if (process.env.NODE_ENV === "development") {
       //code to run during development
 
       //check if student is already registered
-      const student = await models.StudentBio.findOne({
+      const student = await fastConn.models.StudentBio.findOne({
         regNumber: { $regex: regNumber.toLowerCase(), $options: "i" },
       });
 
@@ -34,7 +34,7 @@ export default {
   },
 
   Mutation: {
-    createStudentAccount: async (parents, args, { req, models, config }) => {
+    createStudentAccount: async (parents, args, { req, fastConn, slowConn, config }) => {
       const {
         input: {
           regNumber,
@@ -71,9 +71,9 @@ export default {
         try {
           const studentData = await methods.studentBioMethod.createStudentAccount(
             { ...newStudent, password },
-            models,
+            fastConn,
             session,
-            config
+           
           );
           return studentData;
         } catch (err) {

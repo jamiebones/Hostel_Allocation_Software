@@ -2,30 +2,33 @@ import util from "../utils";
 
 export default {
   Query: {
-    getAllHalls: async (parent, args, { models }) => {
-      const halls = await models.Hostel.find({}).sort([
+    getAllHalls: async (parent, args, { fastConn, slowConn }) => {
+      const halls = await fastConn.models.Hostel.find({}).sort([
         ["location", 1],
         ["type", 1],
       ]);
       return halls;
     },
 
-    getOneHall: async (parent, { hallId }, { models }) => {
-      const halls = await models.Hostel.findOne({ _id: hallId });
+    getOneHall: async (parent, { hallId }, { fastConn, slowConn }) => {
+      const halls = await fastConn.models.Hostel.findOne({ _id: hallId });
       return halls;
     },
 
     getHallByLocationAndType: async (
       parent,
       { hallType, location },
-      { models }
+      { fastConn, slowConn }
     ) => {
-      const halls = await models.Hostel.find({ type: hallType, location });
+      const halls = await fastConn.models.Hostel.find({
+        type: hallType,
+        location,
+      });
       return halls;
     },
 
-    hallByType: async (parent, { type }, { models }) => {
-      const hall = await models.Hostel.find({ type: type });
+    hallByType: async (parent, { type }, { fastConn, slowConn }) => {
+      const hall = await fastConn.models.Hostel.find({ type: type });
       return hall;
     },
   },
@@ -41,7 +44,7 @@ export default {
         occupiedByLevel,
         occupiedBy,
       },
-      { models }
+      { fastConn, slowConn }
     ) => {
       try {
         const hallObject = {
@@ -59,7 +62,7 @@ export default {
             occupiedByLevel
           );
         }
-        const newHall = new models.Hostel(hallObject);
+        const newHall = new fastConn.models.Hostel(hallObject);
 
         await newHall.save();
         return newHall;
@@ -68,9 +71,12 @@ export default {
         throw error;
       }
     },
-    updateHostelFee: async (parent, { hallId, fees }, { models }) => {
+    updateHostelFee: async (parent, { hallId, fees }, { fastConn }) => {
       try {
-        await models.Hostel.updateOne({ _id: hallId, hostelFee: fees });
+        await fastConn.models.Hostel.updateOne({
+          _id: hallId,
+          hostelFee: fees,
+        });
         return true;
       } catch (error) {
         console.log(error);
@@ -79,9 +85,9 @@ export default {
     },
   },
   Hostel: {
-    rooms: async(hostel, {}, {models}) => {
-      const rooms = await models.Room.find({hallId: hostel._id});
+    rooms: async (hostel, {}, { fastConn }) => {
+      const rooms = await fastConn.models.Room.find({ hallId: hostel._id });
       return rooms;
-    }
-  }
+    },
+  },
 };

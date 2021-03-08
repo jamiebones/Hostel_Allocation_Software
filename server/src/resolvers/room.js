@@ -1,17 +1,17 @@
 export default {
   Query: {
-    getAllRooms: async (parent, args, { models }) => {
-      const rooms = await models.Room.find({});
+    getAllRooms: async (parent, args, { fastConn, slowConn }) => {
+      const rooms = await fastConn.models.Room.find({});
       return rooms;
     },
 
-    getOneRoom: async (parent, { roomId }, { models }) => {
-      const room = await models.Room.findOne({ _id: roomId });
+    getOneRoom: async (parent, { roomId }, { fastConn, slowConn }) => {
+      const room = await fastConn.models.Room.findOne({ _id: roomId });
       return room;
     },
 
-    roomsInHall: async (parent, { hallId }, { models }) => {
-      const rooms = await models.Room.find({ hallId: hallId });
+    roomsInHall: async (parent, { hallId }, { fastConn, slowConn }) => {
+      const rooms = await fastConn.models.Room.find({ hallId: hallId });
       return rooms;
     },
   },
@@ -30,12 +30,12 @@ export default {
           singleBed,
         },
       },
-      { models }
+      { fastConn, slowConn }
     ) => {
       try {
         const midPoint = +totalBedSpace / 2;
         //check if we have a valid hall here
-        const hall = await models.Hostel.findById(hallId);
+        const hall = await fastConn.models.Hostel.findById(hallId);
         if (!hall) {
           //throw error and exit
           throw new Error(
@@ -43,7 +43,7 @@ export default {
           );
         }
         //check if we have already created the room before
-        const room = await models.Room.findOne({
+        const room = await fastConn.models.Room.findOne({
           hallId: hallId,
           roomNumber: roomNumber.toLowerCase(),
         });
@@ -63,7 +63,7 @@ export default {
           ? (bedStatusType = "special")
           : (bedStatusType = "normal");
 
-        const newRoom = new models.Room({
+        const newRoom = new fastConn.models.Room({
           roomNumber,
           totalBedSpace,
           hallName,
@@ -80,7 +80,7 @@ export default {
               bedStatus: "locked",
             };
 
-            const downBed = new models.BedSpace({
+            const downBed = new fastConn.models.BedSpace({
               roomNumber,
               roomId,
               hallName,
@@ -102,7 +102,7 @@ export default {
               bedStatus: "locked",
             };
 
-            const upBed = new models.BedSpace({
+            const upBed = new fastConn.models.BedSpace({
               roomNumber,
               roomId,
               hallName,
@@ -121,7 +121,7 @@ export default {
               bedStatus: "locked",
             };
 
-            const downBed = new models.BedSpace({
+            const downBed = new fastConn.models.BedSpace({
               roomNumber,
               roomId,
               hallName,
@@ -144,21 +144,21 @@ export default {
       }
     },
 
-    lockAllBedsInRoom: async (parent, { roomId }, { models }) => {
+    lockAllBedsInRoom: async (parent, { roomId }, { fastConn, slowConn }) => {
       const update = { bedStatus: "locked" };
 
-      await models.BedSpace.updateMany({ roomId: roomId }, update);
+      await slowConn.models.BedSpace.updateMany({ roomId: roomId }, update);
 
       return true;
     },
   },
   Room: {
-    hall: async (room, {}, { models }) => {
-      const hostel = await models.Hostel.findById(room.hallId);
+    hall: async (room, {}, { fastConn, slowConn }) => {
+      const hostel = await fastConn.models.Hostel.findById(room.hallId);
       return hostel;
     },
-    beds: async (room, {}, { models }) => {
-      const beds = await models.BedSpace.find({ roomId: room.id });
+    beds: async (room, {}, { fastConn, slowConn }) => {
+      const beds = await fastConn.models.BedSpace.find({ roomId: room.id });
       return beds;
     },
   },

@@ -20,5 +20,6 @@ export default gql`
     accessLevel: String
     regNumber: String
     token: String
+    name: String
   }
 `;

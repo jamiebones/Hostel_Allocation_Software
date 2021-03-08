@@ -1,7 +1,7 @@
 export default {
   Query: {
-    getAllBedAllocationBySession: async (parent, { session }, { models }) => {
-      const allocations = await models.BedSpaceAllocation.find({
+    getAllBedAllocationBySession: async (parent, { session }, { fastConn, slowConn }) => {
+      const allocations = await fastConn.models.BedSpaceAllocation.find({
         session: session,
       });
       return allocations;
@@ -9,9 +9,9 @@ export default {
     getAllBedAllocationByHall: async (
       parent,
       { session, hallId },
-      { models }
+      { fastConn, slowConn }
     ) => {
-      const allocations = await models.BedSpaceAllocation.find({
+      const allocations = await fastConn.models.BedSpaceAllocation.find({
         session: session,
         hallId: hallId,
       });
@@ -20,9 +20,9 @@ export default {
     getAllBedAllocationByRoom: async (
       parent,
       { session, roomId },
-      { models }
+      { fastConn, slowConn }
     ) => {
-      const allocations = await models.BedSpaceAllocation.find({
+      const allocations = await fastConn.models.BedSpaceAllocation.find({
         session: session,
         roomId: roomId,
       });
@@ -31,9 +31,9 @@ export default {
     getAllConfirmedBedAllocationByRoom: async (
       parent,
       { session, roomId },
-      { models }
+      { fastConn, slowConn }
     ) => {
-      const allocations = await models.BedSpaceAllocation.find({
+      const allocations = await slowConn.models.BedSpaceAllocation.find({
         session: session,
         roomId: roomId,
         studentConfirmed: true,
@@ -41,8 +41,8 @@ export default {
       return allocations;
     },
 
-    getAllocationToStudent: async (_, { regNumber, session }, { models }) => {
-      const allocation = await models.BedSpaceAllocation.findOne({
+    getAllocationToStudent: async (_, { regNumber, session }, { fastConn, slowConn }) => {
+      const allocation = await fastConn.models.BedSpaceAllocation.findOne({
         session: session,
         regNumber: regNumber.toLowerCase(),
       });
@@ -52,8 +52,8 @@ export default {
   },
 
   Mutation: {
-    confirmStudent: async (_, { regNumber, session }, { models }) => {
-      const studentAllocation = await models.BedSpaceAllocation.findOne({
+    confirmStudent: async (_, { regNumber, session }, { fastConn, slowConn }) => {
+      const studentAllocation = await fastConn.models.BedSpaceAllocation.findOne({
         regNumber: regNumber.toLowerCase(),
         session: session,
       });
@@ -63,14 +63,14 @@ export default {
     },
   },
   BedSpaceAllocation: {
-    student: async (parent, {}, { models }) => {
-      const student = await models.StudentBio.findOne({
+    student: async (parent, {}, { fastConn, slowConn }) => {
+      const student = await fastConn.models.StudentBio.findOne({
         regNumber: parent.regNumber,
       });
       return student;
     },
-    room: async (parent, {}, { models }) => {
-      const room = await models.Room.findOne({
+    room: async (parent, {}, { fastConn, slowConn }) => {
+      const room = await fastConn.models.Room.findOne({
         _id: parent.roomId,
       });
       return room;

@@ -2,8 +2,8 @@
 
 export default {
     Query: {
-        allFaculties: async(_, {}, {models})=> {
-            const faculties = await models.Faculty.find();
+        allFaculties: async(_, {}, { fastConn })=> {
+            const faculties = await fastConn.models.Faculty.find();
             return faculties;
         }
     }

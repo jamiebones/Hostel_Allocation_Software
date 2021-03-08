@@ -1,16 +1,16 @@
 export default {
   Query: {
-    getDepartments: async (parent, {}, { models }) => {
-      const depts = await models.Department.find({});
+    getDepartments: async (parent, {}, { fastConn, slowConn }) => {
+      const depts = await fastConn.models.Department.find({});
       return depts;
     },
-    getDepartmentInFaculty: async (parent, { faculty }, { models }) => {
-      const depts = await models.Department.find({ faculty: faculty });
+    getDepartmentInFaculty: async (parent, { faculty }, { fastConn, slowConn }) => {
+      const depts = await fastConn.models.Department.find({ faculty: faculty });
       return depts;
     },
 
-    oneDepartment: async (parent, { deptId }, { models }) => {
-      const dept = await models.Department.findOne({ _id: deptId });
+    oneDepartment: async (parent, { deptId }, { fastConn, slowConn}) => {
+      const dept = await fastConn.models.Department.findOne({ _id: deptId });
       return dept;
     },
   },
@@ -19,9 +19,9 @@ export default {
     createDepartment: async (
       parent,
       { faculty, department, programDuration },
-      { models }
+      { fastConn, slowConn }
     ) => {
-      const newDept = new models.Department({
+      const newDept = new fastConn.models.Department({
         faculty,
         department,
         programDuration,

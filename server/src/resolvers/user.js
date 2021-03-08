@@ -2,11 +2,11 @@ import methods from "../methods";
 
 export default {
   Query: {
-    users: async (parent, args, { models }) => {
-      return await models.User.find();
+    users: async (parent, args, { fastConn, }) => {
+      return await fastConn.models.User.find();
     },
-    user: async (parent, { id }, { models }) => {
-      return await models.User.findOne(id);
+    user: async (parent, { id }, { fastConn }) => {
+      return await fastConn.models.User.findOne(id);
     },
     me: (parent, args, { me }) => {
       return me;
@@ -14,7 +14,7 @@ export default {
     loginUser: async (
       parent,
       { regNumber, password, email },
-      { models, config }
+      { fastConn, config }
     ) => {
       const userDetails = {
         regNumber,
@@ -22,7 +22,7 @@ export default {
         email,
       };
       const user = await methods.userMethod.loginUser(userDetails, {
-        models,
+        fastConn,
         config,
       });
 
@@ -30,8 +30,8 @@ export default {
     },
   },
   Mutation: {
-    createUser: async (user, { username }, { models }) => {
-      const newUser = new models.User({
+    createUser: async (user, { username }, { fastConn }) => {
+      const newUser = new fastConn.models.User({
         username,
       });
       await newUser.save();

@@ -2,17 +2,17 @@ import methods from "../methods";
 
 export default {
   Query: {
-    studentTransaction: async (parent, { regNumber }, { models }) => {
+    studentTransaction: async (parent, { regNumber }, { fastConn, slowConn}) => {
       const regToLower = regNumber.toLowerCase();
-      const studentTransaction = await models.Transaction.find({
+      const studentTransaction = await fastConn.models.Transaction.find({
         regNumber: regToLower,
         rrr: { $exists: true, $ne: null },
       }).sort([["session", 1]]);
       return studentTransaction;
     },
 
-    getTransactionWithRRR: async (parent, { rrr }, { models }) => {
-      const studentTransaction = await models.Transaction.findOne({
+    getTransactionWithRRR: async (parent, { rrr }, { fastConn, slowConn }) => {
+      const studentTransaction = await fastConn.models.Transaction.findOne({
         rrr,
         successful: true,
       });
@@ -22,19 +22,20 @@ export default {
     successfultransactions: async (
       parent,
       { session, successful },
-      { models }
+      { fastConn, slowConn }
     ) => {
-      const transactionsThatSucceded = await models.Transaction.find({
+      const transactionsThatSucceded = await fastConn.models.Transaction.find({
         session,
         successful: successful,
       });
       return transactionsThatSucceded;
     },
 
-    confirmTransactionUsingRRR: async (parent, { orderID, RRR }, {}) => {
+    confirmTransactionUsingRRR: async (parent, { orderID, RRR }, { fastConn }) => {
       const transactionStatus = await methods.transactionMethod.confirmRemitaTransaction(
         orderID,
-        RRR
+        RRR,
+        fastConn
       );
       return transactionStatus;
     },

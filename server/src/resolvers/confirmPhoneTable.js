@@ -2,9 +2,9 @@ import methods from "../methods";
 
 export default {
   Query: {
-    confirmIfPhone: async (parent, { regNumber }, { models }) => {
+    confirmIfPhone: async (parent, { regNumber }, { fastConn, slowConn }) => {
       const regNumberToLower = regNumber && regNumber.toLowerCase();
-      const phoneConfirmed = await models.ConfirmPhoneNumber.findOne({
+      const phoneConfirmed = await fastConn.models.ConfirmPhoneNumber.findOne({
         regNumber: regNumberToLower,
         confirmStatus: true,
       });
@@ -18,13 +18,15 @@ export default {
     checkPhoneEnteredMoreThanThreeTimes: async (
       parent,
       { regNumber },
-      { models }
+      { fastConn, slowConn }
     ) => {
       const regNumberToLower = regNumber && regNumber.toLowerCase();
-      const timesEntered = await models.ConfirmPhoneNumber.countDocuments({
-        regNumber: regNumberToLower,
-        confirmStatus: false,
-      }).exec();
+      const timesEntered = await slowConn.models.ConfirmPhoneNumber.countDocuments(
+        {
+          regNumber: regNumberToLower,
+          confirmStatus: false,
+        }
+      ).exec();
       return timesEntered.toString();
     },
   },
@@ -32,11 +34,11 @@ export default {
     phoneConfirmation: async (
       parent,
       { regNumber, phoneNumber },
-      { models }
+      { fastConn, slowConn }
     ) => {
       try {
         //check if phone number has been registered before
-        const findPhone = await models.ConfirmPhoneNumber.findOne({
+        const findPhone = await fastConn.models.ConfirmPhoneNumber.findOne({
           phoneNumber: phoneNumber,
           confirmStatus: true,
         });
@@ -50,26 +52,31 @@ export default {
 
         //check if the person have more than three false confirmation
         const regNumberToLower = regNumber && regNumber.toLowerCase();
-        const timesEntered = await models.ConfirmPhoneNumber.countDocuments({
-          regNumber: regNumberToLower,
-          confirmStatus: false,
-        }).exec();
+        const timesEntered = await slowConn.models.ConfirmPhoneNumber.countDocuments(
+          {
+            regNumber: regNumberToLower,
+            confirmStatus: false,
+          }
+        ).exec();
         if (timesEntered == 3) {
           throw new Error(
             `you have reached the maximum phone number confirmation. Please contact the Student Affairs to have your phone number confirmed before proceeding further. Thank you`
           );
         }
 
-        const data = await methods.confirmPhoneMethod.confirmPhoneNumber(obj);
+        const data = await methods.confirmPhoneMethod.confirmPhoneNumber(
+          obj,
+          fastConn
+        );
         return data;
       } catch (error) {
         console.log(error);
         throw error;
       }
     },
-    confirmCode: async (parent, { regNumber, code }, { models }) => {
+    confirmCode: async (parent, { regNumber, code }, {fastConn, slowConn }) => {
       try {
-        const findCode = await models.ConfirmPhoneNumber.findOne({
+        const findCode = await fastConn.models.ConfirmPhoneNumber.findOne({
           randomCode: { $regex: code, $options: "i" },
           regNumber: { $regex: regNumber, $options: "i" },
           confirmStatus: false,
@@ -78,10 +85,10 @@ export default {
         if (findCode) {
           //lets update it here
           findCode.confirmStatus = true;
-          const phoneNumber = findCode.phoneNumber
+          const phoneNumber = findCode.phoneNumber;
           const [data] = await Promise.all([
             findCode.save(),
-            models.StudentBio.updateOne(
+            fastConn.models.StudentBio.updateOne(
               { regNumber: { $regex: regNumber, $options: "i" } },
               { $set: { phoneNumber: phoneNumber } }
             ),

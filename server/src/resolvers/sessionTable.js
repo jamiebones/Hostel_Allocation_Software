@@ -2,22 +2,24 @@ const { runInTransaction } = require("mongoose-transact-utils");
 
 export default {
   Query: {
-    getSessionById: async (parent, { sessionId }, { models }) => {
-      const sessionData = await models.SessionTable.findOne({
+    getSessionById: async (parent, { sessionId }, { fastConn, slowConn }) => {
+      const sessionData = await fastConn.models.SessionTable.findOne({
         _id: sessionId,
       });
       return sessionData;
     },
-    allSessions: async (parent, {}, { models }) => {
-      const session = await models.SessionTable.find().sort({ session: -1 });
+    allSessions: async (parent, {}, { fastConn, slowConn }) => {
+      const session = await fastConn.models.SessionTable.find().sort({
+        session: -1,
+      });
       return session;
     },
   },
 
   Mutation: {
-    createSession: async (_, { input }, { models }) => {
+    createSession: async (_, { input }, { fastConn, slowConn }) => {
       const { session, facultyAllocation, levelAllocation, active } = input;
-      const newSession = new models.SessionTable({
+      const newSession = new fastConn.models.SessionTable({
         session,
         facultyAllocation,
         levelAllocation,
@@ -26,7 +28,9 @@ export default {
       try {
         //loop through the faculty allocation array
         //check if we already have a session created
-        const findSession = await models.SessionTable.findOne({ session });
+        const findSession = await fastConn.models.SessionTable.findOne({
+          session,
+        });
         if (findSession) {
           throw new Error(
             `${session} session is saved already in the database.`
@@ -58,12 +62,16 @@ export default {
         throw error;
       }
     },
-    updateSession: async (_, { input, sessionId }, { models, config }) => {
+    updateSession: async (
+      _,
+      { input, sessionId },
+      { fastConn, slowConn, config }
+    ) => {
       const { facultyAllocation, levelAllocation } = input;
 
       try {
         //loop through the faculty allocation array
-        const sessionToUpdate = await models.SessionTable.findOne({
+        const sessionToUpdate = await fastConn.models.SessionTable.findOne({
           _id: sessionId,
         });
         const prevFacAllocation = sessionToUpdate.facultyAllocation;
@@ -97,7 +105,9 @@ export default {
             $count: "total",
           },
         ];
-        const vacantBedsArray = await models.BedSpace.aggregate(pipeline);
+        const vacantBedsArray = await slowConn.models.BedSpace.aggregate(
+          pipeline
+        );
         const total = vacantBedsArray[0].total;
         //loop and update everything
         const facultyArray = [];
@@ -112,7 +122,7 @@ export default {
               ele.facultyName.toLowerCase() ===
               faculty.facultyName.toLowerCase()
           );
-          if ( findPrevFacAllocation){
+          if (findPrevFacAllocation) {
             faculty.totalOccupied = findPrevFacAllocation.totalOccupied;
           }
           facultyArray.push(faculty);
@@ -122,19 +132,15 @@ export default {
           const percentAllocation = (level.percentAllocation * +total) / 100;
           level.totalAllocation = Math.floor(percentAllocation);
           const findPrevLevelAllocation = prevLevelAllocation.find(
-            (ele) =>
-              ele.level.toLowerCase() ===
-              level.level.toLowerCase()
+            (ele) => ele.level.toLowerCase() === level.level.toLowerCase()
           );
-          if ( findPrevLevelAllocation ){
+          if (findPrevLevelAllocation) {
             level.totalOccupied = findPrevLevelAllocation.totalOccupied;
           }
           levelArray.push(level);
         });
         sessionToUpdate.facultyAllocation = facultyArray;
         sessionToUpdate.levelAllocation = levelArray;
-        const sessionData = JSON.stringify(sessionToUpdate);
-        await config.redisClient.setAsync("activeSession", sessionData);
         await sessionToUpdate.save();
         //save active session here in redis
 
@@ -144,12 +150,16 @@ export default {
         throw error;
       }
     },
-    activateSession: async (_, { sessionId }, { models, config }) => {
+    activateSession: async (
+      _,
+      { sessionId },
+      { fastConn, slowConn, config }
+    ) => {
       //loop through the faculty allocation array
       //check if any session is active first. only one session can be active at a time
       return await runInTransaction(async (session) => {
         try {
-          const findActiveSession = await models.SessionTable.findOne({
+          const findActiveSession = await fastConn.models.SessionTable.findOne({
             active: true,
           }).session(session);
           if (findActiveSession) {
@@ -157,7 +167,7 @@ export default {
               `${findActiveSession.session} is already active. Only one session can be active at a time`
             );
           }
-          const sessionTable = await models.SessionTable.findOne({
+          const sessionTable = await fastConn.models.SessionTable.findOne({
             _id: sessionId,
           }).session(session);
           const pipeline = [
@@ -170,7 +180,7 @@ export default {
               $count: "total",
             },
           ];
-          const vacantBedsArray = await models.BedSpace.aggregate(
+          const vacantBedsArray = await slowConn.models.BedSpace.aggregate(
             pipeline
           ).session(session);
           const total = vacantBedsArray[0].total;
@@ -200,8 +210,6 @@ export default {
           sessionTable.levelAllocation = levelArray;
           sessionTable.active = true;
           await sessionTable.save({ session: session });
-          const sessionData = JSON.stringify(sessionTable);
-          await config.redisClient.setAsync("activeSession", sessionData);
           return true;
         } catch (err) {
           console.log(err);
@@ -209,14 +217,14 @@ export default {
         }
       });
     },
-    deactivateSession: async (_, { sessionId }, { models, config }) => {
+    deactivateSession: async (_, { sessionId }, { fastConn }) => {
       try {
         //loop through the faculty allocation array
-        await models.SessionTable.updateOne(
+        await fastConn.models.SessionTable.updateOne(
           { _id: sessionId },
           { active: false }
         );
-        await config.redisClient.delAsync("activeSession");
+
         return true;
       } catch (error) {
         console.log(error);
