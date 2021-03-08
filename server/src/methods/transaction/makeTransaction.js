@@ -14,25 +14,26 @@ import {
 var _ = require('lodash');
 
 
-export default async function makeTransaction(regNumber) {
+export default async function makeTransaction(regNumber, conn) {
   return await runInTransaction(async (transactionSession) => {
     try {
-      const activeSession = await getActiveSession();
-      const student = await getStudentData(regNumber);
+      const activeSession = await getActiveSession(conn);
+      const student = await getStudentData(regNumber, conn);
 
       if (!student) throw new Error("Student data not found");
 
-      const bed = await getReservedBedSpace(regNumber, activeSession.session);
+      const bed = await getReservedBedSpace(regNumber, activeSession.session, conn);
 
       if (bed) {
         //save new transaction here
-        const bedDetails = await getReservedBedDetails(bed.bedId);
+        const bedDetails = await getReservedBedDetails(bed.bedId, conn);
         //check if there is already a transaction
 
         const transaction = await checkTransactionAlreadyWithRRR(
           regNumber,
           activeSession.session,
-          transactionSession
+          transactionSession,
+          conn
         );
 
         if (!_.isEmpty(transaction)) {
@@ -43,7 +44,8 @@ export default async function makeTransaction(regNumber) {
           student,
           activeSession.session,
           bedDetails,
-          transactionSession
+          transactionSession,
+          conn
         );
 
         return newTransaction;

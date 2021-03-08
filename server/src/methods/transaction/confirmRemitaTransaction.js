@@ -15,7 +15,7 @@ const {
   incrementRoomStats,
 } = bedSpaceMethod.common;
 
-export default async function confirmTransaction(orderId, RRR) {
+export default async function confirmTransaction(orderId, RRR, conn ) {
   return await runInTransaction(async (transactionSession) => {
     try {
       const { MerchantId, Api_Key, CheckStatusUrl } = process.env;
@@ -28,7 +28,8 @@ export default async function confirmTransaction(orderId, RRR) {
 
       const transactionFunct = await findTransaction(
         orderId,
-        transactionSession
+        transactionSession,
+        conn
       );
       const transaction = transactionFunct();
 
@@ -48,7 +49,8 @@ export default async function confirmTransaction(orderId, RRR) {
           const checkAllocation = await confirmSpaceOnHoldThatSession(
             regNumber,
             session,
-            transactionSession
+            transactionSession,
+            conn
           );
 
           //homie already has a space
@@ -61,8 +63,8 @@ export default async function confirmTransaction(orderId, RRR) {
           //we can update the transaction here
 
           const [student] = await Promise.all([
-            addUserToAllocatedBedSpace(transaction, transactionSession),
-            markRoomAsOccupied(bedId, transactionSession),
+            addUserToAllocatedBedSpace(transaction, transactionSession, conn),
+            markRoomAsOccupied(bedId, transactionSession, conn),
           ]);
 
           transaction.successful = true;
@@ -73,6 +75,7 @@ export default async function confirmTransaction(orderId, RRR) {
           let checkForSpace = await checkAvailableSpace({
             level: levelType,
             faculty: faculty,
+            conn
           });
 
           const { levelData, facultyData, sessionData } = checkForSpace();
@@ -83,6 +86,7 @@ export default async function confirmTransaction(orderId, RRR) {
             facultyData,
             sessionData,
             session: transactionSession,
+            conn
           });
 
           return { message, status };

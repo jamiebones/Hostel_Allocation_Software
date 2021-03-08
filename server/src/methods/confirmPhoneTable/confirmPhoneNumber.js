@@ -15,7 +15,7 @@ const _setCode = () => {
   return id + text;
 };
 
-export default async ({ number, regNumber }) => {
+export default async ({ number, regNumber, conn }) => {
   const code = _setCode();
   const from = "Uniuyo Hostel Portal";
   const to = number;
@@ -41,7 +41,7 @@ export default async ({ number, regNumber }) => {
       timeSaved: Date.now(),
       phoneNumber: number,
     };
-    const newConfirmTable = new models.ConfirmPhoneNumber(phoneCodeObject);
+    const newConfirmTable = new conn.models.ConfirmPhoneNumber(phoneCodeObject);
     await newConfirmTable.save();
     return newConfirmTable;
   } catch (error) {

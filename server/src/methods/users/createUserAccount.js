@@ -1,23 +1,23 @@
 import bcrypt from "bcrypt";
-import models from "../../models"
 const saltRounds = 10;
 
-export default async (accountDetails) => {
+export default async (accountDetails, conn) => {
   try {
-    const { email, password, accessLevel } = accountDetails;
+    const { email, password, accessLevel, name } = accountDetails;
 
     //we have a staff
-    const staff = await models.User.findOne({ email: email.toLowerCase() });
+    const staff = await conn.models.User.findOne({ email: email.toLowerCase() });
     if (staff) {
       throw `There is an account already registered with ${email}`;
     }
     //lets continue
     const hash = await bcrypt.hash(password, saltRounds);
-    const newUser = new User({
+    const newUser = new conn.models.User({
       email: email.toLowerCase(),
       password: hash,
       accessLevel,
       userType: "staff",
+      name: name
     });
     newUser.save();
     return newUser;

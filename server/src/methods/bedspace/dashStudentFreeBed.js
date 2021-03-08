@@ -9,12 +9,15 @@ export default async function placeStudentInBedSpace(
   regNumber,
   bedId,
   user,
-  models
+  conn
 ) {
   return await runInTransaction(async (session) => {
     try {
       //confirm if the person is a valid student
-      const student = await studentBioMethod.confirmStudentShip(regNumber);
+      const student = await studentBioMethod.confirmStudentShip(
+        regNumber,
+        conn
+      );
       if (!student)
         throw new Error(
           `Can not find student records with the given reg number : ${regNumber}`
@@ -23,7 +26,8 @@ export default async function placeStudentInBedSpace(
       //update the student level here
       const updatedStudent = await studentBioMethod.updateStudentLevel(
         student,
-        session
+        session,
+        conn
       );
       if (!updatedStudent) {
         throw new Error(
@@ -39,9 +43,10 @@ export default async function placeStudentInBedSpace(
         checkIfSpaceAlreadyAllocatedToStudentThatSession(
           regNumber,
           currentSession,
-          session
+          session,
+          conn
         ),
-        checkIfSpaceIsOnHold(regNumber, currentSession, session),
+        checkIfSpaceIsOnHold(regNumber, currentSession, session, conn),
       ]);
 
       //mark the bed as occupied here and assign it to the student
@@ -53,16 +58,16 @@ export default async function placeStudentInBedSpace(
           transactionSession: session,
           regNumber,
           student: updatedStudent,
-          models,
+          conn,
         }),
-        markRoomAsOccupied(bedId, session, models),
+        markRoomAsOccupied(bedId, session, conn),
         logAdminGiveBedSpace({
           bedId,
           transactionSession: session,
           regNumber,
           student: updatedStudent,
           user,
-          models,
+          conn,
         }),
       ]);
       return true;
@@ -78,13 +83,13 @@ const addUserToAllocatedBedSpace = async ({
   bedId,
   transactionSession,
   student,
-  models,
+  conn,
 }) => {
-  const bedSpace = await models.BedSpace.findOne({ _id: bedId });
+  const bedSpace = await conn.models.BedSpace.findOne({ _id: bedId });
 
   const { roomNumber, roomId, hallName, hallId, bedNumber } = bedSpace;
 
-  const newbedSlot = new models.BedSpaceAllocation({
+  const newbedSlot = new conn.models.BedSpaceAllocation({
     hallId,
     hallName,
     roomId,
@@ -100,8 +105,8 @@ const addUserToAllocatedBedSpace = async ({
   return student;
 };
 
-const markRoomAsOccupied = async (bedId, transactionSession, models) => {
-  await models.BedSpace.updateOne(
+const markRoomAsOccupied = async (bedId, transactionSession, conn) => {
+  await conn.models.BedSpace.updateOne(
     { _id: bedId },
     { $set: { bedStatus: "occupied" } }
   ).session(transactionSession);
@@ -113,14 +118,14 @@ const logAdminGiveBedSpace = async ({
   transactionSession,
   student,
   user,
-  models,
+  conn,
 }) => {
-  const bedSpace = await models.BedSpace.findOne({ _id: bedId }).session(
+  const bedSpace = await conn.models.BedSpace.findOne({ _id: bedId }).session(
     transactionSession
   );
 
   const { roomNumber, roomId, hallName, hallId, bedNumber } = bedSpace;
-  const adminAllocatedSpace = new models.AdminRoomAllocation({
+  const adminAllocatedSpace = new conn.models.AdminRoomAllocation({
     session: student.currentSession,
     date: new Date(),
     regNumber,

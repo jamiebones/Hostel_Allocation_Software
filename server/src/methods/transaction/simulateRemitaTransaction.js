@@ -17,25 +17,26 @@ const {
   incrementRoomStats,
 } = bedSpaceMethod.common;
 
-export default async function simulateRemitaTransaction(regNumber) {
+export default async function simulateRemitaTransaction(regNumber, conn) {
   return await runInTransaction(async (transactionSession) => {
     try {
-      const activeSession = await getActiveSession();
-      const student = await getStudentData(regNumber);
+      const activeSession = await getActiveSession(conn);
+      const student = await getStudentData(regNumber, conn);
       if (!student) throw new Error("Student data not found");
-      const bed = await getReservedBedSpace(regNumber, activeSession.session);
+      const bed = await getReservedBedSpace(regNumber, activeSession.session, conn);
       let message = "Approved",
         status = "00";
       let studentData = student;
       if (bed) {
         //save new transaction here
-        const bedDetails = await getReservedBedDetails(bed.bedId);
+        const bedDetails = await getReservedBedDetails(bed.bedId, conn);
 
         const newTransaction = await saveNewTransaction(
           studentData,
           activeSession.session,
           bedDetails,
-          transactionSession
+          transactionSession,
+          conn
         );
 
         let date = new Date();
@@ -55,7 +56,8 @@ export default async function simulateRemitaTransaction(regNumber) {
         const checkAllocation = await confirmSpaceOnHoldThatSession(
           regNumber,
           session,
-          transactionSession
+          transactionSession,
+          conn
         );
         if (checkAllocation) {
           //
@@ -64,14 +66,15 @@ export default async function simulateRemitaTransaction(regNumber) {
         //we can update the transaction here
 
         const [student] = await Promise.all([
-          addUserToAllocatedBedSpace(newTransaction, transactionSession),
-          markRoomAsOccupied(bedId, transactionSession),
+          addUserToAllocatedBedSpace(newTransaction, transactionSession, conn),
+          markRoomAsOccupied(bedId, transactionSession, conn),
         ]);
         const { levelType, faculty } = student;
 
         let checkForSpace = await checkAvailableSpace({
           level: levelType,
           faculty: faculty,
+          conn
         });
 
         const { levelData, facultyData, sessionData } = checkForSpace();
@@ -82,6 +85,7 @@ export default async function simulateRemitaTransaction(regNumber) {
           facultyData,
           sessionData,
           session: transactionSession,
+          conn
         });
 
         return { message, status };

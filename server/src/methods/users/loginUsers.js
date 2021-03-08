@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { AuthenticationError, UserInputError } from 'apollo-server';
+import { AuthenticationError, UserInputError } from "apollo-server";
 
-export default async (userDetails, { models, config }) => {
+export default async (userDetails, { conn, config }) => {
   try {
     const { email, password, regNumber } = userDetails;
     let emailAddress = email && email.toLowerCase();
@@ -11,7 +11,7 @@ export default async (userDetails, { models, config }) => {
     if (reg) {
       //we have a student
       //find the account
-      const student = await models.User.findOne({
+      const student = await conn.models.User.findOne({
         regNumber: { $regex: reg, $options: "i" },
       });
       if (!student) {
@@ -29,6 +29,7 @@ export default async (userDetails, { models, config }) => {
           id: student.id,
           email: student.email,
           userType: student.userType,
+          name: student.name,
         },
         config.secret
       );
@@ -39,13 +40,14 @@ export default async (userDetails, { models, config }) => {
         token: token,
         email: student.email,
         userType: student.userType,
+        name: student.name,
       };
     }
 
     //we have a staff member here
     if (emailAddress) {
       //find the account
-      const staff = await models.User.findOne({ email: emailAddress });
+      const staff = await conn.models.User.findOne({ email: emailAddress });
       if (!staff) {
         throw new UserInputError(`Could not find account: ${emailAddress}`);
       }
@@ -64,6 +66,7 @@ export default async (userDetails, { models, config }) => {
           id: staff.id,
           userType: staff.userType,
           accessLevel: staff.accessLevel,
+          name: staff.name
         },
         config.secret
       );
@@ -73,6 +76,7 @@ export default async (userDetails, { models, config }) => {
         id: staff.id,
         userType: staff.userType,
         accessLevel: staff.accessLevel,
+        name: staff.name,
         token: token,
       };
     }

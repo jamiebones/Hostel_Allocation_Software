@@ -3,9 +3,10 @@ import models from "../../models";
 export const checkIfSpaceIsOnHold = async (
   regNumber,
   activeSession,
-  session
+  session,
+  conn
 ) => {
-  const findDoc = await models.OnHoldBed.findOne({
+  const findDoc = await conn.models.OnHoldBed.findOne({
     regNumber,
     session: activeSession,
   }).session(session);
@@ -14,8 +15,8 @@ export const checkIfSpaceIsOnHold = async (
   }
 };
 
-export const getReservedBedSpace = async (regNumber, activeSession) => {
-  const bed = await models.OnHoldBed.findOne({
+export const getReservedBedSpace = async (regNumber, activeSession, conn) => {
+  const bed = await conn.models.OnHoldBed.findOne({
     regNumber,
     session: activeSession,
   });
@@ -25,9 +26,10 @@ export const getReservedBedSpace = async (regNumber, activeSession) => {
 export const checkIfSpaceAlreadyAllocatedToStudentThatSession = async (
   regNumber,
   activeSession,
-  session
+  session,
+  conn
 ) => {
-  const findDoc = await models.BedSpaceAllocation.findOne({
+  const findDoc = await conn.models.BedSpaceAllocation.findOne({
     regNumber,
     session: activeSession,
   }).session(session);
@@ -39,9 +41,10 @@ export const checkIfSpaceAlreadyAllocatedToStudentThatSession = async (
 export const confirmSpaceOnHoldThatSession = async (
   regNumber,
   activeSession,
-  session
+  session,
+  conn
 ) => {
-  const findDoc = await models.BedSpaceAllocation.findOne({
+  const findDoc = await conn.models.BedSpaceAllocation.findOne({
     regNumber,
     session: activeSession,
   }).session(session);
@@ -53,19 +56,20 @@ export const confirmSpaceOnHoldThatSession = async (
 export const searchVacantRoomsByLocationCriteria = async (
   sex,
   facultyLocation,
-  session
+  session,
+  conn
 ) => {
   const criteria = {
     roomType: sex,
     location: facultyLocation,
     bedStatus: "vacant",
   };
-  const vacantBeds = await models.BedSpace.find(criteria).session(session);
+  const vacantBeds = await conn.models.BedSpace.find(criteria).session(session);
 
   return vacantBeds;
 };
 
-export const totalSpaceAvailableByLocation = async () => {
+export const totalSpaceAvailableByLocation = async (conn) => {
   const pipeline = [
     {
       $match: {
@@ -81,7 +85,7 @@ export const totalSpaceAvailableByLocation = async () => {
       },
     },
   ];
-  const totalSpace = await models.BedSpace.aggregate(pipeline);
+  const totalSpace = await conn.models.BedSpace.aggregate(pipeline);
   return totalSpace;
 };
 
@@ -89,10 +93,11 @@ export const saveBedSpaceOnHold = async (
   id,
   regNumber,
   activeSession,
-  session
+  session,
+  conn
 ) => {
   const now = new Date();
-  const newOnHoldBedSpace = new models.OnHoldBed({
+  const newOnHoldBedSpace = new conn.models.OnHoldBed({
     bedId: id,
     regNumber,
     session: activeSession,
@@ -100,7 +105,7 @@ export const saveBedSpaceOnHold = async (
   });
   const [_, bedOnHold] = await Promise.all([
     newOnHoldBedSpace.save({ session: session }),
-    models.BedSpace.findOneAndUpdate(
+    conn.models.BedSpace.findOneAndUpdate(
       { _id: id },
       { bedStatus: "onHold", lockStart: now },
       {
@@ -111,10 +116,10 @@ export const saveBedSpaceOnHold = async (
   return bedOnHold;
 };
 
-export const findSpaceByLevelAndLocation = async (student, session) => {
+export const findSpaceByLevelAndLocation = async (student, session, conn) => {
   const { levelType, sex, campusLocation } = student;
   if (levelType === "final year") {
-    let bed = await models.BedSpace.findOne({
+    let bed = await conn.models.BedSpace.findOne({
       $or: [{ bedNumber: /^\dA/ }, { bedNumber: /^\dS/ }],
       bedStatus: "vacant",
       location: campusLocation,
@@ -127,7 +132,7 @@ export const findSpaceByLevelAndLocation = async (student, session) => {
   }
 
   if (levelType === "first year") {
-    let bed = await models.BedSpace.findOne({
+    let bed = await conn.models.BedSpace.findOne({
       $or: [{ bedNumber: /^\dB/ }, { bedNumber: /^\dS/ }],
       bedStatus: "vacant",
       location: campusLocation,
@@ -141,7 +146,7 @@ export const findSpaceByLevelAndLocation = async (student, session) => {
 
   if (levelType == "other years") {
     //tie down a random room here
-    let bed = await models.BedSpace.findOne({
+    let bed = await conn.models.BedSpace.findOne({
       $or: [{ bedNumber: /^\dB/ }, { bedNumber: /^\dS/ }],
       bedStatus: "vacant",
       location: campusLocation,
@@ -153,10 +158,10 @@ export const findSpaceByLevelAndLocation = async (student, session) => {
   }
 };
 
-export const findSpaceByLevel = async (student, session) => {
+export const findSpaceByLevel = async (student, session, conn) => {
   const { levelType, sex } = student;
   if (levelType === "final year") {
-    let bed = await models.BedSpace.findOne({
+    let bed = await conn.models.BedSpace.findOne({
       $or: [{ bedNumber: /^\dA/ }, { bedNumber: /^\dS/ }],
       bedStatus: "vacant",
       roomType: sex,
@@ -169,7 +174,7 @@ export const findSpaceByLevel = async (student, session) => {
   }
 
   if (levelType === "first year") {
-    let bed = await models.BedSpace.findOne({
+    let bed = await conn.models.BedSpace.findOne({
       $or: [{ bedNumber: /^\dB/ }, { bedNumber: /^\dS/ }],
       bedStatus: "vacant",
       roomType: sex,
@@ -183,7 +188,7 @@ export const findSpaceByLevel = async (student, session) => {
 
   if (levelType == "other years") {
     //tie down a random room here
-    let bed = await models.BedSpace.findOne({
+    let bed = await conn.models.BedSpace.findOne({
       $or: [{ bedNumber: /^\dB/ }, { bedNumber: /^\dS/ }],
       bedStatus: "vacant",
       roomType: sex,
@@ -195,12 +200,12 @@ export const findSpaceByLevel = async (student, session) => {
   }
 };
 
-export const searchVacantRoomByType = async (sex) => {
+export const searchVacantRoomByType = async (sex, conn) => {
   const criteria = {
     roomType: sex,
     bedStatus: "vacant",
   };
-  const vacantBeds = await models.BedSpace.find(criteria);
+  const vacantBeds = await conn.models.BedSpace.find(criteria);
 
   return vacantBeds;
 };
@@ -209,14 +214,15 @@ export const searchSpecialRoomType = async (
   sex,
   hostelId,
   studentLevel,
-  session
+  session,
+  conn
 ) => {
   //get all the hostels saved as special room
 
   let bed;
   switch (studentLevel) {
     case studentLevel === "final year":
-      bed = await models.BedSpace.findOne({
+      bed = await conn.models.BedSpace.findOne({
         hallId: hostelId,
         bedStatus: "vacant",
         roomType: sex,
@@ -225,7 +231,7 @@ export const searchSpecialRoomType = async (
       }).session(session);
       break;
     case studentLevel === "other years":
-      bed = await models.BedSpace.findOne({
+      bed = await conn.models.BedSpace.findOne({
         hallId: hostelId,
         bedStatus: "vacant",
         roomType: sex,
@@ -234,7 +240,7 @@ export const searchSpecialRoomType = async (
       }).session(session);
       break;
     default:
-      bed = await models.BedSpace.findOne({
+      bed = await conn.models.BedSpace.findOne({
         hallId: hostelId,
         bedStatus: "vacant",
         roomType: sex,
@@ -283,9 +289,10 @@ export const getLevelExplanation = ({
   return _returnLevels(studentLevel, programDuration, entryMode);
 };
 
-export const checkAvailableSpace = async ({ level, faculty }) => {
-  //get active session from cache
-  const activeSession = await models.SessionTable.findOne({ active: true });
+export const checkAvailableSpace = async ({ level, faculty, conn }) => {
+  const activeSession = await conn.models.SessionTable.findOne({
+    active: true,
+  });
   const facultyAllocation = activeSession.facultyAllocation;
   const levelAllocation = activeSession.levelAllocation;
   //get the student faculty data
@@ -332,9 +339,10 @@ export const incrementRoomStats = async ({
   facultyData,
   sessionData,
   session,
+  conn,
 }) => {
   //get active session from cache
-  const { facultyAllocation, levelAllocation } = sessionData;
+  const { facultyAllocation, levelAllocation, _id } = sessionData;
   let facultyArray = [];
   let levelArray = [];
   facultyAllocation.map((fac) => {
@@ -354,21 +362,29 @@ export const incrementRoomStats = async ({
     }
     levelArray.push(ele);
   });
-  await sessionData
-    .updateOne({ levelAllocation: levelArray, facultyAllocation: facultyArray })
-    .session(session);
+
+  //update the session data here with the new allocation remaining
+  await conn.models.SessionTable.updateOne(
+    { _id },
+    { levelAllocation: levelArray, facultyAllocation: facultyArray }
+  ).session(session);
+
+  // await sessionData
+  //   .updateOne({ levelAllocation: levelArray, facultyAllocation: facultyArray })
+  //   .session(session);
 };
 
-export const specialHostelCheck = async (student, session) => {
+export const specialHostelCheck = async (student, session, conn) => {
   //get all hostels mark as special
   const { faculty, currentLevel } = student;
-  const specialHostel = await models.Hostel.find({ status: "special" }).session(
-    session
-  );
+  const specialHostel = await conn.models.Hostel.find({
+    status: "special",
+  }).session(session);
 
   //find if the student is the one that are to stay in a special hostel
 
-  //loop and find if the student is among those belons to the special consideration group
+  //loop and find if the student is among those belongs
+  //to the special consideration group
   const eligible = specialHostel.find((hostel) => {
     return (
       hostel.occupiedBy.includes(faculty.toLowerCase()) &&
@@ -386,7 +402,7 @@ export const specialHostelCheck = async (student, session) => {
   return null;
 };
 
-export const getReservedBedDetails = async (bedId) => {
-  const bed = await models.BedSpace.findOne({ _id: bedId });
+export const getReservedBedDetails = async (bedId, conn) => {
+  const bed = await conn.models.BedSpace.findOne({ _id: bedId });
   return bed;
 };

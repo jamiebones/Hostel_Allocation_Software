@@ -11,11 +11,11 @@ import {
 const { runInTransaction } = require("mongoose-transact-utils");
 import studentBioMethod from "../studentBio";
 
-export default async function allocateHostelSpaceToStudent(regNumber) {
+export default async function allocateHostelSpaceToStudent(regNumber, conn) {
   return await runInTransaction(async (session) => {
     try {
       //confirm if the person is a valid student
-      const student = await studentBioMethod.confirmStudentShip(regNumber);
+      const student = await studentBioMethod.confirmStudentShip(regNumber, conn);
       if (!student)
         throw new Error(
           `Can not find student records with the given reg number : ${regNumber}`
@@ -24,7 +24,8 @@ export default async function allocateHostelSpaceToStudent(regNumber) {
       //update the student level here
       const updatedStudent = await studentBioMethod.updateStudentLevel(
         student,
-        session
+        session,
+        conn
       );
       if (!updatedStudent) {
         throw new Error(
@@ -40,12 +41,13 @@ export default async function allocateHostelSpaceToStudent(regNumber) {
         checkIfSpaceAlreadyAllocatedToStudentThatSession(
           regNumber,
           currentSession,
-          session
+          session,
+          conn
         ),
-        checkIfSpaceIsOnHold(regNumber, currentSession, session),
+        checkIfSpaceIsOnHold(regNumber, currentSession, session, conn),
       ]);
 
-      const specialHostel = await specialHostelCheck(updatedStudent, session);
+      const specialHostel = await specialHostelCheck(updatedStudent, session, conn);
       console.log(specialHostel);
       if (specialHostel) {
         const { hostel } = specialHostel;
@@ -53,14 +55,16 @@ export default async function allocateHostelSpaceToStudent(regNumber) {
           sex,
           hostel._id,
           levelType,
-          session
+          session,
+          conn
         );
         if (specialBed) {
           await saveBedSpaceOnHold(
             specialBed._id,
             regNumber,
             currentSession,
-            session
+            session,
+            conn
           );
           return specialBed;
         } else {
@@ -74,6 +78,7 @@ export default async function allocateHostelSpaceToStudent(regNumber) {
       checkForSpace = await checkAvailableSpace({
         level: levelType,
         faculty,
+        conn
       });
 
       valueInCheckForSpace = checkForSpace();
@@ -82,6 +87,7 @@ export default async function allocateHostelSpaceToStudent(regNumber) {
           checkForSpace = await checkAvailableSpace({
             level: levelType,
             faculty,
+            conn
           });
           console.log("value of try agaian is ", tryAgainThreeTimes);
           valueInCheckForSpace = checkForSpace();
@@ -93,10 +99,10 @@ export default async function allocateHostelSpaceToStudent(regNumber) {
       const { hasSpace } = valueInCheckForSpace;
       if (hasSpace) {
         //lets check here for space
-        bed = await findSpaceByLevelAndLocation(updatedStudent, session);
+        bed = await findSpaceByLevelAndLocation(updatedStudent, session, conn);
         if (!bed) {
           //try without using location here
-          bed = await findSpaceByLevel(updatedStudent, session);
+          bed = await findSpaceByLevel(updatedStudent, session, conn);
         }
       } else {
         throw new Error(`There is no more bed space available now.`);
@@ -115,7 +121,8 @@ export default async function allocateHostelSpaceToStudent(regNumber) {
         bed._id,
         regNumber,
         currentSession,
-        session
+        session,
+        conn
       );
 
       console.log(bedOnHold);

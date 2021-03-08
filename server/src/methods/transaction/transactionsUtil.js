@@ -1,14 +1,12 @@
-import config from "../../config";
-import models from "../../models";
 import studentBioMethod from "../studentBio";
 const date = require("date-and-time");
 
 const { getStudentData } = studentBioMethod.common;
 
-export const findTransaction = async (transactionId, session) => {
-  const trans = await models.Transaction.findOne({ transactionId }).session(
-    session
-  );
+export const findTransaction = async (transactionId, session, conn) => {
+  const trans = await conn.models.Transaction.findOne({
+    transactionId,
+  }).session(session);
   return () => {
     if (trans) {
       return trans;
@@ -19,7 +17,8 @@ export const findTransaction = async (transactionId, session) => {
 
 export const addUserToAllocatedBedSpace = async (
   transaction,
-  transactionSession
+  transactionSession,
+  conn
 ) => {
   const {
     session,
@@ -27,9 +26,9 @@ export const addUserToAllocatedBedSpace = async (
     roomDetails: { roomNumber, hallName, bedSpace, roomId, hallId },
   } = transaction;
 
-  const student = await getStudentData(regNumber, transactionSession);
+  const student = await getStudentData(regNumber, transactionSession, conn);
 
-  const newbedSlot = new models.BedSpaceAllocation({
+  const newbedSlot = new conn.models.BedSpaceAllocation({
     hallId,
     hallName,
     roomId,
@@ -45,17 +44,17 @@ export const addUserToAllocatedBedSpace = async (
   return student;
 };
 
-export const markRoomAsOccupied = async (bedId, transactionSession) => {
-  await models.BedSpace.updateOne(
+export const markRoomAsOccupied = async (bedId, transactionSession, conn) => {
+  await conn.models.BedSpace.updateOne(
     { _id: bedId },
     { $set: { bedStatus: "occupied" } }
   ).session(transactionSession);
 };
 
-export const checkForBedspaceReservation = async (regNumber, session) => {
+export const checkForBedspaceReservation = async (regNumber, session, conn) => {
   const now = new Date();
   let yesterday = date.addDays(now, -1);
-  const bedReserved = await models.OnHoldBed.findOne({
+  const bedReserved = await conn.models.OnHoldBed.findOne({
     session: session,
     regNumber: regNumber,
     lockStart: { $gte: yesterday },
@@ -75,9 +74,9 @@ export const saveNewTransaction = async (
   student,
   session,
   bed,
-  transactionSession
+  transactionSession,
+  conn
 ) => {
-  debugger;
   const { regNumber, name } = student;
 
   const amount = await getHostelFee({
@@ -85,6 +84,7 @@ export const saveNewTransaction = async (
     bedId: bed._id,
     session,
     transactionSession,
+    conn,
   });
   if (!amount) throw new Error("Hostel fee is required");
   const transactionId = _setTransactionId();
@@ -103,7 +103,7 @@ export const saveNewTransaction = async (
   };
 
   const successful = false;
-  const newTransaction = new models.Transaction({
+  const newTransaction = new conn.models.Transaction({
     session,
     amount,
     transactionId,
@@ -120,9 +120,10 @@ export const saveNewTransaction = async (
 export const updateTransactionWithRRR = async (
   transId,
   rrr,
-  transactionSession
+  transactionSession,
+  conn
 ) => {
-  await models.Transaction.updateOne(
+  await conn.models.Transaction.updateOne(
     { _id: transId },
     { transactionStatus: "025", rrr: rrr }
   ).session(transactionSession);
@@ -135,21 +136,22 @@ export const getHostelFee = async ({
   bedId,
   session,
   transactionSession,
+  conn,
 }) => {
   //bedspace on hold that the person wants to pay for
-  const spaceOnHold = await models.OnHoldBed.findOne({
+  const spaceOnHold = await conn.models.OnHoldBed.findOne({
     bedId: bedId,
     regNumber: regNumber,
     session: session,
   }).session(transactionSession);
 
   if (spaceOnHold) {
-    const bed = await models.BedSpace.findById(bedId).session(
+    const bed = await conn.models.BedSpace.findById(bedId).session(
       transactionSession
     );
     const hallId = bed && bed.hallId;
     //get the associated hall and return the hostel fees associated with it
-    const hostel = await models.Hostel.findOne({ _id: hallId })
+    const hostel = await conn.models.Hostel.findOne({ _id: hallId })
       .lean()
       .session(transactionSession);
 
@@ -181,9 +183,10 @@ const _setTransactionId = () => {
 export const checkTransactionAlreadyWithRRR = async (
   regNumber,
   session,
-  transactionSession
+  transactionSession,
+  conn
 ) => {
-  const transaction = await models.Transaction.findOne({
+  const transaction = await conn.models.Transaction.findOne({
     regNumber: regNumber,
     session: session,
     rrr: { $exists: true, $ne: null },
