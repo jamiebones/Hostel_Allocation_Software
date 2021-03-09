@@ -2,7 +2,11 @@ import cors from "cors";
 import express from "express";
 import schema from "./schema";
 import resolvers from "./resolvers";
-import { ApolloServer } from "apollo-server-express";
+import {
+  ApolloServer,
+  AuthenticationError,
+  UserInputError,
+} from "apollo-server-express";
 import http from "http";
 import DataLoader from "dataloader";
 import loaders from "./loaders";
@@ -34,12 +38,27 @@ async function StartUp() {
   const server = new ApolloServer({
     typeDefs: schema,
     resolvers,
+    formatError(err) {
+      if (err instanceof AuthenticationError) {
+        console.log("err", err);
+        return err.message;
+      }
+      if (err instanceof UserInputError) {
+        return new Error("Input not in the correct order");
+      }
+      if (err.message.startsWith("Database Error")) {
+        return new Error("Internal server error");
+      }
+      console.log("this is an error", err);
+      return err;
+      //return new Error("There was an error");
+    },
     context: async ({ req, connection }) => {
       const user = config.isAuth(req);
       //const { models } = slowConn;
       if (connection) {
         console.log("connection started here please");
-        return { slowConn, fastConn, config, req, user };
+        return { slowConn, fastConn, config, connection, user };
       }
 
       if (req) {

@@ -10,7 +10,7 @@ import store from "store";
 
 const cache = new InMemoryCache({
   possibleTypes: {
-    //UserDetailsResult: ["User", "Error"],
+     LoginUserResult: ["User", "Error"],
     //ActiveExamDetails: ["ActiveExamSuccessful", "Error"],
     //ExamTakenDetails: ["ExamTakenSuccess", "Error"],
   },

@@ -2,7 +2,7 @@ import methods from "../methods";
 
 export default {
   Query: {
-    users: async (parent, args, { fastConn, }) => {
+    users: async (parent, args, { fastConn }) => {
       return await fastConn.models.User.find();
     },
     user: async (parent, { id }, { fastConn }) => {
@@ -22,7 +22,7 @@ export default {
         email,
       };
       const user = await methods.userMethod.loginUser(userDetails, {
-        fastConn,
+        conn: fastConn,
         config,
       });
 
@@ -37,6 +37,15 @@ export default {
       await newUser.save();
       return newUser;
     },
-  
+  },
+  LoginUserResult: {
+    __resolveType(obj) {
+      if (obj.type) {
+        return "Error";
+      }
+      if (obj.name) {
+        return "User";
+      }
+    },
   },
 };

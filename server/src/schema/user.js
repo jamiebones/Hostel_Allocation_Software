@@ -5,12 +5,22 @@ export default gql`
     users: [User!]
     user(id: ID!): User
     me: User
-    loginUser(regNumber: String, password: String!, email: String): User
+    loginUser(
+      regNumber: String
+      password: String!
+      email: String
+    ): LoginUserResult
   }
 
   extend type Mutation {
     createUser(username: String): User
+  }
 
+  union LoginUserResult = User | Error
+
+  type Error {
+    message: String!
+    type: String!
   }
 
   type User {

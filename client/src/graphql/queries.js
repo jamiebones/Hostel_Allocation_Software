@@ -26,10 +26,18 @@ const ContactUniuyoPortal = gql`
 const LoginUser = gql`
   query loginUser($regNumber: String, $password: String!, $email: String) {
     loginUser(regNumber: $regNumber, password: $password, email: $email) {
-      token
-      email
-      regNumber
-      accessLevel
+      ... on User {
+        token
+        email
+        regNumber
+        accessLevel
+        userType
+        name
+      }
+      ... on Error {
+        message
+        type
+      }
     }
   }
 `;

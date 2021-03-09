@@ -1,51 +1,82 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useLazyQuery } from "@apollo/client";
-import { ExtractError } from "../modules/utils";
 import { LoginUser } from "../graphql/queries";
-import ErrorDisplay from "./common/errorDisplay";
+import state from "../applicationState";
+import { useRecoilState } from "recoil";
+import { useHistory } from "react-router-dom";
 
 import store from "store";
 
 const LoginStyle = styled.div``;
 
 const Login = (props) => {
+  const [isAuth, setAuthState] = useRecoilState(state.authState);
+  const [currentUser, setCurrentUser] = useRecoilState(state.currentUserState);
+  const [token, setToken] = useRecoilState(state.authToken);
+
   const [regNumber, setRegNumber] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [errors, setErrors] = useState([]);
-
-  const [executeLogin, loginResult] = useLazyQuery(LoginUser);
+  const [error, setErrors] = useState(null);
+  let history = useHistory();
+  const [executeLogin, loginUserResult] = useLazyQuery(LoginUser);
 
   useEffect(() => {
-    if (loginResult.data) {
-      const {
-        id,
-        token,
-        regNumber,
-        email,
-        accessLevel,
-      } = loginResult.data.loginUser;
-      store.set("authToken", token);
-      store.set("currentUser", { id, regNumber, email, accessLevel });
-      props.loginFunction(loginResult.data.loginUser);
-      if (accessLevel) {
-        props.history.push("/admin/dashboard");
+    if (
+      submitted &&
+      loginUserResult.data &&
+      loginUserResult.data.loginUser &&
+      loginUserResult.called
+    ) {
+      const typename = loginUserResult.data.loginUser.__typename;
+
+      if (typename === "Error") {
+        const message = loginUserResult.data.loginUser.message;
+        setErrors(message);
+        setSubmitted(!submitted);
       } else {
-        props.history.push("/dashboard");
+        //we are good here we have the baggages here
+        const {
+          id,
+          email,
+          userType,
+          regNumber,
+          token,
+          name,
+          accessLevel,
+        } = loginUserResult.data.loginUser;
+        store.set("authToken", token);
+        store.set("isAuth", true);
+        store.set("currentUser", {
+          id,
+          userType,
+          name,
+          email,
+          regNumber,
+          accessLevel,
+        });
+        setAuthState(true);
+        setCurrentUser({ id, userType, name, email, regNumber, accessLevel });
+        setToken(token);
+        setSubmitted(!submitted);
+        if (accessLevel === "super-admin") {
+          history.push("/admin/dashboard");
+        } else if (accessLevel === "student") {
+          history.push("/dashboard");
+        }
       }
     }
-    if (loginResult.error) {
-      let errors = ExtractError(loginResult.error);
-      setErrors(errors);
-      setSubmitted(false);
+    if (loginUserResult.error) {
+      setSubmitted(!submitted);
+      setErrors(loginUserResult.error.message);
     }
-  }, [loginResult.data, loginResult.error]);
+  }, [loginUserResult.data, loginUserResult.error]);
 
   const submitForm = (event) => {
-    setSubmitted(true);
     event.preventDefault();
+    setSubmitted(!submitted);
     executeLogin({
       variables: {
         regNumber,
@@ -75,7 +106,8 @@ const Login = (props) => {
     <LoginStyle>
       <div className="row">
         <div className="col-md-6 offset-md-3">
-          <ErrorDisplay errors={errors} />
+          <h3 className="text-info text-center">Login Page</h3>
+          <p className="text-danger lead text-center">{error}</p>
           <p className="lead text-center">
             Students are required to login with their reg number and chosen
             password
@@ -117,13 +149,15 @@ const Login = (props) => {
               />
             </div>
 
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={submitted}
-            >
-              {submitted ? "granting access....." : "login"}
-            </button>
+            <div className="text-center">
+              <button
+                type="submit"
+                className="btn btn-primary btn-lg"
+                disabled={submitted}
+              >
+                {submitted ? "granting access....." : "login"}
+              </button>
+            </div>
           </form>
         </div>
       </div>

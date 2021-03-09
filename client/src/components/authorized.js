@@ -1,40 +1,69 @@
-import React from "react";
+/* eslint-disable */
+import React, { useEffect, useState } from "react";
 import { Route, Redirect } from "react-router-dom";
-import {Roles} from "../modules/utils";
-const store = require("store");
+import NotAuthorizedComponent from "./notAuthorizedComponent";
+import store from "store";
 
+const Authorized = (props) => {
+  const {
+    authenticated,
+    authorizedRole,
+    component: Component,
+    path,
+    exact,
+    ...rest
+  } = props;
 
-const PrivateRoute = ({ component: Component, ...rest }) => (
-  <Route
-    {...rest}
-    render={(props) => {
-      const currentUser = store.get("currentUser");
-      
-      if (!currentUser) {
-        // not logged in so redirect to login page with the return url
-        return <Redirect to={{ pathname: "/login" }} />;
-      }
+  const currentUser = store.get("currentUser");
+  let user;
+  if (currentUser) {
+    user = currentUser;
+  } else {
+    //redirect the person else where
+    return <Redirect to="/login" />;
+  }
 
-      if (!currentUser || !currentUser.accessLevel) {
-        // not logged in so redirect to login page with the return url
-        return <Redirect to={{ pathname: "/login" }} />;
-      }
+  return (
+    <Route
+      {...rest}
+      path={path}
+      exact={exact}
+      render={(props) => {
+        if (authorizedRole && authorizedRole.length > 0) {
+          //check if the user belongs to the authorized role
+          const { accessLevel } = user;
+          if (
+            authorizedRole.indexOf(
+              accessLevel && accessLevel.toLowerCase() != -1
+            )
+          ) {
+            return (
+              <Component
+                {...props}
+                currentUser={currentUser}
+                authenticated={authenticated}
+              />
+            );
+          } else {
+            //the person is not authorized so direct them to the login page
+            return (
+              <NotAuthorizedComponent
+                {...props}
+                requestedPage={window.location.pathname}
+              />
+            );
+          }
+        } else {
+          return (
+            <NotAuthorizedComponent
+              {...props}
+              requestedPage={window.location.pathname}
+            />
+          );
+        }
+      }}
+    />
+  );
+};
 
-      if (currentUser.accessLevel === "super-admin") {
-        return <Component {...props} />;
-      }
-
-      // check if route is restricted by role
-      if (Roles().indexOf(currentUser.accessLevel) === -1) {
-        // role not authorised so redirect to home page
-        return <Redirect to={{ pathname: "/" }} />;
-      }
-
-      // authorised so return component
-      return <Component {...props} />;
-    }}
-  />
-);
-
-
-export default PrivateRoute;
+export default Authorized;
