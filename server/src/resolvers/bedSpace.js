@@ -10,7 +10,7 @@ export default {
       return beds;
     },
 
-    getBedStatistic: async (parent, {}, { fastConn, slowConn }) => {
+    getBedStatistic: async (parent, {}, { slowConn }) => {
       //get all beds in system
       const total = await slowConn.models.BedSpace.countDocuments();
       const lockedBeds = await slowConn.models.BedSpace.countDocuments({
