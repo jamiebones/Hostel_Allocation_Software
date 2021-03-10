@@ -41,7 +41,6 @@ export default {
         location,
         hostelFee,
         status,
-        occupiedByLevel,
         occupiedBy,
       },
       { fastConn, slowConn }
@@ -55,12 +54,7 @@ export default {
           status,
         };
         if (status === "special") {
-          hallObject.occupiedBy = util.Utility.convertStringArrayToLowerCase(
-            occupiedBy
-          );
-          hallObject.occupiedByLevel = util.Utility.convertStringArrayToLowerCase(
-            occupiedByLevel
-          );
+          hallObject.occupiedBy =  occupiedBy;
         }
         const newHall = new fastConn.models.Hostel(hallObject);
 

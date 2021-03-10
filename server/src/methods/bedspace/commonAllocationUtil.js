@@ -385,16 +385,30 @@ export const specialHostelCheck = async (student, session, conn) => {
 
   //loop and find if the student is among those belongs
   //to the special consideration group
-  const eligible = specialHostel.find((hostel) => {
-    return (
-      hostel.occupiedBy.includes(faculty.toLowerCase()) &&
-      hostel.occupiedByLevel.includes(currentLevel.toLowerCase())
-    );
+
+  let eligibleHostel = null;
+  specialHostel.map((hostel) => {
+    //check the occupiedByArray if the student qualifies;
+    hostel.map(({ facultyName, levels }) => {
+      let foundEligibleHostel = false;
+
+      if (facultyName.toLowerCase() === faculty.toLowerCase()) {
+        foundEligibleHostel = true;
+      }
+      levels.map((level) => {
+        if (level.toLowerCase() === currentLevel.toLowerCase()) {
+          if (foundEligibleHostel) {
+            eligibleHostel = hostel;
+            return eligibleHostel;
+          }
+        }
+      });
+    });
   });
 
-  if (eligible) {
+  if (eligibleHostel) {
     return {
-      hostel: eligible,
+      hostel: eligibleHostel,
       eligible: true,
     };
   }

@@ -7,24 +7,19 @@ const HostelSchema = new Schema({
   type: {
     type: String,
     required: true,
-    enum: ['male', 'female'],
+    enum: ["male", "female"],
   },
   location: { type: String, required: true, lowercase: true },
   hostelFee: String,
   status: {
     type: String,
     required: true,
-    enum: ['special', 'normal'],
-  },
-  occupiedByLevel: {
-    type: [String],
-    required: false
+    enum: ["special", "normal"],
   },
   occupiedBy: {
-    type: [String],
-    required: false
-  }
-  
+    type: [],
+    required: false,
+  },
 });
 
 export default HostelSchema;

@@ -165,8 +165,8 @@ const CreateHall = gql`
     $location: String!
     $status: String!
     $hostelFee: String!
-    $occupiedBy: [String]
-    $occupiedByLevel: [String]
+    $occupiedBy: [OccupiedByInput]
+
   ) {
     createHostelHall(
       hallName: $hallName
@@ -175,7 +175,6 @@ const CreateHall = gql`
       status: $status
       hostelFee: $hostelFee
       occupiedBy: $occupiedBy
-      occupiedByLevel: $occupiedByLevel
     ) {
       id
     }

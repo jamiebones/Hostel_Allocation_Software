@@ -3,10 +3,8 @@ import { useMutation, useLazyQuery, useQuery } from "@apollo/client";
 import { CreateNewSessionMutation } from "../graphql/mutation";
 import {
   GetAllFaculties,
-  GetSessionById,
   TotalAndReservedBedStatistic,
 } from "../graphql/queries";
-import { ExtractError, IncrementSession } from "../modules/utils";
 import FacultyComponent from "./reuseableComponents/facultyAllocationComponent";
 import LevelComponent from "./reuseableComponents/levelAllocationComponent";
 import { FaTrashAlt } from "react-icons/fa";
@@ -76,7 +74,7 @@ export default (props) => {
   const [facValue, setFacValue] = useState([]);
   const [levelValue, setLevelValue] = useState([]);
   const [faculties, setFaculties] = useState([]);
-  const [errors, setErrors] = useState([]);
+  const [errors, setErrors] = useState(null);
   const [allocatedArray, setAllocatedArray] = useState([]);
   const [allocatedArrayLevel, setAllocatedArrayLevel] = useState([]);
   const [loadingState, setLoadingState] = useState(false);
@@ -108,7 +106,7 @@ export default (props) => {
 
     if (statsQuery.error) {
       setLoadingState(false);
-      setErrors(ExtractError(statsQuery.error));
+      setErrors(statsQuery.error);
     }
 
     if (statsQuery.data) {
@@ -120,7 +118,7 @@ export default (props) => {
   useEffect(() => {
     if (sessionResult.error) {
       setSubmitted(!submitted);
-      setErrors(ExtractError(sessionResult.error));
+      setErrors(sessionResult.error);
     }
     if (sessionResult.data) {
       setSubmitted(false);
@@ -130,7 +128,7 @@ export default (props) => {
 
   useEffect(() => {
     if (error) {
-      setErrors(ExtractError(error));
+      setErrors(error);
     }
     if (data) {
       setFaculties(data.allFaculties);
@@ -393,7 +391,7 @@ export default (props) => {
 
   return (
     <SessionStyles>
-      <div className="col-md-11 offset-md-1">
+      <div className="col-md-12">
         <div className="text-center">
           <ErrorDisplay errors={errors} />
         </div>
@@ -401,8 +399,16 @@ export default (props) => {
 
       <div className="row">
         <div className="col-md-12">
+          <div className="text-center">
+            {errors && (
+              <p className="text-center lead text-danger">{error.message}</p>
+            )}
+            <h3 className="text-info">Create New Session Page</h3>
+          </div>
           {loadingState ? (
-            <Loading />
+            <div className="text-center">
+              <Loading />
+            </div>
           ) : (
             <React.Fragment>
               <form onSubmit={handleSessionSubmit}>

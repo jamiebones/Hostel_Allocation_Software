@@ -3,24 +3,32 @@ import styled from "styled-components";
 import { useMutation, useQuery } from "@apollo/client";
 import { GetAllFaculties } from "../graphql/queries";
 import { CreateHall } from "../graphql/mutation";
-import { ExtractError } from "../modules/utils";
-import ErrorDisplay from "./common/errorDisplay";
 import CurrencyInput from "react-currency-input";
 import Loading from "./common/loading";
+import Modal from "react-modal";
+
+const facultyArrayFunction = (array, facultyName) => {
+  if (array.length == 0) return [];
+  const remainElement = array.filter(
+    (ele) => ele.facultyName.toUpperCase() != facultyName.toUpperCase()
+  );
+  return remainElement;
+};
+
+const customStylesAddHostel = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+    width: "500px",
+    height: "500px",
+  },
+};
 
 const HostelStyles = styled.div`
-  span {
-    margin: 0 20px;
-    cursor: pointer;
-    background: #28888c;
-    color: #fff;
-    padding: 5px;
-  }
-
-  p span:first-child {
-    margin: 0 0;
-  }
-
   .selFaculty {
     margin: 20px 0;
   }
@@ -28,34 +36,42 @@ const HostelStyles = styled.div`
   .selLevel {
     padding-bottom: 60px;
   }
-  .button-div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+
+  .selected_faculty {
+    border: 2px solid #c0c0c0;
+    padding: 20px;
+    margin: 5px;
+    span {
+      padding: 5px;
+    }
+  }
+  .selected_faculty:last-child {
+    margin-bottom: 20px;
   }
 `;
 
 const AddHostel = () => {
   const [submitted, setSubmitted] = useState(false);
   const [isspecial, setIsSpecial] = useState(false);
-  const [selectedFaculty, setSelectedFaculty] = useState(() => []);
   const [selectedLevel, setSelectedLevel] = useState([]);
-  const [errors, setErrors] = useState([]);
-
+  const [errors, setErrors] = useState(null);
   const [faculties, setFaculties] = useState([]);
   const [hostelFees, setHostelFees] = useState(0);
   const [hostelName, setHostelName] = useState("");
   const [hostelType, setHostelType] = useState("");
   const [hostelLocation, setHostelLocation] = useState("");
-
   const { loading, error, data } = useQuery(GetAllFaculties);
-
   const [addHostelMutation, addHostelResult] = useMutation(CreateHall);
+  const [openModal, setOpenModal] = useState(false);
+  const [specialFaculty, setSpecialFaculty] = useState(null);
+  const [specialFacultyArray, setSpecialFacultyArray] = useState([]);
+
+  Modal.setAppElement("#root");
 
   useEffect(() => {
     if (addHostelResult.error) {
-      setErrors(ExtractError(addHostelResult.error));
-      setSubmitted((value) => !value);
+      setErrors(addHostelResult.error);
+      setSubmitted(false);
     }
     if (addHostelResult.data) {
       setSubmitted(false);
@@ -66,14 +82,15 @@ const AddHostel = () => {
       setHostelType("");
       setHostelLocation("");
       setSelectedLevel([]);
-      setSelectedFaculty([]);
       setIsSpecial(false);
+      setSpecialFacultyArray([]);
+      setSpecialFaculty(null);
     }
-  }, [addHostelResult]);
+  }, [addHostelResult.error, addHostelResult.data]);
 
   useEffect(() => {
     if (error) {
-      setErrors(ExtractError(error));
+      setErrors(error);
     }
     if (data) {
       setFaculties(data.allFaculties);
@@ -85,12 +102,19 @@ const AddHostel = () => {
     return filterArray;
   };
 
+  const removeObjectValue = (arr, key, obj) => {
+    const filterArray = arr.filter((ele) => ele[key] !== obj[key]);
+    return filterArray;
+  };
+
   const removeselectedLevel = (value) => {
     setSelectedLevel((prevValue) => removeValue(prevValue, value));
   };
 
-  const removeselectedFaculty = (value) => {
-    setSelectedFaculty((prevValue) => removeValue(prevValue, value));
+  const removeselectedFaculty = ({ key, obj }) => {
+    setSpecialFacultyArray((prevValue) =>
+      removeObjectValue(prevValue, key, obj)
+    );
   };
 
   const addValueToArray = (arr, value) => {
@@ -104,7 +128,10 @@ const AddHostel = () => {
   const facultySelectChange = (e) => {
     const value = e.target.value;
     if (value === "0") return;
-    setSelectedFaculty((prevValue) => addValueToArray(prevValue, value));
+    if (isspecial) {
+      setOpenModal(true);
+      setSpecialFaculty(value);
+    }
   };
 
   const levelSelectChange = (e) => {
@@ -151,11 +178,8 @@ const AddHostel = () => {
       return;
     }
     if (isspecial) {
-      if (selectedFaculty.length < 0) {
+      if (specialFacultyArray.length < 0) {
         alert("please select the faculties that will occupy the hostel");
-      }
-      if (selectedLevel.length < 0) {
-        alert("please select the level that will occupy the hostel");
       }
     }
     const confirmData = window.confirm(`please confirm the following information. \n
@@ -165,16 +189,23 @@ const AddHostel = () => {
                                         fees: ${hostelFees}
                                         ${
                                           isspecial
-                                            ? selectedFaculty.map((val) => {
-                                                return `${val} ||`;
+                                            ? specialFacultyArray.map((val) => {
+                                                return `${val.facultyName} 
+                                                
+                                                `;
                                               })
                                             : ""
                                         }
                                         ${
-                                          isspecial
-                                            ? selectedLevel.map((val) => {
-                                                return `${val} ||`;
-                                              })
+                                          isspecial &&
+                                          specialFacultyArray.length > 0
+                                            ? specialFacultyArray.map(
+                                                ({ levels }) => {
+                                                  return levels.map((val) => {
+                                                    return `${val}`;
+                                                  });
+                                                }
+                                              )
                                             : ""
                                         }
     `);
@@ -185,8 +216,7 @@ const AddHostel = () => {
       type: hostelType,
       location: hostelLocation,
       status: isspecial ? "special" : "normal",
-      occupiedByLevel: isspecial ? selectedLevel : null,
-      occupiedBy: isspecial ? selectedFaculty : null,
+      occupiedBy: isspecial ? specialFacultyArray : null,
       hostelFee: hostelFees,
     };
     if (isspecial) {
@@ -202,11 +232,41 @@ const AddHostel = () => {
     }
   };
 
+  const closeModal = () => {
+    setOpenModal(false);
+  };
+
+  const handleSelectedLevelAndFaculty = () => {
+    if (selectedLevel.length == 0) {
+      setOpenModal(false);
+      return;
+    }
+    let remainElement = facultyArrayFunction(
+      specialFacultyArray,
+      specialFaculty
+    );
+
+    const obj = {
+      facultyName: specialFaculty,
+      levels: selectedLevel,
+    };
+    remainElement.push(obj);
+    setSpecialFacultyArray(remainElement);
+    //clear the selected level
+    setSelectedLevel([]);
+    setSpecialFaculty(null);
+    setOpenModal(false);
+  };
+
   return (
     <HostelStyles>
       <div className="row">
         <div className="col-md-6 offset-md-3">
-          <ErrorDisplay errors={errors} />
+          <div className="text-center">
+            <h3 className="text-info">Create New Student Hostel</h3>
+            {errors && <p className="lead text-danger">{errors.message}</p>}
+          </div>
+
           <form onSubmit={handleHostelCreation}>
             <div className="form-group">
               <label htmlFor="hostelName">Hostel Name:</label>
@@ -313,59 +373,36 @@ const AddHostel = () => {
                   </select>
                 </div>
 
-                {selectedFaculty.length > 0 ? (
-                  <p className="selFaculty">
-                    {selectedFaculty.map((fac) => {
+                {specialFacultyArray.length > 0 ? (
+                  <div>
+                    {specialFacultyArray.map(({ facultyName, levels }) => {
                       return (
-                        <span
-                          key={fac}
-                          onClick={() => removeselectedFaculty(fac)}
+                        <div
+                          className="selected_faculty"
+                          key={facultyName}
+                          onClick={() =>
+                            removeselectedFaculty({
+                              key: facultyName,
+                              obj: { facultyName, levels },
+                            })
+                          }
                         >
-                          {fac}
-                        </span>
+                          <p className="text-center">{facultyName}</p>
+                          {levels.map((level, index) => {
+                            return (
+                              <span key={`${index}${level}`}>{level}</span>
+                            );
+                          })}
+                        </div>
                       );
                     })}
-                  </p>
+                  </div>
                 ) : (
                   <p>no faculty selected </p>
                 )}
-
-                <div className="form-group">
-                  <label htmlFor="levelSelect">Select Level</label>
-                  <select
-                    className="form-control"
-                    id="levelSelect"
-                    onChange={levelSelectChange}
-                  >
-                    <option value="0">select level</option>
-                    <option className="100 level">100 Level</option>
-                    <option className="200 level">200 Level</option>
-                    <option className="300 level">300 Level</option>
-                    <option className="400 level">400 Level</option>
-                    <option className="500 level">500 Level</option>
-                    <option className="600 level">600 Level</option>
-                  </select>
-                </div>
-
-                {selectedLevel.length > 0 ? (
-                  <p className="selLevel">
-                    {selectedLevel.map((level) => {
-                      return (
-                        <span
-                          key={level}
-                          onClick={() => removeselectedLevel(level)}
-                        >
-                          {level}
-                        </span>
-                      );
-                    })}
-                  </p>
-                ) : (
-                  <p>no level of student to stay in the hostel selected </p>
-                )}
               </React.Fragment>
             )}
-            <div className="button-div">
+            <div className="text-center">
               <button
                 type="submit"
                 className="btn btn-primary"
@@ -377,6 +414,70 @@ const AddHostel = () => {
               </button>
             </div>
           </form>
+
+          <Modal
+            isOpen={openModal}
+            onRequestClose={closeModal}
+            style={customStylesAddHostel}
+            contentLabel="Add Hostel Level"
+            shouldCloseOnOverlayClick={false}
+          >
+            <div>
+              {specialFaculty && <p>{specialFaculty.toUpperCase()}</p>}
+              <p>
+                <b>Please select the levels that should stay in the hostel</b>
+              </p>
+
+              {selectedLevel.length > 0 ? (
+                <div className="selLevel">
+                  {selectedLevel.map((level) => {
+                    return (
+                      <p key={level} onClick={() => removeselectedLevel(level)}>
+                        {level}
+                      </p>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p>no level of student to stay in the hostel selected </p>
+              )}
+              <div className="form-group">
+                <label htmlFor="levelSelect">Select Level</label>
+                <select
+                  className="form-control"
+                  id="levelSelect"
+                  onChange={levelSelectChange}
+                >
+                  <option value="0">select level</option>
+                  <option className="100 level">100 Level</option>
+                  <option className="200 level">200 Level</option>
+                  <option className="300 level">300 Level</option>
+                  <option className="400 level">400 Level</option>
+                  <option className="500 level">500 Level</option>
+                  <option className="600 level">600 Level</option>
+                </select>
+              </div>
+
+              <div className="text-center">
+                <button
+                  className="btn btn-warning"
+                  onClick={handleSelectedLevelAndFaculty}
+                >
+                  saved selected level
+                </button>
+              </div>
+
+              <p
+                className="close-modal"
+                onClick={closeModal}
+                style={{
+                  position: "absolute",
+                  top: "2" + "%",
+                  right: "2" + "px",
+                }}
+              ></p>
+            </div>
+          </Modal>
         </div>
       </div>
     </HostelStyles>

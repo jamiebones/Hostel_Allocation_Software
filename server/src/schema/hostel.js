@@ -15,10 +15,19 @@ export default gql`
       location: String!
       hostelFee: String!
       status: String!
-      occupiedByLevel: [ String ]
-      occupiedBy: [String]
+      occupiedBy: [OccupiedByInput]
     ): Hostel!
     updateHostelFee(hallId: ID!, fees: String!): Boolean!
+  }
+
+  input OccupiedByInput {
+    facultyName: String
+    levels: [String]
+  }
+
+  type OccupiedBy {
+    facultyName: String
+    levels: [String]
   }
 
   type Hostel {
@@ -28,8 +37,7 @@ export default gql`
     location: String
     hostelFee: String
     status: String
-    occupiedBy: [String]
-    occupiedByLevel: [String]
+    occupiedBy: [OccupiedBy]
     rooms: [Room]
   }
 `;
