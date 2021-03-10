@@ -4,6 +4,7 @@ import styled from "styled-components";
 const FooterStyles = styled.div`
   #sticky-footer {
     font-size: 16px;
+    padding-top: 80px;
   }
 `;
 

@@ -36,11 +36,6 @@ const SessionStyles = styled.div`
     font-size: 17px;
   }
 
-  .div-button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
   .div-marginUp {
     display: flex;
     justify-content: space-around;
@@ -51,14 +46,15 @@ const SessionStyles = styled.div`
 
   .div-level {
     border-left: 5px solid #c1dce8;
-    height: 60vh;
-    margin-bottom: 20px;
   }
   .result-board {
     border: 2px solid #c0c0c0;
     padding: 20px;
-    margin: 120px;
-    margin-top: 40px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+  }
+  .button-div {
+    margin-bottom: 80px;
   }
 
   @media all and (max-width: 700px) {
@@ -192,7 +188,7 @@ export default (props) => {
   };
 
   const calculateTotalSpaceByPercentage = (total, percent, label) => {
-    const calculatedTotal = Math.ceil((percent / 100) * total);
+    const calculatedTotal = Math.floor((percent / 100) * total);
     return {
       label,
       calculatedTotal,
@@ -274,7 +270,13 @@ export default (props) => {
   };
 
   const handleSessionSubmit = async (e) => {
+    //check if bedstats is not null
     e.preventDefault();
+    const remainingSpace = subtractTwoNumbers(
+      bedspaceStats.totalSpace,
+      bedspaceStats.reservedSpace
+    );
+    if (remainingSpace == 0) return;
     setSubmitted((value) => !value);
     //gather everything here oh
     if (!session) {
@@ -405,124 +407,88 @@ export default (props) => {
             <React.Fragment>
               <form onSubmit={handleSessionSubmit}>
                 <div className="row">
-                  <div className="col-md-12">
-                    <div className="form-row">
-                      <div className="form-group col-md-4">
-                        <label htmlFor="sessionSelect">Academic Session</label>
-                        <NumberFormat
-                          className="form-control"
-                          id="sessionSelect"
-                          value={sessionText}
-                          format="####/####"
-                          onValueChange={handleTextValueChange}
-                          value={sessionText}
-                        />
-                      </div>
+                  <div className="col-md-6">
+                    <div className="form-group">
+                      <label htmlFor="sessionSelect">Academic Session</label>
+                      <NumberFormat
+                        className="form-control"
+                        id="sessionSelect"
+                        value={sessionText}
+                        format="####/####"
+                        onValueChange={handleTextValueChange}
+                        value={sessionText}
+                      />
+                    </div>
 
-                      <div className="form-group col-md-4">
-                        <label htmlFor="facultySelect">Faculties</label>
-                        <select
-                          className="form-control"
-                          id="facultySelect"
-                          onChange={facultySelectChange}
-                        >
-                          {loading ? (
-                            <option>loading.......</option>
-                          ) : (
-                            <React.Fragment>
-                              <option value="0">select faculty</option>
-                              {faculties.map(({ id, facultyName }) => {
-                                return (
-                                  <option
-                                    key={id}
-                                    value={`${facultyName}:${id}`}
+                    <div className="form-group">
+                      <label htmlFor="facultySelect">Faculties</label>
+                      <select
+                        className="form-control"
+                        id="facultySelect"
+                        onChange={facultySelectChange}
+                      >
+                        {loading ? (
+                          <option>loading.......</option>
+                        ) : (
+                          <React.Fragment>
+                            <option value="0">select faculty</option>
+                            {faculties.map(({ id, facultyName }) => {
+                              return (
+                                <option key={id} value={`${facultyName}:${id}`}>
+                                  {facultyName}
+                                </option>
+                              );
+                            })}
+                          </React.Fragment>
+                        )}
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="levelSelect">Level</label>
+                      <select
+                        className="form-control"
+                        id="levelSelect"
+                        onChange={levelSelectChange}
+                      >
+                        <option value="0">select level</option>
+                        <option value="first year">first year students</option>
+                        <option value="final year">final year students</option>
+                        <option value="other years">other years student</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      {facComponents.length > 0 &&
+                        facComponents.map(({ faculty, facultyId }) => {
+                          return (
+                            <React.Fragment key={faculty}>
+                              <div className="fac-container">
+                                <FacultyComponent
+                                  facultyName={faculty}
+                                  facultyId={facultyId}
+                                  onChange={handleFacValueChange}
+                                />
+
+                                <div className="deleteDiv">
+                                  <span
+                                    className="delete"
+                                    onClick={() => handleFacultyDelete(faculty)}
                                   >
-                                    {facultyName}
-                                  </option>
-                                );
-                              })}
+                                    <FaTrashAlt size="1.5em" color="red" />
+                                  </span>
+                                </div>
+                              </div>
                             </React.Fragment>
-                          )}
-                        </select>
-                      </div>
-
-                      <div className="form-group col-md-4">
-                        <label htmlFor="levelSelect">Level</label>
-                        <select
-                          className="form-control"
-                          id="levelSelect"
-                          onChange={levelSelectChange}
-                        >
-                          <option value="0">select level</option>
-                          <option value="first year">
-                            first year students
-                          </option>
-                          <option value="final year">
-                            final year students
-                          </option>
-                          <option value="other years">
-                            other years student
-                          </option>
-                        </select>
-                      </div>
+                          );
+                        })}
+                      <p className="float-right lead">
+                        Faculties Percentage <b>{totalPercent(facValue)}%</b>
+                      </p>
                     </div>
                   </div>
-                </div>
 
-                <div className="row">
                   <div className="col-md-6">
-                    {facComponents.length > 0 &&
-                      facComponents.map(({ faculty, facultyId }) => {
-                        return (
-                          <React.Fragment key={faculty}>
-                            <div className="fac-container">
-                              <FacultyComponent
-                                facultyName={faculty}
-                                facultyId={facultyId}
-                                onChange={handleFacValueChange}
-                              />
-
-                              <div className="deleteDiv">
-                                <span
-                                  className="delete"
-                                  onClick={() => handleFacultyDelete(faculty)}
-                                >
-                                  <FaTrashAlt size="1.5em" color="red" />
-                                </span>
-                              </div>
-                            </div>
-                          </React.Fragment>
-                        );
-                      })}
-                    <p className="float-right lead">
-                      Faculties Percentage <b>{totalPercent(facValue)}%</b>
-                    </p>
-                  </div>
-
-                  <div className="col-md-6 div-level">
-                    {levelComponents.length > 0 &&
-                      levelComponents.map(({ level }) => {
-                        return (
-                          <React.Fragment key={level}>
-                            <div className="fac-container">
-                              <LevelComponent
-                                level={level}
-                                onChange={handleLevelValueChange}
-                              />
-                              <span
-                                className="delete"
-                                onClick={() => handleLevelDelete(level)}
-                              >
-                                <FaTrashAlt size="1.5em" color="red" />
-                              </span>
-                            </div>
-                          </React.Fragment>
-                        );
-                      })}
-
-                    <p className="float-right lead">
-                      Level Percentage : <b>{totalPercent(levelValue)}%</b>
-                    </p>
                     <div className="result-board">
                       <p className="text-center lead text-info">
                         Allocation Stats
@@ -608,19 +574,53 @@ export default (props) => {
                 </div>
 
                 <div className="row">
-                  <div className="col-md-12">
-                    <div className="text-center">
-                      <button
-                        className="btn btn-success btn-lg"
-                        disabled={submitted}
-                      >
-                        {submitted
-                          ? "Creating session please wait........"
-                          : "Create New Session"}
-                      </button>
-                    </div>
+                  <div className="col-md-6 div-level">
+                    {levelComponents.length > 0 &&
+                      levelComponents.map(({ level }) => {
+                        return (
+                          <React.Fragment key={level}>
+                            <div className="fac-container">
+                              <LevelComponent
+                                level={level}
+                                onChange={handleLevelValueChange}
+                              />
+                              <span
+                                className="delete"
+                                onClick={() => handleLevelDelete(level)}
+                              >
+                                <FaTrashAlt size="1.5em" color="red" />
+                              </span>
+                            </div>
+                          </React.Fragment>
+                        );
+                      })}
+
+                    <p className="float-right lead">
+                      Level Percentage : <b>{totalPercent(levelValue)}%</b>
+                    </p>
                   </div>
                 </div>
+
+                {bedspaceStats &&
+                subtractTwoNumbers(
+                  bedspaceStats.totalSpace,
+                  bedspaceStats.reservedSpace
+                ) != 0 ? (
+                  <div className="row">
+                    <div className="col-md-12 button-div">
+                      <div className="text-center">
+                        <button
+                          className="btn btn-success btn-lg"
+                          disabled={submitted}
+                        >
+                          {submitted
+                            ? "Creating session please wait........"
+                            : "Create New Session"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
               </form>
             </React.Fragment>
           )}
