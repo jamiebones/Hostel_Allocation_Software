@@ -180,6 +180,30 @@ const CreateHall = gql`
   }
 `;
 
+const EditHall = gql`
+  mutation editHostelHall(
+    $hallId: ID!
+    $hallName: String!
+    $type: String!
+    $location: String!
+    $status: String!
+    $hostelFee: String!
+    $occupiedBy: [OccupiedByInput]
+  ) {
+    editHostelHall(
+      hallId: $hallId
+      hallName: $hallName
+      type: $type
+      location: $location
+      status: $status
+      hostelFee: $hostelFee
+      occupiedBy: $occupiedBy
+    ) {
+      id
+    }
+  }
+`;
+
 const LockAllBedSpaceMutation = gql`
   mutation lockAllBedsInRoom($roomId: ID!) {
     lockAllBedsInRoom(roomId: $roomId)
@@ -324,6 +348,7 @@ const ConfirmStudentTransaction = gql`
 //
 
 export {
+  EditHall,
   ChangeBedStatus,
   CreateRoom,
   LoginStudent,

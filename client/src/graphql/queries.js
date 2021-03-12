@@ -468,7 +468,33 @@ const GetHostelsByName = gql`
   }
 `;
 
+const GetHostelById = gql`
+  query GetHostelById($hallId: ID!) {
+    getOneHall(hallId: $hallId) {
+      id
+      hallName
+      type
+      location
+      hostelFee
+      rooms {
+        roomNumber
+        totalBedSpace
+        hallName
+        hallId
+        location
+        roomType
+      }
+      status
+      occupiedBy {
+        facultyName
+        levels
+      }
+    }
+  }
+`;
+
 export {
+  GetHostelById,
   CheckphoneIfThePersonHasTriedsMoreThanThreeTimes,
   ContactUniuyoPortal,
   LoginUser,

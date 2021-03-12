@@ -291,24 +291,23 @@ const RoomOperation = (props) => {
           </div>
 
           {roomNumber && (
-            <div
-              className="btn-group div-lock"
-              role="group"
-              aria-label="Basic example"
-            >
-              <button
-                className="btn btn-secondary"
-                onClick={handleLockAllRooms}
+            <div className="text-center">
+              <div
+                className="btn-group div-lock"
+                role="group"
+                aria-label="Basic example"
               >
-                lock all beds in {roomNumber}
-              </button>
+                <button className="btn btn-danger" onClick={handleLockAllRooms}>
+                  Lock all beds in {roomNumber}
+                </button>
 
-              <button
-                className="btn btn-default"
-                onClick={() => props.history.push("/view_created_hostels")}
-              >
-                go back to hostel view
-              </button>
+                <button
+                  className="btn btn-info"
+                  onClick={() => props.history.push("/view_created_hostels")}
+                >
+                  go back to hostel view
+                </button>
+              </div>
             </div>
           )}
         </div>

@@ -3,8 +3,13 @@ import { useLazyQuery } from "@apollo/client";
 import { GetHostelsByName } from "../graphql/queries";
 import Loading from "./common/loading";
 import styled from "styled-components";
+import { useHistory } from "react-router-dom";
 
-const EditHostelStyles = styled.div``;
+const EditHostelStyles = styled.div`
+  .beds {
+    color: green;
+  }
+`;
 
 const EditHostelDetails = () => {
   const [hostelName, setHostelName] = useState("");
@@ -12,6 +17,8 @@ const EditHostelDetails = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
   const [noData, setNoData] = useState(null);
+
+  const history = useHistory();
 
   const [hostelFunctions, hostelResults] = useLazyQuery(GetHostelsByName, {
     variables: {
@@ -48,19 +55,23 @@ const EditHostelDetails = () => {
   return (
     <EditHostelStyles>
       <div className="row">
-        <div className="col-md-12">
+        <div className="col-md-6 offset-md-3">
           <h3 className="text-info text-center">Get Hostel Details</h3>
-          <form>
-            <div className="form-group">
-              <input
-                type="text"
-                className="form-control"
-                value={hostelName}
-                onChange={handleHostelNameChange}
-              />
-            </div>
-          </form>
-
+          {errors && (
+            <p className="text-center lead text-danger">{errors.message}</p>
+          )}
+          <div className="form-group">
+            <input
+              type="text"
+              className="form-control"
+              value={hostelName}
+              onChange={handleHostelNameChange}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-md-12">
           <hr />
 
           <div className="text-center">{loading && <Loading />}</div>
@@ -79,9 +90,10 @@ const EditHostelDetails = () => {
                 <thead>
                   <tr>
                     <th scope="col">Hall Name</th>
-                    <th scope="col">Hall Type/Location</th>
+                    <th scope="col">Hall Type / Location</th>
                     <th scope="col">Hostel Fees</th>
                     <th scope="col">Rooms</th>
+                    <th scope="col">Occupied By</th>
                     <th scope="col">Action</th>
                   </tr>
                 </thead>
@@ -114,22 +126,64 @@ const EditHostelDetails = () => {
                             <p>{hostelFee}</p>
                           </td>
 
-                          {rooms.map(
-                            ({
-                              roomNumber,
-                              totalBedSpace,
+                          <td>
+                            {rooms.map(
+                              ({
+                                roomNumber,
+                                totalBedSpace,
 
-                              hallId,
-                            }) => {
-                              return (
-                                <p>
-                                  <span>{roomNumber}</span>
-                                  <br />
-                                  <span>{totalBedSpace}</span>
-                                </p>
-                              );
-                            }
-                          )}
+                                hallId,
+                              }) => {
+                                return (
+                                  <p key={roomNumber}>
+                                    <span>{roomNumber}</span> &nbsp;
+                                    <span className="beds">
+                                      {totalBedSpace} beds
+                                    </span>
+                                  </p>
+                                );
+                              }
+                            )}
+                          </td>
+
+                          <td>
+                            {status == "special" ? (
+                              occupiedBy &&
+                              occupiedBy.map(
+                                ({ facultyName, levels }, index) => {
+                                  return (
+                                    <p key={`${index}${facultyName}`}>
+                                      {facultyName}
+                                      <br />
+                                      {levels.map((level, index) => {
+                                        return (
+                                          <React.Fragment
+                                            key={`${index}${level}`}
+                                          >
+                                            <span>{level} &nbsp;</span>
+                                          </React.Fragment>
+                                        );
+                                      })}
+                                    </p>
+                                  );
+                                }
+                              )
+                            ) : (
+                              <p>All Faculties</p>
+                            )}
+                          </td>
+                          <td>
+                            <button
+                              className="btn btn-warning"
+                              onClick={() =>
+                                history.push(`/create_hostel`, {
+                                  hallId: id,
+                                })
+                              }
+                            >
+                              Edit Hostel Details
+                            </button>
+                          </td>
                         </tr>
                       );
                     }

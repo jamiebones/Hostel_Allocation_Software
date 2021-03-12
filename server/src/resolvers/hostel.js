@@ -16,8 +16,8 @@ export default {
     },
 
     getOneHall: async (parent, { hallId }, { fastConn, slowConn }) => {
-      const halls = await fastConn.models.Hostel.findOne({ _id: hallId });
-      return halls;
+      const hall = await fastConn.models.Hostel.findOne({ _id: hallId });
+      return hall;
     },
 
     getHallByLocationAndType: async (
@@ -58,6 +58,39 @@ export default {
 
         await newHall.save();
         return newHall;
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
+    },
+    editHostelHall: async (
+      parent,
+      { hallId, hallName, type, location, hostelFee, status, occupiedBy },
+      { fastConn, slowConn }
+    ) => {
+      try {
+        //find the hall
+        const hall = await fastConn.models.Hostel.findOne({ _id: hallId });
+        if (!hall) {
+          throw new Error("you can not update a hall that does not exists");
+        }
+        const hallObject = {
+          hallName,
+          type,
+          location,
+          hostelFee,
+          status,
+        };
+        if (status === "special") {
+          hallObject.occupiedBy = occupiedBy;
+        }
+        hall.hallName = hallName;
+        hall.type = type;
+        hall.location = location;
+        hall.hostelFee = hostelFee;
+        hall.status = status;
+        await hall.save();
+        return hall;
       } catch (error) {
         console.log(error);
         throw error;

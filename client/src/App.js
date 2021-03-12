@@ -39,7 +39,7 @@ import ActiateDeactivateSession from "./components/activateSession";
 import CreateNewHostel from "./components/addHostel";
 import SelectHostelComponent from "./components/selectHostelComponet";
 import CreateRoomInHostel from "./components/createRoomInHostel";
-import RoomNBedSpaceOperation from "./components/roomOperation";
+import RoomBedSpaceOperation from "./components/roomOperation";
 import BedSpaceSettings from "./components/bedSpaceSettings";
 import BedSpaceStatsTotal from "./components/bedstatsTotal";
 import AssignSpaceToStudent from "./components/assignSpaceToStudent";
@@ -347,7 +347,7 @@ const App = (props) => {
                           <AuthorizedComponent
                             path="/view_rooms"
                             exact
-                            component={RoomNBedSpaceOperation}
+                            component={RoomBedSpaceOperation}
                             authenticated={authenticated}
                             currentUser={currentUser}
                             authorizedRole={["super-admin"]}

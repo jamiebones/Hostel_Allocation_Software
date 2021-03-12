@@ -18,6 +18,15 @@ export default gql`
       status: String!
       occupiedBy: [OccupiedByInput]
     ): Hostel!
+    editHostelHall(
+      hallId: ID!
+      hallName: String!
+      type: String!
+      location: String!
+      hostelFee: String!
+      status: String!
+      occupiedBy: [OccupiedByInput]
+    ): Hostel!
     updateHostelFee(hallId: ID!, fees: String!): Boolean!
   }
 

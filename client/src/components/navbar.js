@@ -174,6 +174,16 @@ const Navbar = ({ authenticated, currentUser }) => {
 
                                   <StyledLink
                                     exact
+                                    to="/admin/edit_hostel"
+                                    className="nav-link"
+                                  >
+                                    Edit Hostel Details
+                                  </StyledLink>
+
+                                  
+
+                                  <StyledLink
+                                    exact
                                     to="/view_students_in_rooms"
                                     className="nav-link"
                                   >

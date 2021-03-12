@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useMutation, useQuery } from "@apollo/client";
-import { GetAllFaculties } from "../graphql/queries";
-import { CreateHall } from "../graphql/mutation";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { GetAllFaculties, GetHostelById } from "../graphql/queries";
+import { CreateHall, EditHall } from "../graphql/mutation";
 import CurrencyInput from "react-currency-input";
 import Loading from "./common/loading";
 import Modal from "react-modal";
+import { useHistory } from "react-router-dom";
 
 const facultyArrayFunction = (array, facultyName) => {
   if (array.length == 0) return [];
@@ -44,6 +45,7 @@ const HostelStyles = styled.div`
     color: rebeccapurple;
     font-weight: bold;
     display: inline-block;
+    cursor: pointer;
     span {
       padding: 5px;
       color: #084627;
@@ -52,12 +54,12 @@ const HostelStyles = styled.div`
   .selected_faculty:last-child {
     margin-bottom: 20px;
   }
-  .div_faculty_hostel{
+  .div_faculty_hostel {
     display: inline-block;
   }
 `;
 
-const AddHostel = ( {hostel}) => {
+const AddHostel = (props) => {
   const [submitted, setSubmitted] = useState(false);
   const [isspecial, setIsSpecial] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState([]);
@@ -68,12 +70,60 @@ const AddHostel = ( {hostel}) => {
   const [hostelType, setHostelType] = useState("");
   const [hostelLocation, setHostelLocation] = useState("");
   const { loading, error, data } = useQuery(GetAllFaculties);
-  const [addHostelMutation, addHostelResult] = useMutation(CreateHall);
+
   const [openModal, setOpenModal] = useState(false);
   const [specialFaculty, setSpecialFaculty] = useState(null);
   const [specialFacultyArray, setSpecialFacultyArray] = useState([]);
+  const [hallId, setHallId] = useState(null);
 
+  const hostelId =
+    props.location && props.location.state && props.location.state.hallId;
+
+  const [hallQueryFunction, hallResult] = useLazyQuery(GetHostelById, {
+    variables: {
+      hallId: hostelId,
+    },
+  });
+
+  const [addHostelMutation, addHostelResult] = useMutation(CreateHall);
+
+  const [editHostelMutation, editHostelResult] = useMutation(EditHall);
+  const history = useHistory();
   Modal.setAppElement("#root");
+
+  useEffect(() => {
+    if (hostelId) {
+      //get the hostel details
+      hallQueryFunction();
+    }
+  }, [hostelId]);
+
+  useEffect(() => {
+    if (hallResult.data) {
+      const hall = hallResult.data.getOneHall;
+      if (hall) {
+        const {
+          id,
+          hallName,
+          type,
+          location,
+          hostelFee,
+          status,
+          occupiedBy,
+        } = hall;
+        setHostelFees(hostelFee);
+        setHostelName(hallName);
+        setHostelType(type);
+        setHostelLocation(location);
+        setIsSpecial(status === "special" ? true : false);
+        setSpecialFacultyArray(status === "special" ? occupiedBy : []);
+        setHallId(id);
+      }
+    }
+    if (hallResult.error) {
+      setErrors(hallResult.error);
+    }
+  }, [hallResult.data, hallResult.error]);
 
   useEffect(() => {
     if (addHostelResult.error) {
@@ -94,6 +144,18 @@ const AddHostel = ( {hostel}) => {
       setSpecialFaculty(null);
     }
   }, [addHostelResult.error, addHostelResult.data]);
+
+  useEffect(() => {
+    if (editHostelResult.error) {
+      setErrors(editHostelResult.error);
+      setSubmitted(false);
+    }
+    if (editHostelResult.data) {
+      setSubmitted(false);
+      alert(`${hostelName} edited successfully `);
+      history.push("/admin/edit_hostel");
+    }
+  }, [editHostelResult.error, editHostelResult.data]);
 
   useEffect(() => {
     if (error) {
@@ -226,8 +288,7 @@ const AddHostel = ( {hostel}) => {
       occupiedBy: isspecial ? specialFacultyArray : null,
       hostelFee: hostelFees,
     };
-    if (isspecial) {
-    }
+
     try {
       await addHostelMutation({
         variables: {
@@ -265,16 +326,93 @@ const AddHostel = ( {hostel}) => {
     setOpenModal(false);
   };
 
+  const updateHostelDetails = async (e) => {
+    e.preventDefault();
+    //gather our values here
+    if (!hostelName) {
+      alert("hostel name is required ");
+      return;
+    }
+    if (!hostelType) {
+      alert("hostel type is required ");
+      return;
+    }
+    if (!hostelLocation) {
+      alert("hostel location is required ");
+      return;
+    }
+    if (isspecial) {
+      if (specialFacultyArray.length < 0) {
+        alert("please select the faculties that will occupy the hostel");
+      }
+    }
+    const confirmData = window.confirm(`please confirm the following information. \n
+                                        Hostel Name: ${hostelName}
+                                        type: ${hostelType}
+                                        location: ${hostelLocation}
+                                        fees: ${hostelFees}
+                                        ${
+                                          isspecial
+                                            ? specialFacultyArray.map((val) => {
+                                                return `${val.facultyName} 
+                                                
+                                                `;
+                                              })
+                                            : ""
+                                        }
+                                        ${
+                                          isspecial &&
+                                          specialFacultyArray.length > 0
+                                            ? specialFacultyArray.map(
+                                                ({ levels }) => {
+                                                  return levels.map((val) => {
+                                                    return `${val}`;
+                                                  });
+                                                }
+                                              )
+                                            : ""
+                                        }
+    `);
+    if (!confirmData) return;
+    setSubmitted(true);
+    const hostelObject = {
+      hallId: hallId,
+      hallName: hostelName,
+      type: hostelType,
+      location: hostelLocation,
+      status: isspecial ? "special" : "normal",
+      occupiedBy: isspecial ? specialFacultyArray : null,
+      hostelFee: hostelFees,
+    };
+
+    try {
+      await editHostelMutation({
+        variables: {
+          ...hostelObject,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <HostelStyles>
       <div className="row">
         <div className="col-md-6 offset-md-3">
           <div className="text-center">
-            <h3 className="text-info">Create New Student Hostel</h3>
+            {hallId ? (
+              <h3 className="text-success">
+                Edit {hostelName && hostelName.toUpperCase()} Hostel Details
+              </h3>
+            ) : (
+              <h3 className="text-info">Create New Student Hostel</h3>
+            )}
+
             {errors && <p className="lead text-danger">{errors.message}</p>}
           </div>
 
-          <form onSubmit={handleHostelCreation}>
+          <form onSubmit={!hallId ? handleHostelCreation : updateHostelDetails}>
             <div className="form-group">
               <label htmlFor="hostelName">Hostel Name:</label>
               <input
@@ -298,6 +436,7 @@ const AddHostel = ( {hostel}) => {
                 id="hostelType"
                 aria-describedby="typeHelp"
                 name="hostelType"
+                value={hostelType}
                 onChange={handleChange}
               >
                 <option value="0">select hostel type</option>
@@ -316,6 +455,7 @@ const AddHostel = ( {hostel}) => {
                 id="hostelLocation"
                 aria-describedby="locationHelp"
                 name="hostelLocation"
+                value={hostelLocation}
                 onChange={handleChange}
               >
                 <option value="0">select hostel location</option>
@@ -347,6 +487,7 @@ const AddHostel = ( {hostel}) => {
                 type="checkbox"
                 className="form-check-input"
                 value={isspecial}
+                checked={isspecial}
                 onChange={() => setIsSpecial((prevValue) => !prevValue)}
               />
               <label className="form-check-label">
@@ -382,7 +523,9 @@ const AddHostel = ( {hostel}) => {
 
                 {specialFacultyArray.length > 0 ? (
                   <div className="div_faculty_hostel">
-                    <p className="text-center lead">Faculties and levels to occupy {hostelName} </p>
+                    <p className="text-center lead">
+                      Faculties and levels to occupy {hostelName}{" "}
+                    </p>
                     {specialFacultyArray.map(({ facultyName, levels }) => {
                       return (
                         <div
@@ -410,16 +553,29 @@ const AddHostel = ( {hostel}) => {
                 )}
               </React.Fragment>
             )}
+
             <div className="text-center">
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={submitted}
-              >
-                {submitted
-                  ? "please wait.. creating hostel....."
-                  : "Create new hostel"}
-              </button>
+              {hallId ? (
+                <button
+                  type="submit"
+                  className="btn btn-success"
+                  disabled={submitted}
+                >
+                  {submitted
+                    ? "please wait.. editing details"
+                    : `Save ${hostelName} update`}
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={submitted}
+                >
+                  {submitted
+                    ? "please wait.. creating hostel....."
+                    : "Create new hostel"}
+                </button>
+              )}
             </div>
           </form>
 
