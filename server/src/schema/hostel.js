@@ -6,6 +6,7 @@ export default gql`
     getOneHall(hallId: ID!): Hostel
     hallByType(type: String!): [Hostel!]
     getHallByLocationAndType(hallType: String!, location: String!): [Hostel!]
+    hostelDetailsByName(hostelName: String!): [Hostel!]!
   }
 
   extend type Mutation {

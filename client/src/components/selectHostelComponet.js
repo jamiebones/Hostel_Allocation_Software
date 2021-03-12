@@ -125,7 +125,6 @@ const SelectHostelComponent = () => {
                   <th scope="col">Location</th>
                   <th scope="col">Hostel Fees</th>
                   <th scope="col">Occupied By</th>
-                  <th scope="col">Level of occupants</th>
                   <th scope="col">Rooms</th>
                   <th scope="col">Action</th>
                 </tr>
@@ -140,7 +139,6 @@ const SelectHostelComponent = () => {
                       location,
                       hostelFee,
                       occupiedBy,
-                      occupiedByLevel,
                       rooms,
                     },
                     i
@@ -164,34 +162,30 @@ const SelectHostelComponent = () => {
                         <td>
                           {occupiedBy ? (
                             <p>
-                              {occupiedBy.map((ele, i) => {
+                              {occupiedBy.map(({ facultyName, levels }, i) => {
                                 return (
-                                  <React.Fragment key={`${i}${ele}`}>
-                                    <span>{CapFirstLetterOfEachWord(ele)}</span>
+                                  <React.Fragment key={`${i}${facultyName}`}>
+                                    <span>
+                                      {CapFirstLetterOfEachWord(facultyName)}
+                                    </span>
                                     <br />
+                                   
+                                    {levels.map((level, index) => {
+                                      return (
+                                        <React.Fragment
+                                          key={`${index}${level}`}
+                                        >
+                                          <span>{level}</span> &nbsp;
+                                        </React.Fragment>
+                                      );
+                                    })}
+                                    <br/>
                                   </React.Fragment>
                                 );
                               })}
                             </p>
                           ) : (
                             <p>all faculties</p>
-                          )}
-                        </td>
-
-                        <td>
-                          {occupiedByLevel ? (
-                            <p>
-                              {occupiedByLevel.map((ele, i) => {
-                                return (
-                                  <React.Fragment key={`${i}${ele}`}>
-                                    <span>{CapFirstLetterOfEachWord(ele)}</span>
-                                    <br />
-                                  </React.Fragment>
-                                );
-                              })}
-                            </p>
-                          ) : (
-                            <p>all levels</p>
                           )}
                         </td>
 
@@ -239,21 +233,20 @@ const SelectHostelComponent = () => {
                             </Link>
 
                             <Link
-                            className="btn btn-success stretched-link"
-                            to={{
-                              pathname: "/view_rooms",
-                              state: {
-                                hallName,
-                                hallId: id,
-                                location,
-                                roomType: type,
-                                rooms
-                              },
-                            }}
-                          >
-                            view rooms
-                          </Link>
-                          
+                              className="btn btn-success stretched-link"
+                              to={{
+                                pathname: "/view_rooms",
+                                state: {
+                                  hallName,
+                                  hallId: id,
+                                  location,
+                                  roomType: type,
+                                  rooms,
+                                },
+                              }}
+                            >
+                              view rooms
+                            </Link>
                           </div>
                         </td>
                       </tr>

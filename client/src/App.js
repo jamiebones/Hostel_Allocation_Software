@@ -51,6 +51,7 @@ import AdminAllocateFreeBed from "./components/adminAllocationEachSession";
 import AuthorizedComponent from "./components/authorized";
 import Footer from "./components/footer";
 import state from "./applicationState";
+import EditHostelDetails from "./components/editHostelDetails";
 import CustomNavbar from "./components/common/customNavbar";
 
 import GlobalStyle from "./globalStyles";
@@ -63,7 +64,7 @@ const store = require("store");
 
 // const GlobalStyle = createGlobalStyle`
 //     /* Your css reset here */
-//    
+//
 //   background-color: red;
 // `;
 
@@ -96,10 +97,10 @@ const App = (props) => {
 
   return (
     <ApolloProvider client={client}>
-      <GlobalStyle/>
-      
-        <Router>
-          <Layout>
+      <GlobalStyle />
+
+      <Router>
+        <Layout>
           <AppStyles>
             <Navigation
               token={token}
@@ -262,6 +263,16 @@ const App = (props) => {
                             authorizedRole={["super-admin"]}
                             {...props}
                           />
+
+                          <AuthorizedComponent
+                            path="/admin/edit_hostel"
+                            exact
+                            component={EditHostelDetails}
+                            authenticated={authenticated}
+                            currentUser={currentUser}
+                            authorizedRole={["super-admin"]}
+                            {...props}
+                          />
                           {/* <Authorized
                               path="/admin/create_room"
                               exact
@@ -397,10 +408,9 @@ const App = (props) => {
               </React.Fragment>
             </Switch>
             <Footer />
-            </AppStyles>
-          </Layout>
-        </Router>
-      
+          </AppStyles>
+        </Layout>
+      </Router>
     </ApolloProvider>
   );
 };

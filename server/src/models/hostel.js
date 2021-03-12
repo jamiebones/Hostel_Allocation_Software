@@ -22,4 +22,6 @@ const HostelSchema = new Schema({
   },
 });
 
+HostelSchema.index({hallName: "text"});
+
 export default HostelSchema;

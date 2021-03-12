@@ -1,7 +1,12 @@
-import util from "../utils";
-
 export default {
   Query: {
+    hostelDetailsByName: async (parent, { hostelName }, { slowConn }) => {
+      const hostels = await slowConn.models.Hostel.find({
+        hallName: { $regex: hostelName, $options: "i" },
+      });
+
+      return hostels;
+    },
     getAllHalls: async (parent, args, { fastConn, slowConn }) => {
       const halls = await fastConn.models.Hostel.find({}).sort([
         ["location", 1],
@@ -35,14 +40,7 @@ export default {
   Mutation: {
     createHostelHall: async (
       parent,
-      {
-        hallName,
-        type,
-        location,
-        hostelFee,
-        status,
-        occupiedBy,
-      },
+      { hallName, type, location, hostelFee, status, occupiedBy },
       { fastConn, slowConn }
     ) => {
       try {
@@ -54,7 +52,7 @@ export default {
           status,
         };
         if (status === "special") {
-          hallObject.occupiedBy =  occupiedBy;
+          hallObject.occupiedBy = occupiedBy;
         }
         const newHall = new fastConn.models.Hostel(hallObject);
 
@@ -78,6 +76,7 @@ export default {
       }
     },
   },
+
   Hostel: {
     rooms: async (hostel, {}, { fastConn }) => {
       const rooms = await fastConn.models.Room.find({ hallId: hostel._id });

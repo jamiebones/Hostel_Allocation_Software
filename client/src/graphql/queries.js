@@ -348,8 +348,10 @@ const GetHostelByTypeAndLocation = gql`
       location
       hostelFee
       status
-      occupiedBy
-      occupiedByLevel
+      occupiedBy {
+        facultyName
+        levels
+      }
       rooms {
         id
         roomNumber
@@ -441,6 +443,31 @@ const GetAdminAllocation = gql`
   }
 `;
 
+const GetHostelsByName = gql`
+  query hostelDetailsByName($hostelName: String!) {
+    hostelDetailsByName(hostelName: $hostelName) {
+      id
+      hallName
+      type
+      location
+      hostelFee
+      rooms {
+        roomNumber
+        totalBedSpace
+        hallName
+        hallId
+        location
+        roomType
+      }
+      status
+      occupiedBy {
+        facultyName
+        levels
+      }
+    }
+  }
+`;
+
 export {
   CheckphoneIfThePersonHasTriedsMoreThanThreeTimes,
   ContactUniuyoPortal,
@@ -466,4 +493,5 @@ export {
   GetTransactionUsingRRR,
   GetAdminAllocation,
   TotalAndReservedBedStatistic,
+  GetHostelsByName,
 };

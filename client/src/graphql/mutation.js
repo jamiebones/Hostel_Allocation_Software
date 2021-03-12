@@ -32,7 +32,7 @@ const GenerateRemitaRRR = gql`
       status
       regNumber
       amount
-      env{
+      env {
         MerchantId
         Api_Key
         ServiceTypeId
@@ -166,7 +166,6 @@ const CreateHall = gql`
     $status: String!
     $hostelFee: String!
     $occupiedBy: [OccupiedByInput]
-
   ) {
     createHostelHall(
       hallName: $hallName
@@ -195,7 +194,8 @@ const AddNewRoomMutation = gql`
     $hallId: String
     $location: String!
     $roomType: String!
-    $singleBed: Boolean
+    $singleBeds: String!,
+    $doubleBeds: String!,
   ) {
     createRoom(
       roomNumber: $roomNumber
@@ -204,7 +204,9 @@ const AddNewRoomMutation = gql`
       hallId: $hallId
       location: $location
       roomType: $roomType
-      singleBed: $singleBed
+      singleBeds: $singleBeds
+      doubleBeds: $doubleBeds
+
     ) {
       id
     }
@@ -269,16 +271,12 @@ const OpenAllBedSpace = gql`
 
 const SimulateRemitaTransaction = gql`
   mutation simulateRemitaTransaction($regNumber: String!) {
-    simulateRemitaTransaction(regNumber: $regNumber ){
+    simulateRemitaTransaction(regNumber: $regNumber) {
       message
       status
     }
   }
 `;
-
-
-
-
 
 //
 
@@ -351,5 +349,5 @@ export {
   ConfirmStudentTransaction,
   PlaceStudentInHoldBedSpace,
   DashStudentFreeRoom,
-  SimulateRemitaTransaction
+  SimulateRemitaTransaction,
 };

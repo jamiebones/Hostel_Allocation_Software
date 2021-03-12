@@ -27,13 +27,14 @@ export default {
           hallId,
           location,
           roomType,
-          singleBed,
+          singleBeds,
+          doubleBeds,
         },
       },
       { fastConn, slowConn }
     ) => {
       try {
-        const midPoint = +totalBedSpace / 2;
+        const midPoint = +doubleBeds / 2;
         //check if we have a valid hall here
         const hall = await fastConn.models.Hostel.findById(hallId);
         if (!hall) {
@@ -73,8 +74,9 @@ export default {
         });
         await newRoom.save();
         const roomId = newRoom._id;
-        if (singleBed) {
-          for (let i = 1; i <= +totalBedSpace; i++) {
+        //create bed numbers here
+        if (+singleBeds != 0) {
+          for (let i = 1; i <= +singleBeds; i++) {
             const downBunk = {
               bedNumber: `${i}S`,
               bedStatus: "locked",
@@ -95,8 +97,10 @@ export default {
             await downBed.save();
             //where we save the bed space to the room.
           }
-        } else {
-          for (let i = 1; i <= midPoint; i++) {
+        }
+
+        if (+doubleBeds != 0) {
+          for (let i = 1; i <= doubleBeds; i++) {
             const upBunk = {
               bedNumber: `${i}B`,
               bedStatus: "locked",

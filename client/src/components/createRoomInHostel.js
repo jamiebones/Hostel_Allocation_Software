@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useMutation } from "@apollo/client";
+import { useMutation, useLazyQuery } from "@apollo/client";
 import { CreateRoom } from "../graphql/mutation";
 import { ExtractError, CapFirstLetterOfEachWord } from "../modules/utils";
+import { GetHostelByTypeAndLocation } from "../graphql/queries";
 import ErrorDisplay from "./common/errorDisplay";
 
 import styled from "styled-components";
@@ -13,13 +14,17 @@ const CreateRoomInHall = (props) => {
   const [hostelId, setHostelId] = useState("");
   const [location, setLocation] = useState("");
   const [roomType, setroomType] = useState("");
-  const [singleBed, setSingleBed] = useState(false);
+  const [singleBeds, setSingleBeds] = useState("");
+  const [doubleBeds, setDoubleBeds] = useState("");
   const [errors, setErrors] = useState([]);
   const [totalBedSpace, settotalBedSpace] = useState("");
   const [roomNumber, setroomNumber] = useState("");
   const [submitted, setsubmitted] = useState(false);
 
   const [createNewRoomMutation, createNewRoomResult] = useMutation(CreateRoom);
+  const [getHallQuery, getHallResult] = useLazyQuery(
+    GetHostelByTypeAndLocation
+  );
 
   useEffect(() => {
     if (createNewRoomResult.error) {
@@ -29,9 +34,13 @@ const CreateRoomInHall = (props) => {
     if (createNewRoomResult.data) {
       //we push to where we were coming from or we create
       //new roomin the same hostel
+      window.alert("Room creation successful");
+
       setsubmitted(!submitted);
       setroomNumber("");
-      settotalBedSpace(0);
+      settotalBedSpace("");
+      setSingleBeds("");
+      setDoubleBeds("");
     }
   }, [createNewRoomResult.error, createNewRoomResult.data]);
 
@@ -61,13 +70,23 @@ const CreateRoomInHall = (props) => {
       return;
     }
 
+    const totalBeds = +singleBeds + +doubleBeds * 2;
+
+    if (+totalBeds != +totalBedSpace) {
+      alert(
+        "Please check the entered figures, the sum of the total single bed \n\
+        with the total double beds do not match the total bed space in the room"
+      );
+      return;
+    }
+
     const confirmData = window.confirm(`
                             hostel name :${hostelName} \n
                             location: ${location} \n
                             room type: ${roomType} \n
-                            bed type: ${
-                              singleBed ? "single beds" : "double beds"
-                            }
+                            single beds: ${singleBeds ? singleBeds : 0} \n
+                            double beds: ${doubleBeds ? doubleBeds : 0} \n
+                          
     
     `);
 
@@ -84,9 +103,19 @@ const CreateRoomInHall = (props) => {
             hallId: hostelId,
             location,
             roomType,
-            singleBed,
+            singleBeds,
+            doubleBeds,
           },
         },
+        refetchQueries: [
+          {
+            query: GetHostelByTypeAndLocation,
+            variables: {
+              hallType: roomType,
+              location: location,
+            },
+          },
+        ],
       });
     } catch (error) {
       console.log(error);
@@ -103,19 +132,25 @@ const CreateRoomInHall = (props) => {
       case "totalBedSpace":
         settotalBedSpace(value);
         break;
+      case "singleBeds":
+        setSingleBeds(value);
+        break;
+      case "doubleBeds":
+        setDoubleBeds(value);
+        break;
     }
   };
 
   return (
     <RoomStyles>
       <div className="row">
-        <div className="col-md-12">
+        <div className="col-md-6 offset-md-3">
           {hostelName && hostelId && (
             <React.Fragment>
               <ErrorDisplay errors={errors} />
-              <p className="text-center">
-                Add room to {CapFirstLetterOfEachWord(hostelName)} hostel
-              </p>
+              <h3 className="text-center text-info">
+                Add room to {CapFirstLetterOfEachWord(hostelName)} Hostel
+              </h3>
 
               <div className="float-right">
                 <button
@@ -149,16 +184,26 @@ const CreateRoomInHall = (props) => {
                   />
                 </div>
 
-                <div className="form-group form-check">
+                <div className="form-group">
+                  <label htmlFor="singleBeds">Number of single beds</label>
                   <input
-                    type="checkbox"
-                    className="form-check-input"
-                    value={singleBed}
-                    onChange={() => setSingleBed((prevValue) => !prevValue)}
+                    type="number"
+                    className="form-control"
+                    name="singleBeds"
+                    value={singleBeds}
+                    onChange={handleChange}
                   />
-                  <label className="form-check-label">
-                    Check the box if the room consist of single beds
-                  </label>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="doubleBeds">Number of double beds</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    name="doubleBeds"
+                    value={doubleBeds}
+                    onChange={handleChange}
+                  />
                 </div>
 
                 <button

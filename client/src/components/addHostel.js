@@ -38,19 +38,26 @@ const HostelStyles = styled.div`
   }
 
   .selected_faculty {
-    border: 2px solid #c0c0c0;
-    padding: 20px;
-    margin: 5px;
+    border: 1px solid #c0c0c0;
+    padding: 10px;
+    margin: 2px;
+    color: rebeccapurple;
+    font-weight: bold;
+    display: inline-block;
     span {
       padding: 5px;
+      color: #084627;
     }
   }
   .selected_faculty:last-child {
     margin-bottom: 20px;
   }
+  .div_faculty_hostel{
+    display: inline-block;
+  }
 `;
 
-const AddHostel = () => {
+const AddHostel = ( {hostel}) => {
   const [submitted, setSubmitted] = useState(false);
   const [isspecial, setIsSpecial] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState([]);
@@ -374,7 +381,8 @@ const AddHostel = () => {
                 </div>
 
                 {specialFacultyArray.length > 0 ? (
-                  <div>
+                  <div className="div_faculty_hostel">
+                    <p className="text-center lead">Faculties and levels to occupy {hostelName} </p>
                     {specialFacultyArray.map(({ facultyName, levels }) => {
                       return (
                         <div

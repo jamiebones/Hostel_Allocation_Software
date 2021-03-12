@@ -21,7 +21,8 @@ export default gql`
   hallId: String 
   location: String
   roomType: String 
-  singleBed: Boolean 
+  singleBeds: String
+  doubleBeds: String
  }
 
 
