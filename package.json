@@ -1,4 +1,3 @@
-
 {
   "name": "hostel_allocation_software_uniuyo_final_app",
   "version": "1.0.0",
@@ -8,6 +7,8 @@
     "start": "cd ./server && npm start"
   },
   "author": "Osikhena James Oshomah",
-  "license": "ISC"
-  
+  "license": "ISC",
+  "dependencies": {
+    "jusibe": "^1.0.3"
+  }
 }

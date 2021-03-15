@@ -57,6 +57,8 @@ services:
       CheckStatusUrl: https://remitademo.net/remita/ecomm
       ReturnRemitaUrl: http://localhost:3001/confirm_transaction
       RRRGateWayPaymentUrl: https://remitademo.net/remita/ecomm/finalize.reg
+      JusibePublicKey: 425f0a0373eb462bb90fb1ce5bf99796
+      JusibeAccessToken: 22c26cb42ca32a6cb80a08616e99362b
 
   mongo-setup_uniuyo:
     container_name: mongo-setup_uniuyo

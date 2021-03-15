@@ -15,6 +15,24 @@ import NumberFormat from "react-number-format";
 import styled from "styled-components";
 
 const SessionStyles = styled.div`
+   /* input[type="range"]::-webkik-slider-runnable-track{
+    width: 100%;
+    height: 8.4px;
+    cursor: pointer;
+    background: #ff7171;
+    height: 20px;
+    border-radius: 10px;
+  }
+
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-apperance: none;
+    height: 40px;
+    width: 30px;
+    border-radius: 10px;
+    background: #440a67;
+    cursor: pointer;
+    margin-top: -10px;
+  } */
   .fac-container {
     display: flex;
     width: 47vw;
