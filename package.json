@@ -7,8 +7,5 @@
     "start": "cd ./server && npm start"
   },
   "author": "Osikhena James Oshomah",
-  "license": "ISC",
-  "dependencies": {
-    "jusibe": "^1.0.3"
-  }
+  "license": "ISC"
 }

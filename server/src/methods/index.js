@@ -5,6 +5,7 @@ import sessionTableMethod from "./sessionTable";
 import BedStats from "./sortBedSpaceByStatus";
 import confirmPhoneMethod from "./confirmPhoneTable";
 import userMethod from "./users";
+import messageMethod from "./message"
 
 export default {
   studentBioMethod,
@@ -14,4 +15,5 @@ export default {
   confirmPhoneMethod,
   userMethod,
   BedStats,
+  messageMethod
 };

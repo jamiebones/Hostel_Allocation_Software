@@ -2,28 +2,25 @@ import { gql } from "apollo-server-express";
 
 export default gql`
   extend type Query {
-    messages(cursor: String, limit: Int): MessageConnection!
-    message(id: ID!): Message!
-    text: [BedSpaceStats]
+    checkCredit:String!
+    checkMessageStatus(messageId: ID!): BulkMessageStatus
+  
   }
 
   extend type Mutation {
-    createMessage(text: String!, userId: String!): Message!
-    deleteMessage(id: ID!): Boolean!
+    sendMessage(to: String! from: String message: String): Message!
+    
   }
 
-  type MessageConnection {
-    edges: [Message!]!
-    pageInfo: PageInfo!
-  }
  
-  type PageInfo {
-    hasNextPage: Boolean!
-    endCursor: String!
-  }
+ 
 
   extend type Subscription {
     messageCreated: MessageCreated!
+  }
+
+  type SMSCredit {
+    sms_credit: String!
   }
  
   type MessageCreated {
@@ -31,9 +28,21 @@ export default gql`
   }
 
   type Message {
-    id: ID!
-    text: String
-    createdAt: Date
-    user: User
+    messageId: ID!
+    from: String!
+    receipents: String!,
+    date: Date,
+    message: String
+  }
+
+  type BulkMessageStatus {
+    bulk_message_id: ID!
+    status: String
+    created: String
+    processed: String
+    total_numbers: String
+    total_unique_numbers: String
+    total_valid_numbers: String
+    total_invalid_numbers: String
   }
 `;

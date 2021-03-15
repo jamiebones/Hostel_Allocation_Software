@@ -1,87 +1,76 @@
-
 import { combineResolvers } from "graphql-resolvers";
 import { isAuthenticated } from "./authorization";
 
-import pubsub, { EVENTS } from '../subscription';
+import pubsub, { EVENTS } from "../subscription";
 
-import methods from "../methods"
- 
+import methods from "../methods";
 
-const toCursorHash = (string) => Buffer.from(string).toString("base64");
-
-const fromCursorHash = (string) =>
-  Buffer.from(string, "base64").toString("ascii");
+console.log("methods", methods);
 
 export default {
   Query: {
-    messages: async (parent, { cursor, limit = 3 }, { models }) => {
-      const query = models.Message.find({});
-      query.sort({ createdAt: -1 });
-      query.limit(limit + 1);
-      cursor && query.where("createdAt").lt(fromCursorHash(cursor));
-
-      const messages = await query.exec();
-      const hasNextPage = messages.length > limit;
-      const edges = hasNextPage ? messages.slice(0, -1) : messages;
-      return {
-        edges,
-        pageInfo: {          hasNextPage,
-          endCursor: toCursorHash(
-            edges[edges.length - 1].createdAt.toString(),
-          ),
-        },
-      };
+    checkMessageStatus: async (parent, { messageId }, {}) => {
+      const messageStatus = await methods.messageMethod.JusibeModule.smsStatus(
+        messageId
+      );
+      return messageStatus;
     },
-    text: async (parent, {regNumber}, {models}) => {
-      const stats = await methods.BedStats();
-      return stats;
-      console.log(stats);
-    }
+    checkCredit: async (_, {}, {}) => {
+      const credit = await methods.messageMethod.JusibeModule.checkCredit();
+      return credit;
+    },
   },
   Mutation: {
-    createMessage: combineResolvers(
-      // isAuthenticated,
-      async (parent, { text, userId }, { me, models }) => {
-        const message = new models.Message({
-          text,
-          userId,
+    sendMessage: async (
+      parent,
+      { to, from, message },
+      { fastConn, slowConn }
+    ) => {
+      const messageRequest = await methods.messageMethod.JusibeModule.sendMessage(
+        {
+          receipent: to,
+          from: from,
+          message: message,
+        }
+      );
+      //we were successful in sending the message to the API. save the
+      //message details in the database now
+      console.log("message sent is", messageRequest);
+      const { bulk_message_id } = messageRequest;
+      if (bulk_message_id) {
+        const newMessage = new fastConn.models.Message({
+          message,
+          from,
+          receipents: to,
+          date: new Date(),
         });
-
-        await message.save();
-        pubsub.publish(EVENTS.MESSAGE.CREATED, {
-          messageCreated: { message },
-        });
- 
-        return message;
+        await newMessage.save();
+        return {
+          messageId: bulk_message_id,
+          message,
+          from,
+          receipents: to,
+          date,
+        };
+      } else {
+        throw new Error("Could not send the message. Please try again");
       }
-    ),
-
-    deleteMessage: (parent, { id }, { models }) => {
-      const { [id]: message, ...otherMessages } = models.messages;
-
-      if (!message) {
-        return false;
-      }
-
-      models.messages = otherMessages;
-
-      return true;
     },
   },
 
-  Subscription: {
-    messageCreated: {
-      subscribe: () => pubsub.asyncIterator(EVENTS.MESSAGE.CREATED),
-    },
-  },
+  // Subscription: {
+  //   messageCreated: {
+  //     subscribe: () => pubsub.asyncIterator(EVENTS.MESSAGE.CREATED),
+  //   },
+  // },
 
-  Message: {
-    user: async (message, args, { loaders }) => {
-      return await loaders.user.load(message.userId);
+  // Message: {
+  //   user: async (message, args, { loaders }) => {
+  //     return await loaders.user.load(message.userId);
 
-    // user: (message, args, { models }) => {
-    //   return models.User.findOne({ _id: message.userId });
-    // },
-  }
-}
+  //     // user: (message, args, { models }) => {
+  //     //   return models.User.findOne({ _id: message.userId });
+  //     // },
+  //   },
+  // },
 };
