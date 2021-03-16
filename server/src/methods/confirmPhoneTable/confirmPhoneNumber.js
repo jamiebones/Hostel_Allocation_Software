@@ -1,7 +1,4 @@
-import axios from "axios";
-import models from "../../models";
-
-const { SMS_API, SMS_Token } = process.env;
+import message from "../message";
 
 const _setCode = () => {
   const date = new Date();
@@ -17,21 +14,16 @@ const _setCode = () => {
 
 export default async ({ number, regNumber, conn }) => {
   const code = _setCode();
-  const from = "Uniuyo Hostel Portal";
-  const to = number;
   let msg = `your confirmation code is ${code}`;
 
   try {
     //await axios.post(api);
     //save the stuff to the database here
-    await axios.post(SMS_API, null, {
-      params: {
-        api_token: SMS_Token,
-        from,
-        to,
-        body: msg,
-        dnd: 4,
-      },
+    const removeZeroFromNumber = number && number.substr(1, number.length);
+    await message.CheapGlobalSMS.sendMessage({
+      receipents: `234${removeZeroFromNumber}`,
+      sender: "UU Hostel",
+      message: msg,
     });
 
     let phoneCodeObject = {

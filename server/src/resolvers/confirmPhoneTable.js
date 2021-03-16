@@ -48,6 +48,7 @@ export default {
         const obj = {
           number: phoneNumber,
           regNumber,
+          conn: fastConn,
         };
 
         //check if the person have more than three false confirmation
@@ -64,17 +65,18 @@ export default {
           );
         }
 
-        const data = await methods.confirmPhoneMethod.confirmPhoneNumber(
-          obj,
-          fastConn
-        );
+        const data = await methods.confirmPhoneMethod.confirmPhoneNumber(obj);
         return data;
       } catch (error) {
         console.log(error);
         throw error;
       }
     },
-    confirmCode: async (parent, { regNumber, code }, {fastConn, slowConn }) => {
+    confirmCode: async (
+      parent,
+      { regNumber, code },
+      { fastConn, slowConn }
+    ) => {
       try {
         const findCode = await fastConn.models.ConfirmPhoneNumber.findOne({
           randomCode: { $regex: code, $options: "i" },

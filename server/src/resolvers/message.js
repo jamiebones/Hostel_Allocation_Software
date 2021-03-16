@@ -5,56 +5,56 @@ import pubsub, { EVENTS } from "../subscription";
 
 import methods from "../methods";
 
-console.log("methods", methods);
-
 export default {
   Query: {
-    checkMessageStatus: async (parent, { messageId }, {}) => {
-      const messageStatus = await methods.messageMethod.JusibeModule.smsStatus(
-        messageId
-      );
-      return messageStatus;
-    },
     checkCredit: async (_, {}, {}) => {
-      const credit = await methods.messageMethod.JusibeModule.checkCredit();
-      return credit;
+      const credit = await methods.messageMethod.CheapGlobalSMS.checkSMSCredit();
+      return { sms_credits: credit };
+    },
+    getSMSStatistics: async (_, { batchId }, {}) => {
+      const stats = await methods.messageMethod.CheapGlobalSMS.getSMSStatistics(
+        batchId
+      );
+      return stats;
+    },
+    getAmountSpent: async (_, { batchId }, {}) => {
+      const amount = await methods.messageMethod.CheapGlobalSMS.getAmountSpent(
+        batchId
+      );
+      return amount && amount.toString();
     },
   },
   Mutation: {
     sendMessage: async (
       parent,
-      { to, from, message },
+      { sender, receipents, message },
       { fastConn, slowConn }
     ) => {
-      const messageRequest = await methods.messageMethod.JusibeModule.sendMessage(
+      const messageRequest = await methods.messageMethod.CheapGlobalSMS.sendMessage(
         {
-          receipent: to,
-          from: from,
+          receipents,
+          sender,
           message: message,
         }
       );
       //we were successful in sending the message to the API. save the
       //message details in the database now
-      console.log("message sent is", messageRequest);
-      const { bulk_message_id } = messageRequest;
-      if (bulk_message_id) {
-        const newMessage = new fastConn.models.Message({
-          message,
-          from,
-          receipents: to,
-          date: new Date(),
-        });
-        await newMessage.save();
-        return {
-          messageId: bulk_message_id,
-          message,
-          from,
-          receipents: to,
-          date,
-        };
-      } else {
-        throw new Error("Could not send the message. Please try again");
-      }
+
+      const { status, totalMessage, batchId } = messageRequest;
+
+      const newMessage = new fastConn.models.Message({
+        message,
+        sender,
+        receipents,
+        date: new Date(),
+        status,
+        totalMessage,
+        batchId,
+      });
+      await newMessage.save();
+      return newMessage;
+
+    
     },
   },
 

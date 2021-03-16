@@ -4,10 +4,12 @@ const Schema = mongoose.Schema;
 
 const MessageSchema = new Schema({
   message: String,
-  from: String,
+  sender: String,
   receipents: String,
   date: Date,
-  messageId: String
+  status: String,
+  totalMessage: String,
+  batchId: String,
 });
 
 export default MessageSchema;

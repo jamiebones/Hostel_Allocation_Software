@@ -2,47 +2,60 @@ import { gql } from "apollo-server-express";
 
 export default gql`
   extend type Query {
-    checkCredit:String!
-    checkMessageStatus(messageId: ID!): BulkMessageStatus
-  
+    checkCredit: SMSCredit
+    getSMSStatistics(batchId: String):SMSSTATISTICS
+    getAmountSpent(batchId: String ): String
   }
 
   extend type Mutation {
-    sendMessage(to: String! from: String message: String): Message!
-    
+    sendMessage(receipents: String!, sender: String, message: String): Message!
   }
-
- 
- 
 
   extend type Subscription {
     messageCreated: MessageCreated!
   }
 
   type SMSCredit {
-    sms_credit: String!
+    sms_credits: String
   }
- 
+
   type MessageCreated {
     message: Message!
   }
 
   type Message {
-    messageId: ID!
-    from: String!
-    receipents: String!,
-    date: Date,
+    ID: ID!
+    sender: String!
+    batchId: ID!
+    receipents: String!
+    date: Date
     message: String
+    status: String
+    totalMessage: String
   }
 
-  type BulkMessageStatus {
-    bulk_message_id: ID!
+  type MessageStatus {
     status: String
-    created: String
-    processed: String
-    total_numbers: String
-    total_unique_numbers: String
-    total_valid_numbers: String
-    total_invalid_numbers: String
+    totalMessage: String
+    smsCost: String
   }
+
+ 
+
+  type SMSSTATISTICS {
+    UNDELIVERABLE: SMSSTATS
+    EXPIRED: SMSSTATS
+    REJECTED: SMSSTATS
+    FAILED: SMSSTATS
+    PENDING: SMSSTATS
+    ACCEPTED: SMSSTATS
+    DELIVERED: SMSSTATS
+    total: SMSSTATS
+  }
+
+  type SMSSTATS {
+    sms_count: Int
+    sms_units: Int 
+  }
+  
 `;

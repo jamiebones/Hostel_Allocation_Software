@@ -59,6 +59,14 @@ services:
       RRRGateWayPaymentUrl: https://remitademo.net/remita/ecomm/finalize.reg
       JusibePublicKey: 425f0a0373eb462bb90fb1ce5bf99796
       JusibeAccessToken: 22c26cb42ca32a6cb80a08616e99362b
+      EBulkSMSAPIKey: d4b76664b41984137091f955aa010812c5c30f03
+      EBulkSMSUsername: jamiebones2000@yahoo.co.uk
+      EBulkSMSGateWay: https://api.ebulksms.com:4433
+      CheapGlobalSmsGateway: http://cheapglobalsms.com/api_v1
+      CheapGlobalSmsSubAccount: 9540_uniuyo
+      CheapGlobalSmsSubAccountPassword: blazing147
+      
+
 
   mongo-setup_uniuyo:
     container_name: mongo-setup_uniuyo
