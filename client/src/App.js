@@ -52,6 +52,7 @@ import AuthorizedComponent from "./components/authorized";
 import Footer from "./components/footer";
 import state from "./applicationState";
 import EditHostelDetails from "./components/editHostelDetails";
+import SendMessageToStudent from "./components/sendMessageToStudents";
 import CustomNavbar from "./components/common/customNavbar";
 
 import GlobalStyle from "./globalStyles";
@@ -281,6 +282,7 @@ const App = (props) => {
                               currentUser={currentUser}
                               {...props}
                             /> */}
+
                           <AuthorizedComponent
                             path="/admin/confirm_allocation"
                             exact
@@ -290,6 +292,17 @@ const App = (props) => {
                             authorizedRole={["super-admin"]}
                             {...props}
                           />
+
+                          <AuthorizedComponent
+                            path="/admin/send_message"
+                            exact
+                            component={SendMessageToStudent}
+                            authenticated={authenticated}
+                            currentUser={currentUser}
+                            authorizedRole={["super-admin"]}
+                            {...props}
+                          />
+
                           <AuthorizedComponent
                             path="/create_new_session"
                             exact

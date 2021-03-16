@@ -493,7 +493,30 @@ const GetHostelById = gql`
   }
 `;
 
+const GetAllHallsWithRoomDetails = gql`
+  query getAllHalls {
+    getAllHalls {
+      id
+      hallName
+      rooms {
+        roomNumber
+        totalBedSpace
+        id
+      }
+    }
+  }
+`;
+
+const GetSMSCreditAvailable = gql`
+  query checkCredit {
+    checkCredit {
+      sms_credits
+    }
+  }
+`
+
 export {
+  GetSMSCreditAvailable,
   GetHostelById,
   CheckphoneIfThePersonHasTriedsMoreThanThreeTimes,
   ContactUniuyoPortal,
@@ -520,4 +543,5 @@ export {
   GetAdminAllocation,
   TotalAndReservedBedStatistic,
   GetHostelsByName,
+  GetAllHallsWithRoomDetails,
 };

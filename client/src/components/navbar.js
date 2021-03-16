@@ -69,10 +69,7 @@ const Navbar = ({ authenticated, currentUser }) => {
 
   let history = useHistory();
 
-  useEffect(() => {
-    
-  }, [isAuth])
-
+  useEffect(() => {}, [isAuth]);
 
   const handleLogOut = (e) => {
     e.preventDefault();
@@ -82,10 +79,8 @@ const Navbar = ({ authenticated, currentUser }) => {
     store.clearAll();
     client.clearStore();
     history.replace("/");
-    
   };
 
-  
   return (
     <NavbarStyles>
       <div className="header-nav">
@@ -180,8 +175,6 @@ const Navbar = ({ authenticated, currentUser }) => {
                                     Edit Hostel Details
                                   </StyledLink>
 
-                                  
-
                                   <StyledLink
                                     exact
                                     to="/view_students_in_rooms"
@@ -267,6 +260,16 @@ const Navbar = ({ authenticated, currentUser }) => {
                                     Assign Bed Space
                                   </StyledLink>
                                 </div>
+                              </li>
+
+                              <li className="nav-item">
+                                <StyledLink
+                                  className="nav-link"
+                                  exact
+                                  to="/admin/send_message"
+                                >
+                                  Send SMS
+                                </StyledLink>
                               </li>
                             </React.Fragment>
                           )}
