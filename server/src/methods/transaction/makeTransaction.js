@@ -1,7 +1,7 @@
 import studentBioMethod from "../studentBio";
 import sessionTableMethod from "../sessionTable";
 import bedSpaceMethod from "../bedspace";
-const { runInTransaction } = require("mongoose-transact-utils");
+
 
 const { getStudentData } = studentBioMethod.common;
 const { getActiveSession } = sessionTableMethod.common;
@@ -15,7 +15,8 @@ var _ = require('lodash');
 
 
 export default async function makeTransaction(regNumber, conn) {
-  return await runInTransaction(async (transactionSession) => {
+  const transactionSession = conn.startSession();
+  return await conn.transaction(async () => {
     try {
       const activeSession = await getActiveSession(conn);
       const student = await getStudentData(regNumber, conn);

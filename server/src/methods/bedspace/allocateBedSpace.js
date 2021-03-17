@@ -8,11 +8,12 @@ import {
   findSpaceByLevel,
   saveBedSpaceOnHold,
 } from "./commonAllocationUtil";
-const { runInTransaction } = require("mongoose-transact-utils");
+
 import studentBioMethod from "../studentBio";
 
 export default async function allocateHostelSpaceToStudent(regNumber, conn) {
-  return await runInTransaction(async (session) => {
+  const session = conn.startSession();
+  return await conn.transaction(async () => {
     try {
       //confirm if the person is a valid student
       const student = await studentBioMethod.confirmStudentShip(regNumber, conn);

@@ -1,5 +1,3 @@
-const { runInTransaction } = require("mongoose-transact-utils");
-
 export default {
   Query: {
     getSessionById: async (parent, { sessionId }, { fastConn, slowConn }) => {
@@ -18,12 +16,19 @@ export default {
 
   Mutation: {
     createSession: async (_, { input }, { fastConn, slowConn }) => {
-      const { session, facultyAllocation, levelAllocation, active } = input;
+      const {
+        session,
+        facultyAllocation,
+        levelAllocation,
+        active,
+        shouldUpdateLevel,
+      } = input;
       const newSession = new fastConn.models.SessionTable({
         session,
         facultyAllocation,
         levelAllocation,
         active,
+        shouldUpdateLevel,
       });
       try {
         //loop through the faculty allocation array
@@ -62,12 +67,8 @@ export default {
         throw error;
       }
     },
-    updateSession: async (
-      _,
-      { input, sessionId },
-      { fastConn, slowConn, config }
-    ) => {
-      const { facultyAllocation, levelAllocation } = input;
+    updateSession: async (_, { input, sessionId }, { fastConn, slowConn }) => {
+      const { facultyAllocation, levelAllocation, shouldUpdateLevel } = input;
 
       try {
         //loop through the faculty allocation array
@@ -141,6 +142,7 @@ export default {
         });
         sessionToUpdate.facultyAllocation = facultyArray;
         sessionToUpdate.levelAllocation = levelArray;
+        sessionToUpdate.shouldUpdateLevel = shouldUpdateLevel;
         await sessionToUpdate.save();
         //save active session here in redis
 
@@ -150,18 +152,15 @@ export default {
         throw error;
       }
     },
-    activateSession: async (
-      _,
-      { sessionId },
-      { fastConn, slowConn, config }
-    ) => {
+    activateSession: async (_, { sessionId }, { fastConn }) => {
       //loop through the faculty allocation array
       //check if any session is active first. only one session can be active at a time
-      return await runInTransaction(async (session) => {
+ 
+  
         try {
           const findActiveSession = await fastConn.models.SessionTable.findOne({
             active: true,
-          }).session(session);
+          });
           if (findActiveSession) {
             throw new Error(
               `${findActiveSession.session} is already active. Only one session can be active at a time`
@@ -169,7 +168,7 @@ export default {
           }
           const sessionTable = await fastConn.models.SessionTable.findOne({
             _id: sessionId,
-          }).session(session);
+          });
           const pipeline = [
             {
               $match: {
@@ -180,9 +179,9 @@ export default {
               $count: "total",
             },
           ];
-          const vacantBedsArray = await slowConn.models.BedSpace.aggregate(
+          const vacantBedsArray = await fastConn.models.BedSpace.aggregate(
             pipeline
-          ).session(session);
+          );
           const total = vacantBedsArray[0].total;
 
           //lets make all allocate spaces based on the shared criteria in the session object
@@ -209,13 +208,13 @@ export default {
           sessionTable.facultyAllocation = facultyArray;
           sessionTable.levelAllocation = levelArray;
           sessionTable.active = true;
-          await sessionTable.save({ session: session });
+          await sessionTable.save();
           return true;
         } catch (err) {
           console.log(err);
           throw err;
         }
-      });
+
     },
     deactivateSession: async (_, { sessionId }, { fastConn }) => {
       try {

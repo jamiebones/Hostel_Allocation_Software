@@ -1,6 +1,4 @@
 import methods from "../methods";
-import utils from "../utils";
-const { runInTransaction } = require("mongoose-transact-utils");
 
 export default {
   Query: {
@@ -34,7 +32,7 @@ export default {
   },
 
   Mutation: {
-    createStudentAccount: async (parents, args, { req, fastConn, slowConn, config }) => {
+    createStudentAccount: async (parents, args, { req, fastConn, config }) => {
       const {
         input: {
           regNumber,
@@ -66,26 +64,18 @@ export default {
         currentSession,
         sex,
       };
+      debugger;
 
-      return await runInTransaction(async (session) => {
-        try {
-          const studentData = await methods.studentBioMethod.createStudentAccount(
-            { ...newStudent, password },
-            fastConn,
-            session,
-           
-          );
-          return studentData;
-        } catch (err) {
-          console.log(err);
-          config.winston.error(
-            `${err.status || 500} - ${err.message} - ${req.originalUrl} - ${
-              req.method
-            } - ${req.ip}`
-          );
-          throw err;
-        }
-      });
+      try {
+        const data = await methods.studentBioMethod.createStudentAccount(
+          { ...newStudent, password },
+          fastConn
+        );
+        console.log("data is data: ", data)
+        return data;
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
 };

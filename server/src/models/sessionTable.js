@@ -21,6 +21,7 @@ const SessionTableSchema = new Schema({
   facultyAllocation: [facultyAllocationSchema],
   levelAllocation: [levelAllocationSchema],
   active: Boolean,
+  shouldUpdateLevel: Boolean
 });
 
 SessionTableSchema.index({ session: -1 });

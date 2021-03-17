@@ -1,4 +1,4 @@
-export default GetPhoneNumbers = async (roomIds, conn) => {
+export default async (roomIds, conn) => {
   //get the active session first
   const activeSession = await conn.models.SessionTable.findOne({
     active: true,

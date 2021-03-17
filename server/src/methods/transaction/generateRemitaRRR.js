@@ -3,9 +3,7 @@ import sessionTableMethod from "../sessionTable";
 import bedSpaceMethod from "../bedspace";
 import CryptoJS from "crypto-js";
 import axios from "axios";
-var _ = require('lodash');
-
-const { runInTransaction } = require("mongoose-transact-utils");
+var _ = require("lodash");
 
 const { getStudentData } = studentBioMethod.common;
 const { getActiveSession } = sessionTableMethod.common;
@@ -17,13 +15,18 @@ import {
 } from "./transactionsUtil.js";
 
 export default async function generateRemitaRRR(regNumber, conn) {
-  return await runInTransaction(async (transactionSession) => {
+  const transactionSession = conn.startSession();
+  return await conn.transaction(async () => {
     try {
       const activeSession = await getActiveSession(conn);
       const student = await getStudentData(regNumber, conn);
       if (!student) throw new Error("Student data not found");
 
-      const bed = await getReservedBedSpace(regNumber, activeSession.session, conn);
+      const bed = await getReservedBedSpace(
+        regNumber,
+        activeSession.session,
+        conn
+      );
 
       if (bed) {
         //save new transaction here
@@ -37,7 +40,7 @@ export default async function generateRemitaRRR(regNumber, conn) {
 
         if (!_.isEmpty(transaction)) {
           const { amount, rrr } = transaction;
-          console.log('old transaction be called')
+          console.log("old transaction be called");
           let splitArray = amount.split(".");
           let splitAmount = splitArray[0].replace(",", "");
           return {

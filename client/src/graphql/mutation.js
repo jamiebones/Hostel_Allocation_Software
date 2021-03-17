@@ -317,7 +317,7 @@ const DashStudentFreeRoom = gql`
 
 //SendSMSToStudents
 const SendSMSToStudents = gql`
-  mutation SendSMSToStudents($roomIds: RoomIDS!, $sms: String!) {
+  mutation SendSMSToStudents($roomIds: RoomIDInput!, $sms: String!) {
     sendMessage(roomIds: $roomIds, sms: $sms) {
       status
       totalMessage

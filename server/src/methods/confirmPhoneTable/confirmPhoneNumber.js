@@ -22,7 +22,7 @@ export default async ({ number, regNumber, conn }) => {
     const removeZeroFromNumber = number && number.substr(1, number.length);
     await message.CheapGlobalSMS.sendMessage({
       receipents: `234${removeZeroFromNumber}`,
-      sender: "UU Hostel",
+      sender: "UUHostel",
       message: msg,
     });
 

@@ -20,6 +20,7 @@ input SessionInput {
     facultyAllocation: [ FacultyAllocationInput ]
     levelAllocation: [ LevelAllocationInput ]
     active: Boolean
+    shouldUpdateLevel: Boolean
 }
 
 input FacultyAllocationInput {
@@ -43,6 +44,7 @@ type SessionTable {
     facultyAllocation: [FacultyAllocation!],
     levelAllocation: [LevelAllocation!],
     active: Boolean!,
+    shouldUpdateLevel: Boolean
 }
 
 type FacultyAllocation {

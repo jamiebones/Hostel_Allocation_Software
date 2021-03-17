@@ -15,7 +15,7 @@ import NumberFormat from "react-number-format";
 import styled from "styled-components";
 
 const SessionStyles = styled.div`
-   /* input[type="range"]::-webkik-slider-runnable-track{
+  /* input[type="range"]::-webkik-slider-runnable-track{
     width: 100%;
     height: 8.4px;
     cursor: pointer;
@@ -98,6 +98,7 @@ export default (props) => {
   const [loadingState, setLoadingState] = useState(false);
   const [bedspaceStats, setBedSpaceStats] = useState(null);
   const [sessionText, setSessionText] = useState("");
+  const [sessionShouldUpdate, setSessionShouldUpdate] = useState(false);
 
   const subtractTwoNumbers = (a, b) => {
     const answer = +a - +b;
@@ -351,7 +352,7 @@ export default (props) => {
       levelArray.push(obj);
     });
     let confirmDetails = window.confirm(
-      `session: ${session} \n ${facultyConfirmation} \n ${levelConfirmation}`
+      `session: ${session} \n ${facultyConfirmation} \n ${levelConfirmation} \n should update level: ${sessionShouldUpdate}`
     );
 
     if (!confirmDetails) {
@@ -365,6 +366,7 @@ export default (props) => {
         facultyAllocation: facultyArray,
         levelAllocation: levelArray,
         active: false,
+        shouldUpdateLevel: sessionShouldUpdate,
       };
       await sessionMutation({
         variables: {
@@ -480,6 +482,21 @@ export default (props) => {
                         <option value="final year">final year students</option>
                         <option value="other years">other years student</option>
                       </select>
+                    </div>
+
+                    <div className="form-group form-check">
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        value={sessionShouldUpdate}
+                        checked={sessionShouldUpdate}
+                        onChange={() =>
+                          setSessionShouldUpdate((prevValue) => !prevValue)
+                        }
+                      />
+                      <label className="form-check-label">
+                        Update Student Level
+                      </label>
                     </div>
 
                     <div>

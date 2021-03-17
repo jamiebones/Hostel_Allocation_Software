@@ -1,6 +1,6 @@
 import util from "../utils";
 import methods from "../methods";
-const { runInTransaction } = require("mongoose-transact-utils");
+
 import pubsub, { EVENTS } from "../subscription";
 
 export default {

@@ -8,7 +8,7 @@ export default gql`
   }
 
   extend type Mutation {
-    sendMessage(roomIds: RoomIDS!, sms: String!): Message!
+    sendMessage(roomIds: RoomIDInput!, sms: String!): Message!
   }
 
   extend type Subscription {
@@ -16,6 +16,10 @@ export default gql`
   }
 
   type RoomIDS {
+    ids: [ID!]
+  }
+
+  input RoomIDInput {
     ids: [ID!]
   }
 

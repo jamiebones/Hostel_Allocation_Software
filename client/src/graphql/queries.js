@@ -219,6 +219,7 @@ const AllSessions = gql`
       }
       session
       active
+      shouldUpdateLevel
     }
   }
 `;
@@ -284,6 +285,7 @@ const GetSessionById = gql`
         percentAllocation
       }
       active
+      shouldUpdateLevel
     }
   }
 `;

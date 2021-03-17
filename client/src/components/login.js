@@ -63,7 +63,7 @@ const Login = (props) => {
         setSubmitted(!submitted);
         if (accessLevel === "super-admin") {
           history.push("/admin/dashboard");
-        } else if (accessLevel === "student") {
+        } else if (accessLevel === "normal") {
           history.push("/dashboard");
         }
       }

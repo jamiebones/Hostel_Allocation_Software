@@ -1,4 +1,4 @@
-const { runInTransaction } = require("mongoose-transact-utils");
+
 import {
   markRoomAsOccupied,
   addUserToAllocatedBedSpace,
@@ -18,7 +18,8 @@ const {
 } = bedSpaceMethod.common;
 
 export default async function simulateRemitaTransaction(regNumber, conn) {
-  return await runInTransaction(async (transactionSession) => {
+  const transactionSession = conn.startSession();
+  return await conn.transaction(async () => {
     try {
       const activeSession = await getActiveSession(conn);
       const student = await getStudentData(regNumber, conn);

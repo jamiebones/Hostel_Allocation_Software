@@ -1,5 +1,5 @@
 import axios from "axios";
-const { runInTransaction } = require("mongoose-transact-utils");
+
 import {
   findTransaction,
   markRoomAsOccupied,
@@ -16,7 +16,8 @@ const {
 } = bedSpaceMethod.common;
 
 export default async function confirmTransaction(orderId, RRR, conn ) {
-  return await runInTransaction(async (transactionSession) => {
+  const transactionSession = conn.startSession();
+  return await conn.transaction(async () => {
     try {
       const { MerchantId, Api_Key, CheckStatusUrl } = process.env;
 

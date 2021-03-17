@@ -13,36 +13,45 @@ export default async (student, session, conn) => {
     entryMode,
   } = student;
 
-  
-  const faculties = await _getFaculties();
-  let activeSession = await _getActiveSession();
+  const faculties = await _getFaculties(conn);
+  let activeSession = await _getActiveSession(conn);
   //else we need to update the student level
-  let studentLevel = currentLevel.split(" ")[0].split("")[0];
   let newLevel;
-  if (programDuration == studentLevel) {
-    throw new Error(`${regNumber} should have graduated`);
+  let studentLevel = currentLevel.split(" ")[0].split("")[0];
+
+  if (!activeSession) {
+    throw new Error(
+      "No session is currently active. Please contact the Administrator"
+    );
   }
 
-  //check the last level the student was using the current session
-  //before the student level is updated
-
-  const studentSessionSplit = currentSession.trim().split("/")[1];
-  const activeSessionSplit = activeSession.session.trim().split("/")[1];
-
-  if (+activeSessionSplit > +studentSessionSplit) {
-    //we need to update the student level based on the active session
-    if (programDuration > studentLevel) {
-      const levelDifference = activeSessionSplit - studentSessionSplit;
-      newLevel = `${+studentLevel + levelDifference}00 level`;
+  if (activeSession.shouldUpdateLevel) {
+    if (programDuration == studentLevel) {
+      throw new Error(`${regNumber} should have graduated`);
     }
-  } else if (+activeSessionSplit === +studentSessionSplit) {
-    //we do not need to update anything here
-    //the student is in the normal session so no increment in session
+    //check the last level the student was using the current session
+    //before the student level is updated
+    const studentSessionSplit = currentSession.trim().split("/")[1];
+    const activeSessionSplit = activeSession.session.trim().split("/")[1];
+    if (+activeSessionSplit > +studentSessionSplit) {
+      //we need to update the student level based on the active session
+      if (programDuration > studentLevel) {
+        const levelDifference = activeSessionSplit - studentSessionSplit;
+        newLevel = `${+studentLevel + levelDifference}00 level`;
+      }
+    } else if (+activeSessionSplit === +studentSessionSplit) {
+      //we do not need to update anything here
+      //the student is in the normal session so no increment in session
 
-    if (programDuration > studentLevel) {
-      newLevel = `${+studentLevel}00 level`;
+      if (programDuration > studentLevel) {
+        newLevel = `${+studentLevel}00 level`;
+      }
     }
+  } else {
+    //we probably had a strike no need to increment student level here
+    newLevel = `${studentLevel}00 level`;
   }
+
   //save the student data and insert it into the cache here
   const levelType = getLevelExplanation({
     studentLevel: newLevel,
@@ -84,12 +93,12 @@ export default async (student, session, conn) => {
   return newStudentObj;
 };
 
-const _getActiveSession = async () => {
+const _getActiveSession = async (conn) => {
   const session = await conn.models.SessionTable.findOne({ active: true });
   return session;
 };
 
-const _getFaculties = async () => {
+const _getFaculties = async (conn) => {
   const fac = await conn.models.Faculty.find();
   return fac;
 };

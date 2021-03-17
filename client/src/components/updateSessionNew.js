@@ -42,6 +42,7 @@ export default ({ history, match }) => {
   const [levelComponents, setLevelComponents] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const [sessionId, setSessionId] = useState("");
+  const [sessionShouldUpdate, setSessionShouldUpdate] = useState(false);
 
   const [sessionMutation, sessionResult] = useMutation(UpdateSessionMutation);
 
@@ -61,7 +62,7 @@ export default ({ history, match }) => {
       const sessionData = getSessionResult.data.getSessionById;
       const {
         id,
-
+        shouldUpdateLevel,
         facultyAllocation,
         levelAllocation,
       } = sessionData;
@@ -85,6 +86,7 @@ export default ({ history, match }) => {
       setFacComponents(facultyAllocationComponentsArray);
       setLevelComponents(levelAllocationComponentsArray);
       setSessionId(id);
+      setSessionShouldUpdate(shouldUpdateLevel);
       setFacValue(() =>
         filterArrayForTotal(facultyAllocationComponentsArray, null, "faculty")
       );
@@ -245,7 +247,7 @@ export default ({ history, match }) => {
       levelArray.push(obj);
     });
     let confirmDetails = window.confirm(
-      ` ${facultyConfirmation} \n ${levelConfirmation}`
+      ` ${facultyConfirmation} \n ${levelConfirmation} \n should update level: ${sessionShouldUpdate}`
     );
 
     if (!confirmDetails) {
@@ -254,13 +256,14 @@ export default ({ history, match }) => {
     }
 
     try {
-      let varableToSend = {
+      let variableToSend = {
         facultyAllocation: facultyArray,
         levelAllocation: levelArray,
+        shouldUpdateLevel: sessionShouldUpdate,
       };
       await sessionMutation({
         variables: {
-          input: varableToSend,
+          input: variableToSend,
           sessionId: sessionId,
         },
       });
@@ -299,9 +302,7 @@ export default ({ history, match }) => {
         <form onSubmit={handleSessionSubmit}>
           <div className="row">
             <div className="col-md-6 offset-md-3">
-              <p className="lead text-center">
-                updating academic session
-              </p>
+              <p className="lead text-center">updating academic session</p>
               <div className="form-group">
                 <label htmlFor="facultySelect">Faculties</label>
                 <select
@@ -338,6 +339,19 @@ export default ({ history, match }) => {
                   <option value="final year">final year students</option>
                   <option value="other years">other years student</option>
                 </select>
+              </div>
+
+              <div className="form-group form-check">
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  value={sessionShouldUpdate}
+                  checked={sessionShouldUpdate}
+                  onChange={() =>
+                    setSessionShouldUpdate((prevValue) => !prevValue)
+                  }
+                />
+                <label className="form-check-label">Update Student Level</label>
               </div>
             </div>
           </div>

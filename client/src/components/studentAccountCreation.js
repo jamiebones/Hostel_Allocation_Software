@@ -33,7 +33,7 @@ const StudentAccountCreation = (props) => {
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setconfirmPassword] = useState("");
-  const [errors, setErrors] = useState([]);
+  const [errors, setErrors] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   //const [file, setFile] = useState("");
@@ -50,10 +50,8 @@ const StudentAccountCreation = (props) => {
 
   useEffect(() => {
     if (createNewAccountResult.error) {
-      let errorArray = [];
       setSubmitted(!submitted);
-      errorArray = ExtractError(createNewAccountResult.error);
-      setErrors(errorArray);
+      setErrors(createNewAccountResult.error);
       setLoading(!loading);
     }
 
@@ -92,11 +90,9 @@ const StudentAccountCreation = (props) => {
         window.alert("password does not match");
         return;
       }
-
       const studentObject = { ...student };
       studentObject.password = password;
       setSubmitted(!submitted);
-      student.password = password;
       setLoading(!loading);
       await createNewAccount({
         variables: {
@@ -110,7 +106,10 @@ const StudentAccountCreation = (props) => {
 
   return (
     <CreateAccountStyles>
-      <ErrorDisplay errors={errors} />
+      <div className="text-center">
+        {errors && <p className="text-danger lead">{errors.message}</p>}
+      </div>
+
       <form
         onSubmit={submitStudentDataToDatabase}
         // action="/upload_studentData"
@@ -130,7 +129,9 @@ const StudentAccountCreation = (props) => {
             <div className="float-md-right">
               <div className="preview-images">
                 <img
-                  src={`http://uniuyo.edu.ng/eportals/passports/${student && student.profileImage}`}
+                  src={`http://uniuyo.edu.ng/eportals/passports/${
+                    student && student.profileImage
+                  }`}
                   className="passport"
                   id="passportImage"
                   style={{ width: 200 + "px", height: 200 + "px" }}
@@ -217,7 +218,9 @@ const StudentAccountCreation = (props) => {
                 readOnly
                 type="text"
                 className="form-control"
-                value={student.currentLevel && student.currentLevel.toUpperCase()}
+                value={
+                  student.currentLevel && student.currentLevel.toUpperCase()
+                }
               />
             </div>
 
