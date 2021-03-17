@@ -3,16 +3,20 @@ import { gql } from "apollo-server-express";
 export default gql`
   extend type Query {
     checkCredit: SMSCredit
-    getSMSStatistics(batchId: String):SMSSTATISTICS
-    getAmountSpent(batchId: String ): String
+    getSMSStatistics(batchId: String): SMSSTATISTICS
+    getAmountSpent(batchId: String): String
   }
 
   extend type Mutation {
-    sendMessage(receipents: String!, sender: String, message: String): Message!
+    sendMessage(roomIds: RoomIDS!, sms: String!): Message!
   }
 
   extend type Subscription {
     messageCreated: MessageCreated!
+  }
+
+  type RoomIDS {
+    ids: [ID!]
   }
 
   type SMSCredit {
@@ -40,8 +44,6 @@ export default gql`
     smsCost: String
   }
 
- 
-
   type SMSSTATISTICS {
     UNDELIVERABLE: SMSSTATS
     EXPIRED: SMSSTATS
@@ -55,7 +57,6 @@ export default gql`
 
   type SMSSTATS {
     sms_count: Int
-    sms_units: Int 
+    sms_units: Int
   }
-  
 `;

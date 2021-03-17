@@ -25,16 +25,17 @@ export default {
     },
   },
   Mutation: {
-    sendMessage: async (
-      parent,
-      { sender, receipents, message },
-      { fastConn, slowConn }
-    ) => {
+    sendMessage: async (parent, { roomIds, sms }, { fastConn, slowConn }) => {
+      //get phone numbers of student staying in a room
+      const receipents = await methods.bedSpaceMethod.getStudentPhoneNumbers(
+        roomIds,
+        slowConn
+      );
       const messageRequest = await methods.messageMethod.CheapGlobalSMS.sendMessage(
         {
           receipents,
           sender,
-          message: message,
+          message: sms,
         }
       );
       //we were successful in sending the message to the API. save the
@@ -53,8 +54,6 @@ export default {
       });
       await newMessage.save();
       return newMessage;
-
-    
     },
   },
 

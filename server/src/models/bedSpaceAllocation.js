@@ -7,6 +7,7 @@ const BedSpaceAllocationSchema = new Schema({
   hallName: { type: String, required: true, lowercase: true },
   roomId: String,
   studentId: String,
+  phoneNumber: String,
   roomNumber: String,
   session: String,
   regNumber: { type: String, required: true, lowercase: true },

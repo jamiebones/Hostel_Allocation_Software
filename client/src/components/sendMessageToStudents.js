@@ -3,7 +3,8 @@ import {
   GetAllHallsWithRoomDetails,
   GetSMSCreditAvailable,
 } from "../graphql/queries";
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { SendSMSToStudents } from "../graphql/mutation";
+import { useLazyQuery, useQuery, useMutation } from "@apollo/client";
 import styled from "styled-components";
 import Loading from "./common/loading";
 
@@ -61,6 +62,14 @@ const _groupByHostel = (arrayOfHostel = []) => {
   return hostelGroup;
 };
 
+const buildArrayOfRoomId = (roomsArray) => {
+  let arrayOfRoomId = [];
+  roomsArray.map(({ id }) => {
+    arrayOfRoomId.push(id);
+  });
+  return arrayOfRoomId;
+};
+
 const SendMessageToStudent = () => {
   const [hostels, setHostels] = useState(null);
   const [selectedHostel, setSelectedHostel] = useState(null);
@@ -74,8 +83,28 @@ const SendMessageToStudent = () => {
   const [totalWords, setTotalWords] = useState(0);
   const [sms, setSMS] = useState("");
   const [smsPage, setSMSPage] = useState(1);
+  const [submitted, setSubmitted] = useState(false);
+
+  const [sendSMSQuery, sendSMSResult] = useMutation(SendSMSToStudents);
 
   let total = 0;
+
+  useEffect(() => {
+    if (sendSMSResult.error) {
+      setErrors(sendSMSResult.error);
+      setSubmitted(false);
+    }
+
+    if (sendSMSResult.data) {
+      const { status, totalMessage } = sendSMSResult.data.sendMessage;
+      setSubmitted(false);
+      setSMS("");
+      setMessageArray(null);
+      window.alert(
+        `Message status: ${status}.Total message sent: ${totalMessage}`
+      );
+    }
+  }, [sendSMSResult.data, sendSMSResult.error]);
 
   useEffect(() => {
     const result = _groupByHostel(messageArray);
@@ -169,6 +198,29 @@ const SendMessageToStudent = () => {
     setSMS(value);
     setTotalWords(textLength);
     setSMSPage(Math.ceil(textLength / 160));
+  };
+
+  const submitSMS = async () => {
+    if (sms == "") {
+      window.alert("please enter the text message you want to send");
+      return;
+    }
+    if (!messageArray) {
+      window.alert("please select the receipents of the message");
+      return;
+    }
+    //build an array of id from the message array;
+    const roomIds = buildArrayOfRoomId(messageArray);
+    setSubmitted(true);
+    try {
+      await sendSMSQuery({
+        variables: {
+          roomIds: { ids: roomIds },
+          message: sms,
+        },
+        refetchQueries: [getCredit()],
+      });
+    } catch (error) {}
   };
 
   return (
@@ -287,15 +339,20 @@ const SendMessageToStudent = () => {
             {total > 0 && (
               <div className="text-center">
                 <p className="lead text-primary">Total messages: {total}</p>
-                <button className="btn btn-danger">
-                  Send SMS to {total} people
+                <button
+                  className="btn btn-danger"
+                  onClick={submitSMS}
+                  disabled={submitted}
+                >
+                  {submitted
+                    ? "sending sms......."
+                    : `Send SMS to ${total} people`}
                 </button>
               </div>
             )}
           </div>
         </div>
       </div>
-    
     </SendMessageToStudentStyles>
   );
 };

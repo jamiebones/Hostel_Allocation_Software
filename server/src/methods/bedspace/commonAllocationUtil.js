@@ -1,4 +1,4 @@
-import models from "../../models";
+
 
 export const checkIfSpaceIsOnHold = async (
   regNumber,

@@ -218,8 +218,8 @@ const AddNewRoomMutation = gql`
     $hallId: String
     $location: String!
     $roomType: String!
-    $singleBeds: String!,
-    $doubleBeds: String!,
+    $singleBeds: String!
+    $doubleBeds: String!
   ) {
     createRoom(
       roomNumber: $roomNumber
@@ -230,7 +230,6 @@ const AddNewRoomMutation = gql`
       roomType: $roomType
       singleBeds: $singleBeds
       doubleBeds: $doubleBeds
-
     ) {
       id
     }
@@ -315,6 +314,17 @@ const DashStudentFreeRoom = gql`
     dashStudentFreeBed(regNumber: $regNumber, bedId: $bedId)
   }
 `;
+
+//SendSMSToStudents
+const SendSMSToStudents = gql`
+  mutation SendSMSToStudents($roomIds: RoomIDS!, $sms: String!) {
+    sendMessage(roomIds: $roomIds, sms: $sms) {
+      status
+      totalMessage
+    }
+  }
+`;
+
 //method for confirming the payment made by a student
 const ConfirmStudentTransaction = gql`
   mutation confirmTransaction($flutterId: String!, $transId: String!) {
@@ -348,6 +358,7 @@ const ConfirmStudentTransaction = gql`
 //
 
 export {
+  SendSMSToStudents,
   EditHall,
   ChangeBedStatus,
   CreateRoom,

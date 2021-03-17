@@ -31,6 +31,7 @@ export default gql`
     roomId: String
     studentId: String
     roomNumber: String
+    phoneNumber: String
     session: String
     regNumber: String
     studentName: String

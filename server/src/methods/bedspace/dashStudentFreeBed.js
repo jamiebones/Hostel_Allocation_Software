@@ -92,6 +92,7 @@ const addUserToAllocatedBedSpace = async ({
   const newbedSlot = new conn.models.BedSpaceAllocation({
     hallId,
     hallName,
+    phoneNumber: student.phoneNumber,
     roomId,
     session: student.currentSession,
     regNumber,
