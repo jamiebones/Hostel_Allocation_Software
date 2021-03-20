@@ -91,7 +91,7 @@ export default async function allocateHostelSpaceToStudent(regNumber, conn) {
           faculty,
           conn,
         });
-        console.log("value of try agaian is ", tryAgainThreeTimes);
+        console.log("value of try again is ", tryAgainThreeTimes);
         valueInCheckForSpace = checkForSpace();
         tryAgainThreeTimes++;
       }

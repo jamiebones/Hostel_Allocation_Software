@@ -8,12 +8,13 @@ import {
 import CryptoJS from "crypto-js";
 
 import bedSpaceMethod from "../bedspace";
-const { getLevelExplanation } = bedSpaceMethod.common;
+
 
 const {
   confirmSpaceOnHoldThatSession,
   checkAvailableSpace,
   incrementRoomStats,
+  getLevelExplanation
 } = bedSpaceMethod.common;
 
 export default async function confirmTransaction(orderId, RRR, conn) {

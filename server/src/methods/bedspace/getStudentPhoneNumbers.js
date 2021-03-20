@@ -10,18 +10,23 @@ export default async (roomIds, conn) => {
   }
   //loop through here and get the student phone numbers
   let receipentNumbers = "";
-  roomIds.map(async (roomId) => {
+  for (let i = 0; i < roomIds.ids.length; i++) {
+    const roomId = roomIds.ids[i];
     //BedSpaceAllocation
-    const allocationArray = await conn.models.find({ roomId: roomId });
-    //get the number from the array
+    const allocationArray = await conn.models.BedSpaceAllocation.find({
+      roomId: roomId,
+    }).lean();
     allocationArray.map(({ phoneNumber }) => {
-      const number = `234${
-        phoneNumber && phoneNumber.substr(1, phoneNumber.length)
-      }`;
-      receipentNumbers += ` ${number},`;
+      if (phoneNumber) {
+        const number = `234${
+          phoneNumber && phoneNumber.substr(1, phoneNumber.length)
+        }`;
+        receipentNumbers += ` ${number},`;
+      }
     });
-  });
-  if (receipentNumbers === "") {
+  }
+  
+  if (receipentNumbers == "") {
     throw new Error("no phone numbers to send sms to");
   }
   return receipentNumbers;

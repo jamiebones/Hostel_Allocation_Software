@@ -3,8 +3,6 @@ import { Redirect } from "react-router-dom";
 import styled from "styled-components";
 import { useMutation } from "@apollo/client";
 import { CreateStudentAccount } from "../graphql/mutation";
-import { ExtractError } from "../modules/utils";
-import ErrorDisplay from "./common/errorDisplay";
 
 const CreateAccountStyles = styled.div`
   .form-control-file {
@@ -20,6 +18,7 @@ const CreateAccountStyles = styled.div`
     height: 200px;
     background-color: #7ca8ea;
     color: #000;
+    margin-bottom: 15px;
   }
   .btn-submitstudent {
     margin-bottom: 20px;
@@ -28,9 +27,7 @@ const CreateAccountStyles = styled.div`
 
 const StudentAccountCreation = (props) => {
   const { state } = props.location;
-
   const [student, setStudent] = useState((state && state.student) || {});
-
   const [password, setPassword] = useState("");
   const [confirmPassword, setconfirmPassword] = useState("");
   const [errors, setErrors] = useState(null);
@@ -119,9 +116,10 @@ const StudentAccountCreation = (props) => {
         <div className="row">
           <div className="col-md-4 offset-md-3 order-md-1">
             <div className="noticeBoard">
-              <p>This sjjsh sjsjjs kkak kkaka wkwkwk skksks</p>
-              <p>This sjjsh sjsjjs kkak kkaka wkwkwk skksks</p>
-              <p>This sjjsh sjsjjs kkak kkaka wkwkwk skksks</p>
+              <p className="lead">
+                Please create your account to be able to access the student
+                hostel portal
+              </p>
             </div>
           </div>
 
@@ -268,13 +266,17 @@ const StudentAccountCreation = (props) => {
               />
             </div>
 
-            <button
-              type="submit"
-              className="btn btn-primary btn-submitstudent"
-              disabled={submitted}
-            >
-              {submitted ? "please wait submitting......" : "Submit"}
-            </button>
+            <div className="text-center">
+              <button
+                type="submit"
+                className="btn btn-primary btn-submitstudent"
+                disabled={submitted}
+              >
+                {submitted
+                  ? "please wait submitting......"
+                  : "Create new account"}
+              </button>
+            </div>
           </div>
         </div>
       </form>

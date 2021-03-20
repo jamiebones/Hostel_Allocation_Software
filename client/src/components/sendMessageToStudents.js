@@ -99,7 +99,7 @@ const SendMessageToStudent = () => {
       const { status, totalMessage } = sendSMSResult.data.sendMessage;
       setSubmitted(false);
       setSMS("");
-      setMessageArray(null);
+      setMessageArray([]);
       window.alert(
         `Message status: ${status}.Total message sent: ${totalMessage}`
       );
@@ -122,8 +122,8 @@ const SendMessageToStudent = () => {
   }, [data, error]);
 
   useEffect(() => {
-    //setQueryLoading(true);
-    //getCredit();
+    setQueryLoading(true);
+    getCredit();
   }, []);
 
   useEffect(() => {
@@ -216,9 +216,8 @@ const SendMessageToStudent = () => {
       await sendSMSQuery({
         variables: {
           roomIds: { ids: roomIds },
-          message: sms,
+          sms: sms,
         },
-        refetchQueries: [getCredit()],
       });
     } catch (error) {}
   };

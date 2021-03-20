@@ -8,15 +8,16 @@ import {
   CheckPhoneNumberConfirmation,
   GetStudentData,
 } from "../graphql/queries";
-import { ExtractError } from "../modules/utils";
 import Loading from "./common/loading";
 import ConfirmPhoneNumber from "./confirmPhoneNumber";
-import ErrorDisplay from "./common/errorDisplay";
 import BedSpaceAllocationTableComponent from "./reuseableComponents/bedSpaceAllocationTableComponent";
 
-const date = require("date-and-time");
-
 const DashBoardStyle = styled.div`
+  .info-panel {
+    border: 1px solid #c0c0c0;
+    padding: 10px;
+    margin-bottom: 20px;
+  }
   .resultBoard {
     display: flex;
     flex-direction: column;
@@ -36,7 +37,7 @@ const DashBoard = (props) => {
   const [student, setStudent] = useState("");
   const [bedSpace, setBedSpace] = useState("");
   const [timer, setTimer] = useState(0);
-  const [errors, setErrors] = useState([]);
+  const [errors, setErrors] = useState(null);
   const [phoneConfirmed, setPhoneConfirmed] = useState(false);
 
   const [getBedSpace, result] = useMutation(AllocateBedSpace);
@@ -50,16 +51,6 @@ const DashBoard = (props) => {
 
   const [studentData, studentDataResult] = useLazyQuery(GetStudentData);
 
-  // const getTimeRemaining = (lockTime) => {
-  //   let today = new Date();
-  //   let time = new Date(lockTime);
-  //   const minutes = date.subtract(today, time).toMinutes();
-  //   const seconds = date.subtract(today, time).toSeconds();
-  //   //setTimer(`${minutes}:${seconds}`);
-  //   return `${Math.ceil(minutes)}:${Math.ceil(seconds)}`;
-  // };
-
-  //this is called when the phone has been confirmed
   useEffect(() => {
     if (
       props &&
@@ -73,7 +64,7 @@ const DashBoard = (props) => {
 
   useEffect(() => {
     if (error) {
-      setErrors(ExtractError(error));
+      setErrors(error);
     }
     if (data) {
       setPhoneConfirmed(data.confirmIfPhone);
@@ -87,7 +78,7 @@ const DashBoard = (props) => {
     }
 
     if (studentData.error) {
-      setErrors(ExtractError(result.error));
+      setErrors(studentData.error);
     }
   }, [studentDataResult.data, studentDataResult.error]);
 
@@ -95,16 +86,22 @@ const DashBoard = (props) => {
     if (result.data) {
       setBedSpace(result.data.allocateBedSpace);
     }
-  }, [result.data]);
+    if (result.error) {
+      setErrors(result.error);
+    }
+  }, [result.data, result.error]);
 
   useEffect(() => {
     if (resultReserved.data) {
       setBedSpace(resultReserved.data.getbedSpaceReserved);
     }
-  }, [resultReserved.data]);
+    if (resultReserved.error) {
+      setErrors(resultReserved.error);
+    }
+  }, [resultReserved.data, resultReserved.error]);
 
   const fetchReserveBedSpace = (e) => {
-    setErrors([]);
+    setErrors(null);
     e.preventDefault();
     try {
       e.preventDefault();
@@ -118,24 +115,9 @@ const DashBoard = (props) => {
     }
   };
 
-  useEffect(() => {
-    if (resultReserved.error) {
-      setErrors(ExtractError(resultReserved.error));
-    }
-  }, [resultReserved.error]);
-
-  useEffect(() => {
-    if (result.error) {
-      setErrors(ExtractError(result.error));
-    }
-    if (error) {
-      setErrors(ExtractError(error));
-    }
-  }, [result.error]);
-
   const handleHostelSpaceBid = async (e) => {
     //submit function
-    setErrors([]);
+    setErrors(null);
     try {
       e.preventDefault();
       await getBedSpace({
@@ -164,9 +146,19 @@ const DashBoard = (props) => {
           <React.Fragment>
             <div className="row">
               <div className="col-md-5">
-                <p className="text-center lead">
-                  Hello {regNumber && regNumber.toUpperCase()}
-                </p>
+                <div className="info-panel">
+                  <p className="lead text-left">
+                    Hello , {regNumber && regNumber.toUpperCase()}
+                    
+                  </p>
+
+                  <p>
+                    You can bid for a hostel space by clicking the Bid for hostel space button.
+                    If successful payment will be via the Remita platform. Please confirm your transaction 
+                    before making a subsequent failed payment transaction.
+
+                  </p>
+                </div>
 
                 <div>
                   <ul className="list-group">
@@ -215,11 +207,16 @@ const DashBoard = (props) => {
               </div>
 
               <div className="col-md-5 offset-md-1">
-                {result.loading && <p>finding bed space.......</p>}
+                {result.loading && (
+                  <p className="lead">finding bed space.......</p>
+                )}
 
-                {resultReserved.loading && <p>checking bed space.......</p>}
+                {resultReserved.loading && (
+                  <p className="lead">checking bed space.......</p>
+                )}
 
-                <ErrorDisplay errors={errors} />
+                {errors && <p className="lead text-danger text-center">{errors.message}</p>}
+
                 <BedSpaceAllocationTableComponent
                   {...props}
                   bedSpace={bedSpace}

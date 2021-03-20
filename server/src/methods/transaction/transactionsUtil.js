@@ -32,6 +32,7 @@ export const addUserToAllocatedBedSpace = async (
     hallId,
     hallName,
     roomId,
+    phoneNumber: student.phoneNumber,
     studentId: student._id,
     session,
     regNumber,

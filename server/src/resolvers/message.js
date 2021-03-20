@@ -34,7 +34,7 @@ export default {
       const messageRequest = await methods.messageMethod.CheapGlobalSMS.sendMessage(
         {
           receipents,
-          sender,
+          sender: "UUHOSTEL",
           message: sms,
         }
       );
@@ -44,8 +44,8 @@ export default {
       const { status, totalMessage, batchId } = messageRequest;
 
       const newMessage = new fastConn.models.Message({
-        message,
-        sender,
+        message: sms,
+        sender: "UUHOSTEL",
         receipents,
         date: new Date(),
         status,

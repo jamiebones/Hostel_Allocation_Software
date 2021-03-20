@@ -14,6 +14,7 @@ const {
   confirmSpaceOnHoldThatSession,
   checkAvailableSpace,
   incrementRoomStats,
+  getLevelExplanation
 } = bedSpaceMethod.common;
 
 export default async function simulateRemitaTransaction(regNumber, conn) {
@@ -74,11 +75,17 @@ export default async function simulateRemitaTransaction(regNumber, conn) {
         addUserToAllocatedBedSpace(newTransaction, transactionSession, conn),
         markRoomAsOccupied(bedId, transactionSession, conn),
       ]);
-      const { levelType, faculty } = student;
+
+
+      const levelType = getLevelExplanation({
+        studentLevel: student.currentLevel,
+        entryMode: student.entryMode,
+        programDuration: student.programDuration,
+      });
 
       let checkForSpace = await checkAvailableSpace({
         level: levelType,
-        faculty: faculty,
+        faculty: student.faculty,
         conn,
       });
 
