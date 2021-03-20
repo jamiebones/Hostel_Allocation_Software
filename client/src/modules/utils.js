@@ -1,3 +1,5 @@
+import moment from "moment";
+
 const ExtractError = (errorObject) => {
   const { graphQLErrors, networkError } = errorObject;
   const errorArray = [];
@@ -34,18 +36,29 @@ const IncrementSession = () => {
   let currentYear = date.getFullYear();
   let nextYear = +currentYear + 1;
   let session = `${currentYear}/${nextYear}`;
-  let obj = {
+  let finalObj = {
     value: session,
     text: session,
   };
+  arr.push(finalObj);
 
-  arr.push(obj);
+  //lets get value for five years before
+  for (let i = 1; i <= 5; i++) {
+    let loopYear = currentYear - i;
+    let loopNextYear = nextYear - i;
+    let session = `${loopYear}/${loopNextYear}`;
+    let obj = {
+      value: session,
+      text: session,
+    };
+    arr.push(obj);
+  }
 
   return arr;
 };
 
 const Roles = () => {
-  return ["super-admin", "hall supervisor"];
+  return ["super-admin", "hall supervisor", "normal"];
 };
 
 const IncrementSessionFiveYears = () => {
@@ -102,7 +115,8 @@ const LoadRemitaClientLibrary = (callback) => {
   const existingScript = document.getElementById("RemitaClientPayment");
   if (!existingScript) {
     const script = document.createElement("script");
-    script.src = "http://www.remitademo.net/payment/v1/remita-pay-inline.bundle.js";
+    script.src =
+      "http://www.remitademo.net/payment/v1/remita-pay-inline.bundle.js";
     //script.src="https://ravemodal-dev.herokuapp.com/v3.js";
     script.id = "RemitaClientPayment";
     //document.body.appendChild(script);
@@ -116,19 +130,24 @@ const LoadRemitaClientLibrary = (callback) => {
   if (existingScript && callback) callback();
 };
 
-
 const Flutter_Pub_Key = "FLWPUBK_TEST-1d21fe1ac05f980c278f25f1eef9d8c6-X";
 
 const CapFirstLetterOfEachWord = (word) => {
   if (!word) return null;
   const wordArray = word.split(" ");
-  let capitalizedWord="";
+  let capitalizedWord = "";
   for (let i = 0; i < wordArray.length; i++) {
     const currentWord = wordArray[i];
     capitalizedWord +=
-      currentWord[0].toUpperCase() + currentWord.substr(1, currentWord.length) + " ";
+      currentWord[0].toUpperCase() +
+      currentWord.substr(1, currentWord.length) +
+      " ";
   }
   return capitalizedWord;
+};
+
+const FormatDate = (date) => {
+  return moment(date).format("MMMM Do YYYY, h:mm:ss a");
 };
 
 export {
@@ -142,4 +161,5 @@ export {
   LoadFlutterWaveLibrary,
   LoadRemitaClientLibrary,
   Flutter_Pub_Key,
+  FormatDate,
 };

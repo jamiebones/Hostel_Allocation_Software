@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/client";
 import Loading from "./common/loading";
 import ErrorDisplay from "./common/errorDisplay";
 import { GetTransactionUsingRRR } from "../graphql/queries";
-import { ExtractError } from "../modules/utils";
+import { ExtractError, FormatDate } from "../modules/utils";
 
 import PaymentReceipts from "./reuseableComponents/payemntReceipts";
 

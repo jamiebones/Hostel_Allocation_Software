@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import PrintAllocationComponent from "./printAllocationComponent";
 import { AllocationToStudent } from "../graphql/queries";
 import { useLazyQuery } from "@apollo/client";
-import { ExtractError, IncrementSession } from "../modules/utils";
+import { IncrementSession } from "../modules/utils";
 
 import Loading from "./common/loading";
 
@@ -19,21 +19,24 @@ const PrintAllocationStyles = styled.div`
 const PrintAllocationBySession = (props) => {
   const { regNumber } = props.currentUser;
   const [selectedSession, setSelectedSession] = useState("");
-  const [data, setData] = useState("");
+  const [data, setData] = useState(null);
   const [errors, setErrors] = useState([]);
-  const [hasRunQuery, sethasRunQuery] = useState(false);
+  const [noData, setNoData] = useState(null);
 
   const [allocationQuery, allocationResult] = useLazyQuery(AllocationToStudent);
 
   useEffect(() => {
     if (allocationResult.data) {
       //push to where to print it
-      setData(allocationResult.data.getAllocationToStudent);
-      sethasRunQuery(true);
+      const result = allocationResult.data.getAllocationToStudent;
+      if (result) {
+        setData(result);
+      } else {
+        setNoData(true);
+      }
     }
     if (allocationResult.error) {
-      let errorArray = ExtractError(allocationResult.error);
-      setErrors(errorArray);
+      setErrors(allocationResult.error);
     }
   }, [allocationResult.data, allocationResult.error]);
 
@@ -53,14 +56,12 @@ const PrintAllocationBySession = (props) => {
     <PrintAllocationStyles>
       <div className="row">
         <div className="col-md-6 offset-md-3">
-          {errors.map(({ message }, i) => {
-            return (
-              <p key={i} className="lead text-danger">
-                {message}
-              </p>
-            );
-          })}
-          {allocationResult.loading && <Loading />}
+          <div className="text-center">
+            <h3 className="text-center text-info">Print Hostel Allocation Document</h3>
+            {errors && <p className="lead text-danger">{errors.message}</p>}
+            {allocationResult.loading && <Loading />}
+          </div>
+
           <div className="form-group">
             <select
               className="custom-select selectSession"
@@ -78,15 +79,17 @@ const PrintAllocationBySession = (props) => {
         </div>
 
         <div className="col-md-12">
-          {data && hasRunQuery && (
+          {data && (
             <div>
               <PrintAllocationComponent allocationData={data} />
             </div>
           )}
 
-          {!data && hasRunQuery && (
+          {noData && (
             <div>
-              <p>You do not have any hostel allocation</p>
+              <p div className="lead">
+                You do not have any hostel allocation
+              </p>
             </div>
           )}
         </div>

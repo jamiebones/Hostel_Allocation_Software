@@ -274,7 +274,7 @@ const Navbar = ({ authenticated, currentUser }) => {
                             </React.Fragment>
                           )}
 
-                          {isAuthorizedToView(currentUser, ["student"]) && (
+                          {isAuthorizedToView(currentUser, ["normal"]) && (
                             <React.Fragment>
                               <li className="nav-item">
                                 <StyledLink

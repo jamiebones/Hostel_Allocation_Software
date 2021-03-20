@@ -1,7 +1,16 @@
 import React from "react";
 import styled from "styled-components";
-import { CapFirstLetterOfEachWord } from "../../modules/utils";
-const ViewTransactionComponentStyles = styled.div``;
+import { CapFirstLetterOfEachWord, FormatDate } from "../../modules/utils";
+const ViewTransactionComponentStyles = styled.div`
+  span {
+    padding-right: 20px;
+    font-weight: bold;
+    float: right;
+  }
+  button{
+    vertical-height: center;
+  }
+`;
 
 const ViewTransactionComponent = ({ transactionDetails, history }) => {
   return (
@@ -11,9 +20,9 @@ const ViewTransactionComponent = ({ transactionDetails, history }) => {
           <table className="table table-hover">
             <thead>
               <tr>
-                <th scope="col">Student Info</th>
-                <th scope="col">Transaction Details</th>
-                <th scope="col">Action</th>
+                <th scope="col" className="text-center">Student Info</th>
+                <th scope="col" className="text-center">Transaction Details</th>
+                <th scope="col" className="text-center">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -37,15 +46,30 @@ const ViewTransactionComponent = ({ transactionDetails, history }) => {
                         <p>{session}</p>
                       </td>
                       <td>
-                        <p>&#8358;{amount}</p>
-                        <p>{date}</p>
-                        <p>{CapFirstLetterOfEachWord(hallName)}</p>
-                        <p>{roomNumber}</p>
-                        <p>{bedSpace}</p>
+                        <p>
+                          Amount:
+                          <span>&#8358;{amount}</span>
+                        </p>
+                        <p>
+                          Date:
+                          <span>{date && FormatDate(date)}</span>
+                        </p>
+                        <p>
+                          Hostel/Hall
+                          <span>{CapFirstLetterOfEachWord(hallName)}</span>
+                        </p>
+                        <p>
+                          Room Number
+                          <span>{roomNumber}</span>
+                        </p>
+                        <p>
+                          Bed Space
+                          <span>{bedSpace}</span>
+                        </p>
                       </td>
                       <td>
                         {successful ? (
-                          <div>
+                          <div className="text-center">
                             <button
                               onClick={() =>
                                 history.push(`/print_receipt/${rrr}`)
@@ -56,7 +80,7 @@ const ViewTransactionComponent = ({ transactionDetails, history }) => {
                             </button>
                           </div>
                         ) : (
-                          <div>
+                          <div className="text-center">
                             <button
                               onClick={() =>
                                 history.push(

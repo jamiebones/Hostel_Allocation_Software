@@ -4,15 +4,15 @@ import Loading from "./common/loading";
 import ErrorDisplay from "./common/errorDisplay";
 import { useQuery } from "@apollo/client";
 import { StudentTransaction } from "../graphql/queries";
-import { ExtractError, CapFirstLetterOfEachWord } from "../modules/utils";
 import TransactionViewComponent from "./reuseableComponents/viewTransactionComponents";
 
 const ViewTransactionStyles = styled.div``;
 
 const ViewTransaction = (props) => {
   const [transaction, setTransaction] = useState([]);
-  const [errors, setErrors] = useState([]);
+  const [errors, setErrors] = useState(null);
   const [regNumber, setRegNumber] = useState("");
+  const [noData, setNoData] = useState(null);
 
   const { state } = props.location;
 
@@ -31,12 +31,16 @@ const ViewTransaction = (props) => {
 
   useEffect(() => {
     if (error) {
-      setErrors(ExtractError(error));
+      setErrors(error);
     }
 
     if (data) {
       const trans = data.studentTransaction;
-      setTransaction(trans);
+      if (trans) {
+        setTransaction(trans);
+      } else {
+        setNoData(true);
+      }
     }
   }, [error, data]);
 
@@ -44,7 +48,11 @@ const ViewTransaction = (props) => {
     <ViewTransactionStyles>
       <div className="row">
         <div className="col-md-12">
-          <div className="text-center">{loading && <Loading />}</div>
+          <h3 className="text-info text-center">Payment Transactions</h3>
+          <div className="text-center">
+            {loading && <Loading />}
+            {errors && <p className="lead text-danger">{errors.message}</p>}
+          </div>
 
           <ErrorDisplay errors={errors} />
 
@@ -55,7 +63,11 @@ const ViewTransaction = (props) => {
             />
           )}
 
-          {transaction.length === "0" && <p>no transaction</p>}
+          <div className="text-center">
+            {noData && (
+              <p>you currently have to transaction details to view.</p>
+            )}
+          </div>
         </div>
       </div>
     </ViewTransactionStyles>

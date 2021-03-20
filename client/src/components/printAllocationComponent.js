@@ -5,6 +5,11 @@ import { CapFirstLetterOfEachWord } from "../modules/utils";
 import uniuyologo from "../images/uniuyologo.jpg";
 
 const PrintAllocationStyles = styled.div`
+  .official-label {
+    width: 100px;
+    display: inline-block;
+  }
+
   @media print {
     .container {
       width: auto;
@@ -17,7 +22,7 @@ const PrintAllocationStyles = styled.div`
   }
 
   .span_value {
-    padding: 30px;
+    padding: 10px;
   }
 
   .div_details {
@@ -168,7 +173,7 @@ const PrintAllocationComponent = ({ allocationData }) => {
             <table className="table table-bordered table-sm">
               <thead>
                 <tr>
-                  <th scope="col" colSpan="2">
+                  <th scope="col" colSpan="2" className="text-center">
                     STUDENT INFORMATION
                   </th>
                 </tr>
@@ -195,7 +200,7 @@ const PrintAllocationComponent = ({ allocationData }) => {
 
                 <tr>
                   <td>Email:</td>
-                  <td>{CapFirstLetterOfEachWord(email)}</td>
+                  <td>{email}</td>
                 </tr>
 
                 <tr>
@@ -243,7 +248,7 @@ const PrintAllocationComponent = ({ allocationData }) => {
         <div className="row">
           <div className="col-sm-12">
             <div className="div-hostel">
-              <p className="text-center lead">Hostel Details</p>
+              <p className="text-center lead"><b>Hostel Details</b></p>
 
               <table className="table table-bordered table-sm">
                 <thead></thead>
@@ -277,14 +282,12 @@ const PrintAllocationComponent = ({ allocationData }) => {
             </div>
 
             <div className="border details_hostel">
-              <p className="text-center lead">Official</p>
+              <p className="text-center lead"><b>Official</b></p>
               <div className="details">
                 <p>
-                  <span>
-                    Verified By:
-                    <span className="span_value">
-                      ___________________________
-                    </span>
+                  <span className="official-label">Verified By:</span>
+                  <span className="span_value">
+                    ___________________________
                   </span>
 
                   <span className="float-right">
@@ -296,12 +299,8 @@ const PrintAllocationComponent = ({ allocationData }) => {
                 </p>
 
                 <p>
-                  <span>
-                    Date
-                    <span className="span_value">
-                      _________________________
-                    </span>
-                  </span>
+                  <span className="official-label">Date</span>
+                  <span className="span_value">_________________________</span>
                 </p>
               </div>
             </div>

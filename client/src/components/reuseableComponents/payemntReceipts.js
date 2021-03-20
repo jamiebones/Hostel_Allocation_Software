@@ -3,6 +3,8 @@ import { CapFirstLetterOfEachWord } from "../../modules/utils";
 import styled from "styled-components";
 import uniuyologo from "../../images/uniuyologo.jpg";
 
+import { FormatDate } from "../../modules/utils";
+
 const PayemntStyles = styled.div`
   p span {
     padding: 10px;
@@ -185,7 +187,7 @@ const PaymentReceipts = ({ transactionDetails }) => {
                     <b>RRR :</b> {rrr}
                   </p>
                   <p>
-                    <b>Date :</b> {date}
+                    <b>Date :</b> {date && FormatDate(date)}
                   </p>
                 </div>
               </div>
