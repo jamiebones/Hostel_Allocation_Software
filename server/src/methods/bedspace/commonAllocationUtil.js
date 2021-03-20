@@ -1,5 +1,3 @@
-
-
 export const checkIfSpaceIsOnHold = async (
   regNumber,
   activeSession,
@@ -290,9 +288,11 @@ export const getLevelExplanation = ({
 };
 
 export const checkAvailableSpace = async ({ level, faculty, conn }) => {
+  console.log(`level: ${level} fac: ${faculty}`);
   const activeSession = await conn.models.SessionTable.findOne({
     active: true,
   });
+  console.log(`active session: ${activeSession}`);
   const facultyAllocation = activeSession.facultyAllocation;
   const levelAllocation = activeSession.levelAllocation;
   //get the student faculty data
@@ -300,13 +300,14 @@ export const checkAvailableSpace = async ({ level, faculty, conn }) => {
     return fac.facultyName.toLowerCase() == faculty.toLowerCase();
   });
 
+
   if (!facultyData) {
     //return saying no allocation for your faculty
     throw new Error(`No hostel allocation reserved for ${faculty} students.`);
   }
 
   const levelData = levelAllocation.find((ele) => {
-    return ele.level.toLowerCase() == level.toLowerCase();
+    return ele.level.toLowerCase() == level && level.toLowerCase();
   });
 
   //check the level if there is still available space for the person
@@ -389,21 +390,22 @@ export const specialHostelCheck = async (student, session, conn) => {
   let eligibleHostel = null;
   specialHostel.map((hostel) => {
     //check the occupiedByArray if the student qualifies;
-    hostel.map(({ facultyName, levels }) => {
-      let foundEligibleHostel = false;
+    hostel &&
+      hostel.occupiedBy.map(({ facultyName, levels }) => {
+        let foundEligibleHostel = false;
 
-      if (facultyName.toLowerCase() === faculty.toLowerCase()) {
-        foundEligibleHostel = true;
-      }
-      levels.map((level) => {
-        if (level.toLowerCase() === currentLevel.toLowerCase()) {
-          if (foundEligibleHostel) {
-            eligibleHostel = hostel;
-            return eligibleHostel;
-          }
+        if (facultyName.toLowerCase() === faculty.toLowerCase()) {
+          foundEligibleHostel = true;
         }
+        levels.map((level) => {
+          if (level.toLowerCase() === currentLevel.toLowerCase()) {
+            if (foundEligibleHostel) {
+              eligibleHostel = hostel;
+              return eligibleHostel;
+            }
+          }
+        });
       });
-    });
   });
 
   if (eligibleHostel) {

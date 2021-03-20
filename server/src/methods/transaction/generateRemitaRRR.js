@@ -15,86 +15,90 @@ import {
 } from "./transactionsUtil.js";
 
 export default async function generateRemitaRRR(regNumber, conn) {
-  const transactionSession = conn.startSession();
-  return await conn.transaction(async () => {
-    try {
-      const activeSession = await getActiveSession(conn);
-      const student = await getStudentData(regNumber, conn);
-      if (!student) throw new Error("Student data not found");
+  const transactionSession = await conn.startSession();
+  transactionSession.startTransaction();
+  try {
+    const activeSession = await getActiveSession(conn);
+    const student = await getStudentData(regNumber, conn);
+    if (!student) throw new Error("Student data not found");
 
-      const bed = await getReservedBedSpace(
+    const bed = await getReservedBedSpace(
+      regNumber,
+      activeSession.session,
+      conn
+    );
+
+    if (bed) {
+      //save new transaction here
+      const bedDetails = await getReservedBedDetails(bed.bedId, conn);
+      const transaction = await checkTransactionAlreadyWithRRR(
         regNumber,
         activeSession.session,
+        transactionSession,
         conn
       );
 
-      if (bed) {
-        //save new transaction here
-        const bedDetails = await getReservedBedDetails(bed.bedId, conn);
-        const transaction = await checkTransactionAlreadyWithRRR(
-          regNumber,
-          activeSession.session,
-          transactionSession,
-          conn
-        );
-
-        if (!_.isEmpty(transaction)) {
-          const { amount, rrr } = transaction;
-          console.log("old transaction be called");
-          let splitArray = amount.split(".");
-          let splitAmount = splitArray[0].replace(",", "");
-          return {
-            statuscode: "",
-            RRR: rrr,
-            status: "",
-            regNumber,
-            amount: splitAmount,
-          };
-        }
-
-        const newTransaction = await saveNewTransaction(
-          student,
-          activeSession.session,
-          bedDetails,
-          transactionSession,
-          conn
-        );
-        //generate the rrr here
-        const { amount, transactionId, payerName } = newTransaction;
-
+      if (!_.isEmpty(transaction)) {
+        const { amount, rrr } = transaction;
+        console.log("old transaction be called");
         let splitArray = amount.split(".");
         let splitAmount = splitArray[0].replace(",", "");
-
-        const data = _compileRemitaDataToSend({
-          transactionId,
-          total: splitAmount,
-          email: student.email,
-          phoneNumber: student.phoneNumber,
-          name: payerName,
-          bedDetails,
-        });
-        const remitaResponse = await _contactRemita(data);
-
-        const { statuscode, RRR, status } = JSON.parse(remitaResponse);
-
-        if (statuscode === "025" && RRR) {
-          //save the rrr in the transaction object
-          await updateTransactionWithRRR(
-            newTransaction._id,
-            RRR,
-            transactionSession,
-            conn
-          );
-          return { statuscode, RRR, status, regNumber, amount: splitAmount };
-        }
-      } else {
-        throw new Error("you do not have a bed space on hold. ");
+        await transactionSession.commitTransaction();
+        return {
+          statuscode: "",
+          RRR: rrr,
+          status: "",
+          regNumber,
+          amount: splitAmount,
+        };
       }
-    } catch (error) {
-      console.log(error);
-      throw error;
+
+      const newTransaction = await saveNewTransaction(
+        student,
+        activeSession.session,
+        bedDetails,
+        transactionSession,
+        conn
+      );
+      //generate the rrr here
+      const { amount, transactionId, payerName } = newTransaction;
+
+      let splitArray = amount.split(".");
+      let splitAmount = splitArray[0].replace(",", "");
+
+      const data = _compileRemitaDataToSend({
+        transactionId,
+        total: splitAmount,
+        email: student.email,
+        phoneNumber: student.phoneNumber,
+        name: payerName,
+        bedDetails,
+      });
+      const remitaResponse = await _contactRemita(data);
+
+      const { statuscode, RRR, status } = JSON.parse(remitaResponse);
+
+      if (statuscode === "025" && RRR) {
+        //save the rrr in the transaction object
+        await updateTransactionWithRRR(
+          newTransaction._id,
+          RRR,
+          transactionSession,
+          conn
+        );
+        await transactionSession.commitTransaction();
+        return { statuscode, RRR, status, regNumber, amount: splitAmount };
+      }
+    } else {
+      throw new Error("you do not have a bed space on hold. ");
     }
-  });
+  } catch (error) {
+    await transactionSession.abortTransaction();
+    console.log(error);
+    throw error;
+  } finally {
+    transactionSession.endSession();
+  }
 }
 
 const _generateHash = (msg) => {

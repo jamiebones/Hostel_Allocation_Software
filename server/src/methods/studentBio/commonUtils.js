@@ -3,6 +3,6 @@ export const getStudentData = async (regNumber, conn) => {
   const regToLower = regNumber.toLowerCase();
   const student = await conn.models.StudentBio.findOne({
     regNumber: regToLower,
-  });
+  }).lean();
   return student;
 };

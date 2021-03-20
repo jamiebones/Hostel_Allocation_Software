@@ -2,7 +2,7 @@ import bedSpaceMethods from "../bedspace";
 
 const { getLevelExplanation } = bedSpaceMethods.common;
 
-export default async (student, session, conn) => {
+export default async (student, connSession, conn) => {
   const {
     regNumber,
     dept,
@@ -67,11 +67,11 @@ export default async (student, session, conn) => {
   //update the student data here
   const updateStudent = await conn.models.StudentBio.findOne({
     regNumber: regNumber.toLowerCase(),
-  }).session(session);
+  }).session(connSession);
 
   updateStudent.currentLevel = newLevel;
   updateStudent.currentSession = activeSession.session;
-  await updateStudent.save({ session: session });
+  await updateStudent.save({ session: connSession });
 
   const { email, sex, name, phoneNumber, profileImage } = updateStudent;
   const newStudentObj = {

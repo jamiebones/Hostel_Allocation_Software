@@ -64,7 +64,7 @@ export default {
         currentSession,
         sex,
       };
-      debugger;
+      
 
       try {
         const data = await methods.studentBioMethod.createStudentAccount(

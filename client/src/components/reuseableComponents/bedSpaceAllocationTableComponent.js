@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import {
   InitiateHostelPayment,
@@ -34,41 +34,41 @@ const BedSpaceStyles = styled.div`
 
 const BedSpaceAllocationTableComponent = ({ history, bedSpace, regNumber }) => {
   const [initPayment, initPaymentResult] = useMutation(InitiateHostelPayment);
+  const [errors, setErrors] = useState(null);
   const [simulatedFunction, simulateResult] = useMutation(
     SimulateRemitaTransaction
   );
   useEffect(() => {
-    if (initPaymentResult.data || initPaymentResult.error) {
+    debugger
+    if (initPaymentResult.error) {
+      setErrors(initPaymentResult.error);
+    }
+    if (initPaymentResult.data) {
       //we have a successdul transaction
       const data = initPaymentResult.data.initiateHostelFeePayment;
-      let errorArray = [];
-      if (initPaymentResult.error) {
-        errorArray = ExtractError(initPaymentResult.error);
+      if (data !== null) {
+        history.push("/make_payment", {
+          error: initPaymentResult.error,
+          transaction: data,
+        });
       }
-
-      history.push("/make_payment", {
-        error: errorArray,
-        transaction: data,
-      });
     }
   }, [initPaymentResult.data, initPaymentResult.error]);
 
   useEffect(() => {
-    if (simulateResult.data || simulateResult.error) {
+    if (simulateResult.error) {
+      setErrors(simulateResult.error);
+    }
+    if (simulateResult.data) {
       //we have a successdul transaction
       //const data = simulateResult.data.simulateRemitaTransaction;
-      let errorArray = [];
-      if (simulateResult.error) {
-        errorArray = ExtractError(simulateResult.error);
-      }
-
       history.push("/student_transactions", {
         regNumber,
       });
     }
   }, [simulateResult.data, simulateResult.error]);
 
-  const handleFlutterPayment = async (e) => {
+  const handleRemitaPayment = async (e) => {
     try {
       e.preventDefault();
       await initPayment({
@@ -100,6 +100,9 @@ const BedSpaceAllocationTableComponent = ({ history, bedSpace, regNumber }) => {
   return (
     <BedSpaceStyles>
       <div className="resultBoard">
+        <div className="text-center">
+          {errors && <p className="lead text-danger">{errors.message}</p>}
+        </div>
         {bedSpace && (
           <div>
             <table className="table table-borderless">
@@ -173,14 +176,14 @@ const BedSpaceAllocationTableComponent = ({ history, bedSpace, regNumber }) => {
               <React.Fragment>
                 <div className="text-center">
                   <div
-                    class="btn-group"
+                    className="btn-group"
                     role="group"
                     aria-label="Basic example"
                   >
                     <button
                       type="button"
                       className="btn btn-secondary btn-lg"
-                      onClick={handleFlutterPayment}
+                      onClick={handleRemitaPayment}
                     >
                       Make Payment
                     </button>

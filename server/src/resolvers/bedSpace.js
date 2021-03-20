@@ -211,22 +211,17 @@ export default {
       return `status changed to ${newStatus}.`;
     },
 
-    allocateBedSpace: async (parent, { regNumber }, { fastConn, slowConn }) => {
-      try {
-        const bed = await methods.bedSpaceMethod.allocateBedSpace(
-          regNumber,
-          fastConn
-        );
-
-        //stats
-        const bedStats = await slowConn.models.BedStats;
-        pubsub.publish(EVENTS.BEDSPACE.BedSpace_Stats, {
-          bedStatistics: { bedStats },
-        });
-        return bed;
-      } catch (error) {
-        throw error;
-      }
+    allocateBedSpace: async (parent, { regNumber }, { fastConn }) => {
+     const bed = await methods.bedSpaceMethod.allocateBedSpace(
+        regNumber,
+        fastConn,
+      );
+      return bed;
+      //stats
+      // const bedStats = await slowConn.models.BedStats;
+      // pubsub.publish(EVENTS.BEDSPACE.BedSpace_Stats, {
+      //   bedStatistics: { bedStats },
+      // });
     },
     placeStudentInBedSpace: async (
       parent,
@@ -273,7 +268,7 @@ export default {
 
   BedSpace: {
     hall: async (bedspace, args, { fastConn, slowConn }) => {
-      return await fastConn.models.hall.findOne({ _id: bedspace.hallId });
+      return await fastConn.models.Hostel.findOne({ _id: bedspace.hallId });
     },
   },
 };

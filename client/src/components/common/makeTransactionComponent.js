@@ -24,12 +24,11 @@ const TransactionStyles = styled.div`
     margin: 10px 0 20px 0;
     font-size: 22px;
   }
-  
 `;
 
 const MakeTransactionComponent = ({ transaction, history }) => {
   const [submitted, setSubmitted] = useState(false);
-  const [errors, setErrors] = useState([]);
+  const [errors, setErrors] = useState(null);
 
   const {
     amount,
@@ -49,7 +48,7 @@ const MakeTransactionComponent = ({ transaction, history }) => {
 
   useEffect(() => {
     if (makeRRRMutationResult.error) {
-      setErrors(ExtractError(makeRRRMutationResult.error));
+      setErrors(makeRRRMutationResult.error);
       setSubmitted(!submitted);
     }
     if (makeRRRMutationResult.data) {
@@ -88,7 +87,6 @@ const MakeTransactionComponent = ({ transaction, history }) => {
         },
       });
     } catch (error) {
-      setSubmitted(!submitted);
       console.log(error);
     }
   };
@@ -98,7 +96,10 @@ const MakeTransactionComponent = ({ transaction, history }) => {
       <div className="container">
         <div className="row">
           <div className="col-12">
-            <ErrorDisplay errors={errors} />
+            <div className="text-center">
+              {errors && <p className="lead text-danger">{errors.message}</p>}
+            </div>
+
             <div className="card">
               <div className="card-body p-0">
                 <div className="row p-5">

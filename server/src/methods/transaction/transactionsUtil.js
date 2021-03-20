@@ -26,7 +26,7 @@ export const addUserToAllocatedBedSpace = async (
     roomDetails: { roomNumber, hallName, bedSpace, roomId, hallId },
   } = transaction;
 
-  const student = await getStudentData(regNumber, transactionSession, conn);
+  const student = await getStudentData(regNumber, conn);
 
   const newbedSlot = new conn.models.BedSpaceAllocation({
     hallId,
@@ -40,7 +40,7 @@ export const addUserToAllocatedBedSpace = async (
     bedSpace,
   });
 
-  newbedSlot.save({ session: transactionSession });
+  await newbedSlot.save({ session: transactionSession });
   return student;
 };
 
@@ -78,7 +78,6 @@ export const saveNewTransaction = async (
   conn
 ) => {
   const { regNumber, name } = student;
-
   const amount = await getHostelFee({
     regNumber: regNumber,
     bedId: bed._id,
@@ -143,7 +142,7 @@ export const getHostelFee = async ({
     bedId: bedId,
     regNumber: regNumber,
     session: session,
-  }).session(transactionSession);
+  }).lean().session(transactionSession);
 
   if (spaceOnHold) {
     const bed = await conn.models.BedSpace.findById(bedId).session(

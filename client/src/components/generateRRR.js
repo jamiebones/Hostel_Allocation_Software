@@ -3,8 +3,11 @@ import RemitaTransactionComponent from "./common/makeTransactionComponent";
 
 const GenerateRRRPayment = (props) => {
   const { state } = props.location;
-  if (state && state.error && state.error.length) {
-    return <p>{state && state.error && state.error[0]}</p>;
+  if (state && state.error ) {
+    return <div className="text-center">
+       <p className="lead text-danger">{state && state.error }</p>;
+    </div>
+    
   }
   return (
     <div className="row">

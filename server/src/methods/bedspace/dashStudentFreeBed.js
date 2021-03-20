@@ -11,72 +11,73 @@ export default async function placeStudentInBedSpace(
   user,
   conn
 ) {
-  const session = conn.startSession();
-  return await conn.transaction(async () => {
-    try {
-      //confirm if the person is a valid student
-      const student = await studentBioMethod.confirmStudentShip(
-        regNumber,
-        conn
-      );
-      if (!student)
-        throw new Error(
-          `Can not find student records with the given reg number : ${regNumber}`
-        );
+  const session = await conn.startSession();
+  session.startTransaction();
 
-      //update the student level here
-      const updatedStudent = await studentBioMethod.updateStudentLevel(
-        student,
+  try {
+    //confirm if the person is a valid student
+    const student = await studentBioMethod.confirmStudentShip(regNumber, conn);
+    if (!student)
+      throw new Error(
+        `Can not find student records with the given reg number : ${regNumber}`
+      );
+
+    //update the student level here
+    const updatedStudent = await studentBioMethod.updateStudentLevel(
+      student,
+      session,
+      conn
+    );
+    if (!updatedStudent) {
+      throw new Error(
+        "There was a problem getting your records. Please contact admin"
+      );
+    }
+
+    const { currentSession } = updatedStudent;
+
+    //check if the student already have a space on hold
+
+    await Promise.all([
+      checkIfSpaceAlreadyAllocatedToStudentThatSession(
+        regNumber,
+        currentSession,
         session,
         conn
-      );
-      if (!updatedStudent) {
-        throw new Error(
-          "There was a problem getting your records. Please contact admin"
-        );
-      }
+      ),
+      checkIfSpaceIsOnHold(regNumber, currentSession, session, conn),
+    ]);
 
-      const { currentSession } = updatedStudent;
+    //mark the bed as occupied here and assign it to the student
 
-      //check if the student already have a space on hold
-
-      await Promise.all([
-        checkIfSpaceAlreadyAllocatedToStudentThatSession(
-          regNumber,
-          currentSession,
-          session,
-          conn
-        ),
-        checkIfSpaceIsOnHold(regNumber, currentSession, session, conn),
-      ]);
-
-      //mark the bed as occupied here and assign it to the student
-
-      //if we get here we are successful.
-      await Promise.all([
-        addUserToAllocatedBedSpace({
-          bedId,
-          transactionSession: session,
-          regNumber,
-          student: updatedStudent,
-          conn,
-        }),
-        markRoomAsOccupied(bedId, session, conn),
-        logAdminGiveBedSpace({
-          bedId,
-          transactionSession: session,
-          regNumber,
-          student: updatedStudent,
-          user,
-          conn,
-        }),
-      ]);
-      return true;
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
-  });
+    //if we get here we are successful.
+    await Promise.all([
+      addUserToAllocatedBedSpace({
+        bedId,
+        transactionSession: session,
+        regNumber,
+        student: updatedStudent,
+        conn,
+      }),
+      markRoomAsOccupied(bedId, session, conn),
+      logAdminGiveBedSpace({
+        bedId,
+        transactionSession: session,
+        regNumber,
+        student: updatedStudent,
+        user,
+        conn,
+      }),
+    ]);
+    await session.commitTransaction();
+    return true;
+  } catch (error) {
+    await session.abortTransaction();
+    console.log(error);
+    throw error;
+  } finally {
+    session.endSession();
+  }
 }
 
 const addUserToAllocatedBedSpace = async ({

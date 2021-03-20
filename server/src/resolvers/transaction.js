@@ -42,17 +42,19 @@ export default {
   },
 
   Mutation: {
-    simulateRemitaTransaction: async (_, { regNumber }, { models }) => {
+    simulateRemitaTransaction: async (_, { regNumber }, { fastConn }) => {
       const lowerRegNumber = regNumber.toLowerCase();
       const transactionStatus = await methods.transactionMethod.simulateRemitaTransaction(
-        lowerRegNumber
+        lowerRegNumber,
+        fastConn
       );
       return transactionStatus;
     },
-    initiateHostelFeePayment: async (_, { regNumber }, { models }) => {
+    initiateHostelFeePayment: async (_, { regNumber }, { fastConn }) => {
       const lowerRegNumber = regNumber.toLowerCase();
       const transactionDetails = await methods.transactionMethod.makeTransaction(
-        lowerRegNumber
+        lowerRegNumber,
+        fastConn
       );
       return transactionDetails;
     },
@@ -63,9 +65,10 @@ export default {
       );
       return transaction;
     },
-    generateRemitaRRR: async (_, { regNumber }, {}) => {
+    generateRemitaRRR: async (_, { regNumber }, { fastConn }) => {
       const transaction = await methods.transactionMethod.generateRemitaRRR(
-        regNumber
+        regNumber,
+        fastConn
       );
       const env = {
         MerchantId: process.env.MerchantId,
@@ -82,8 +85,8 @@ export default {
   },
 
   Transaction: {
-    student: async (parent, {}, { models }) => {
-      const student = await models.StudentBio.findOne({
+    student: async (parent, {}, { fastConn }) => {
+      const student = await fastConn.models.StudentBio.findOne({
         regNumber: parent.regNumber,
       });
       return student;

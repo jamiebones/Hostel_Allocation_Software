@@ -80,7 +80,7 @@ const App = (props) => {
   const [authenticated, setAuthenticated] = useRecoilState(state.authState);
   const [currentUser, setCurrentUser] = useRecoilState(state.currentUserState);
 
-  console.log("i was rendered");
+
   useEffect(() => {
     if (!currentUser) {
       //load the stuffs from the store if it exists
