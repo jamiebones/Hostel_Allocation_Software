@@ -54,7 +54,7 @@ import state from "./applicationState";
 import EditHostelDetails from "./components/editHostelDetails";
 import SendMessageToStudent from "./components/sendMessageToStudents";
 import CustomNavbar from "./components/common/customNavbar";
-
+import AdminViewTransaction from "./components/adminViewTransaction"
 import GlobalStyle from "./globalStyles";
 /**
  imports of page components ends here
@@ -255,6 +255,16 @@ const App = (props) => {
                             component={StudentAccountCreation}
                           />
                           {/* Admin routes from here  */}
+                          <AuthorizedComponent
+                            path="/admin/view_transactions"
+                            exact
+                            component={AdminViewTransaction}
+                            authenticated={authenticated}
+                            currentUser={currentUser}
+                            authorizedRole={["super-admin"]}
+                            {...props}
+                          />
+
                           <AuthorizedComponent
                             path="/admin/dashboard"
                             exact

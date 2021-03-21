@@ -271,6 +271,16 @@ const Navbar = ({ authenticated, currentUser }) => {
                                   Send SMS
                                 </StyledLink>
                               </li>
+
+                              <li className="nav-item">
+                                <StyledLink
+                                  className="nav-link"
+                                  exact
+                                  to="/admin/view_transactions"
+                                >
+                                  Transactions
+                                </StyledLink>
+                              </li>
                             </React.Fragment>
                           )}
 

@@ -6,9 +6,13 @@ export default gql`
       session: String!
       successful: Boolean!
     ): [Transaction!]
-    studentTransaction(regNumber: String! ): [Transaction]
-    confirmTransactionUsingRRR(orderID: String!, RRR: String!): TransactionStatus
+    studentTransaction(regNumber: String!): [Transaction]
+    confirmTransactionUsingRRR(
+      orderID: String!
+      RRR: String!
+    ): TransactionStatus
     getTransactionWithRRR(rrr: String!): Transaction
+    getSuccessfulTransactionsBySession(session: String!): [Transaction!]!
   }
 
   extend type Mutation {

@@ -515,7 +515,27 @@ const GetSMSCreditAvailable = gql`
       sms_credits
     }
   }
-`
+`;
+
+const GetSuccessFullTransactions = gql`
+  query getSuccessfulTransactionsBySession($session: String!) {
+    getSuccessfulTransactionsBySession(session: $session) {
+      amount
+      transactionId
+      payerName
+      regNumber
+      date
+      roomDetails {
+        roomNumber
+        hallName
+        bedSpace
+        location
+        roomType
+      }
+      rrr
+    }
+  }
+`;
 
 export {
   GetSMSCreditAvailable,
@@ -546,4 +566,5 @@ export {
   TotalAndReservedBedStatistic,
   GetHostelsByName,
   GetAllHallsWithRoomDetails,
+  GetSuccessFullTransactions,
 };

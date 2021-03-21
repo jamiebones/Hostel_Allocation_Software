@@ -74,8 +74,7 @@ const SendMessageToStudent = () => {
   const [hostels, setHostels] = useState(null);
   const [selectedHostel, setSelectedHostel] = useState(null);
   const [messageArray, setMessageArray] = useState([]);
-  const { loading, data, error } = useQuery(GetAllHallsWithRoomDetails);
-  const [getCredit, getCreditResult] = useLazyQuery(GetSMSCreditAvailable);
+
   const [errors, setErrors] = useState(null);
   const [smsCredits, setSmsCredit] = useState(null);
   const [creditQueryLoading, setQueryLoading] = useState(false);
@@ -85,6 +84,8 @@ const SendMessageToStudent = () => {
   const [smsPage, setSMSPage] = useState(1);
   const [submitted, setSubmitted] = useState(false);
 
+  const roomDetails = useQuery(GetAllHallsWithRoomDetails);
+  const credit = useQuery(GetSMSCreditAvailable);
   const [sendSMSQuery, sendSMSResult] = useMutation(SendSMSToStudents);
 
   let total = 0;
@@ -112,31 +113,28 @@ const SendMessageToStudent = () => {
   }, [messageArray]);
 
   useEffect(() => {
-    if (error) {
-      setErrors(error);
+    if (roomDetails.error) {
+      setErrors(roomDetails.error);
     }
-    if (data) {
-      const hostelData = data.getAllHalls;
+    if (roomDetails.data) {
+      const hostelData = roomDetails.data.getAllHalls;
       setHostels(hostelData);
     }
-  }, [data, error]);
+  }, [roomDetails.data, roomDetails.error]);
 
   useEffect(() => {
-    setQueryLoading(true);
-    getCredit();
-  }, []);
-
-  useEffect(() => {
-    if (getCreditResult.error) {
-      setQueryLoading(false);
-      setErrors(getCreditResult.error);
+    if (credit.loading) {
+      setQueryLoading(true);
     }
-    if (getCreditResult.data) {
-      const credits = getCreditResult.data.checkCredit;
+    if (credit.data) {
+      setSmsCredit(credit.data.checkCredit);
       setQueryLoading(false);
-      setSmsCredit(credits);
     }
-  }, [getCreditResult.data, getCreditResult.error]);
+    if (credit.error) {
+      setQueryLoading(false);
+      setErrors(credit.error);
+    }
+  }, [credit.data, credit.error]);
 
   const selectedHostelChange = (e) => {
     const value = e.target.value;
@@ -218,6 +216,7 @@ const SendMessageToStudent = () => {
           roomIds: { ids: roomIds },
           sms: sms,
         },
+        refetchQueries: [{ query: GetSMSCreditAvailable }],
       });
     } catch (error) {}
   };
@@ -235,7 +234,7 @@ const SendMessageToStudent = () => {
             onChange={selectedHostelChange}
           >
             <option value="0">select hostel</option>
-            {loading && <option>loading.....</option>}
+            {roomDetails.loading && <option>loading.....</option>}
             <option value="all_students">
               send message to everyone residing in the hostel
             </option>

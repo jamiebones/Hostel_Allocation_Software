@@ -2,7 +2,11 @@ import methods from "../methods";
 
 export default {
   Query: {
-    studentTransaction: async (parent, { regNumber }, { fastConn, slowConn}) => {
+    studentTransaction: async (
+      parent,
+      { regNumber },
+      { fastConn, slowConn }
+    ) => {
       const regToLower = regNumber.toLowerCase();
       const studentTransaction = await fastConn.models.Transaction.find({
         regNumber: regToLower,
@@ -31,7 +35,25 @@ export default {
       return transactionsThatSucceded;
     },
 
-    confirmTransactionUsingRRR: async (parent, { orderID, RRR }, { fastConn }) => {
+    getSuccessfulTransactionsBySession: async (
+      parent,
+      { session },
+      { fastConn, slowConn }
+    ) => {
+      const transactions = await fastConn.models.Transaction.find({
+        session,
+        successful: true,
+      })
+        .sort({ regNumber: 1 })
+        .lean();
+      return transactions;
+    },
+
+    confirmTransactionUsingRRR: async (
+      parent,
+      { orderID, RRR },
+      { fastConn }
+    ) => {
       const transactionStatus = await methods.transactionMethod.confirmRemitaTransaction(
         orderID,
         RRR,
