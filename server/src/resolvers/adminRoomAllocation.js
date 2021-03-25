@@ -1,15 +1,24 @@
+import { combineResolvers } from "graphql-resolvers";
+import { isAuthenticated, isAdmin } from "./authorization";
+
 export default {
   Query: {
-    adminAllocationBySession: async (parent, { session }, { fastConn, slowConn }) => {
-      const roomDashedByAdmin = await fastConn.models.AdminRoomAllocation.find({
-        session: session,
-      });
-      return roomDashedByAdmin;
-    },
+    adminAllocationBySession: combineResolvers(
+      isAuthenticated,
+      isAdmin,
+      async (parent, { session }, { fastConn }) => {
+        const roomDashedByAdmin = await fastConn.models.AdminRoomAllocation.find(
+          {
+            session: session,
+          }
+        );
+        return roomDashedByAdmin;
+      }
+    ),
   },
 
   AdminRoomAllocation: {
-    student: async (parent, {}, { fastConn, slowConn }) => {
+    student: async (parent, {}, { fastConn }) => {
       const student = await fastConn.models.StudentBio.findOne({
         regNumber: parent.regNumber.toLowerCase(),
       });

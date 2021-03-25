@@ -537,7 +537,20 @@ const GetSuccessFullTransactions = gql`
   }
 `;
 
+const GetAdminDashboardStats = gql`
+  query getAdminDashBoardStats {
+    getAdminDashBoardStats {
+      studentAccounts
+      hostelNumber
+      vacantBeds
+      lockedBeds
+      occupiedBeds
+    }
+  }
+`;
+
 export {
+  GetAdminDashboardStats,
   GetSMSCreditAvailable,
   GetHostelById,
   CheckphoneIfThePersonHasTriedsMoreThanThreeTimes,

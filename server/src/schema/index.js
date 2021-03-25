@@ -1,5 +1,4 @@
 import { gql } from "apollo-server-express";
-
 import userSchema from "./user";
 import transactionSchema from "./transaction";
 import messageSchema from "./message";

@@ -11,7 +11,9 @@ import sessionTableResolvers from "./sessionTable";
 import confirmPhoneResolvers from "./confirmPhoneTable";
 import bedSpaceAllocationResolvers from "./bedSpaceAllocation";
 import facultyResolvers from "./faculty";
-import adminRoomAllocation from "./adminRoomAllocation"
+import adminRoomAllocation from "./adminRoomAllocation";
+import bedAlloctedStat from "./bedAllocatedStat";
+
 const customScalarResolver = {
   Date: GraphQLDateTime,
 };
@@ -30,5 +32,6 @@ export default [
   confirmPhoneResolvers,
   bedSpaceAllocationResolvers,
   facultyResolvers,
-  adminRoomAllocation
+  adminRoomAllocation,
+  bedAlloctedStat,
 ];

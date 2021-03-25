@@ -65,6 +65,8 @@ services:
       CheapGlobalSmsGateway: http://cheapglobalsms.com/api_v1
       CheapGlobalSmsSubAccount: 9540_uniuyo
       CheapGlobalSmsSubAccountPassword: blazing147
+      DeveloperBugsEmailSupport: bugsreport2021@gmail.com
+      DeveloperBugsEmailPassword: blazing147
       
 
 

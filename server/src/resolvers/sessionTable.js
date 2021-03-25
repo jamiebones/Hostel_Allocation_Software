@@ -1,3 +1,11 @@
+import { combineResolvers } from "graphql-resolvers";
+import {
+  isAuthenticated,
+  isAdmin,
+  isSuperAdmin,
+  isStudent,
+} from "./authorization";
+
 export default {
   Query: {
     getSessionById: async (parent, { sessionId }, { fastConn, slowConn }) => {
@@ -15,148 +23,159 @@ export default {
   },
 
   Mutation: {
-    createSession: async (_, { input }, { fastConn, slowConn }) => {
-      const {
-        session,
-        facultyAllocation,
-        levelAllocation,
-        active,
-        shouldUpdateLevel,
-      } = input;
-      const newSession = new fastConn.models.SessionTable({
-        session,
-        facultyAllocation,
-        levelAllocation,
-        active,
-        shouldUpdateLevel,
-      });
-      try {
-        //loop through the faculty allocation array
-        //check if we already have a session created
-        const findSession = await fastConn.models.SessionTable.findOne({
+    createSession: combineResolvers(
+      isAuthenticated,
+      isSuperAdmin,
+      async (_, { input }, { fastConn, slowConn }) => {
+        const {
           session,
+          facultyAllocation,
+          levelAllocation,
+          active,
+          shouldUpdateLevel,
+        } = input;
+        const newSession = new fastConn.models.SessionTable({
+          session,
+          facultyAllocation,
+          levelAllocation,
+          active,
+          shouldUpdateLevel,
         });
-        if (findSession) {
-          throw new Error(
-            `${session} session is saved already in the database.`
-          );
-        }
-        const facTotal = facultyAllocation.reduce((total, faculty) => {
-          return (total = +faculty.percentAllocation + total);
-        }, 0);
+        try {
+          //loop through the faculty allocation array
+          //check if we already have a session created
+          const findSession = await fastConn.models.SessionTable.findOne({
+            session,
+          });
+          if (findSession) {
+            throw new Error(
+              `${session} session is saved already in the database.`
+            );
+          }
+          const facTotal = facultyAllocation.reduce((total, faculty) => {
+            return (total = +faculty.percentAllocation + total);
+          }, 0);
 
-        const levelTotal = levelAllocation.reduce((total, level) => {
-          return (total += level.percentAllocation);
-        }, 0);
+          const levelTotal = levelAllocation.reduce((total, level) => {
+            return (total += level.percentAllocation);
+          }, 0);
 
-        if (facTotal > 100 || facTotal < 100) {
-          throw new Error(
-            `Faculty total allocation should eaual 100. Value currently is ${facTotal}`
-          );
-        }
-        if (levelTotal > 100 || levelTotal < 100) {
-          throw new Error(
-            `Level total allocation should eaual 100. Value currently is ${levelTotal}`
-          );
-        }
+          if (facTotal > 100 || facTotal < 100) {
+            throw new Error(
+              `Faculty total allocation should eaual 100. Value currently is ${facTotal}`
+            );
+          }
+          if (levelTotal > 100 || levelTotal < 100) {
+            throw new Error(
+              `Level total allocation should eaual 100. Value currently is ${levelTotal}`
+            );
+          }
 
-        await newSession.save();
-        return newSession;
-      } catch (error) {
-        console.log(error);
-        throw error;
+          await newSession.save();
+          return newSession;
+        } catch (error) {
+          console.log(error);
+          throw error;
+        }
       }
-    },
-    updateSession: async (_, { input, sessionId }, { fastConn, slowConn }) => {
-      const { facultyAllocation, levelAllocation, shouldUpdateLevel } = input;
+    ),
+    updateSession: combineResolvers(
+      isAuthenticated,
+      isSuperAdmin,
+      async (_, { input, sessionId }, { fastConn, slowConn }) => {
+        const { facultyAllocation, levelAllocation, shouldUpdateLevel } = input;
 
-      try {
-        //loop through the faculty allocation array
-        const sessionToUpdate = await fastConn.models.SessionTable.findOne({
-          _id: sessionId,
-        });
-        const prevFacAllocation = sessionToUpdate.facultyAllocation;
-        const prevLevelAllocation = sessionToUpdate.levelAllocation;
+        try {
+          //loop through the faculty allocation array
+          const sessionToUpdate = await fastConn.models.SessionTable.findOne({
+            _id: sessionId,
+          });
+          const prevFacAllocation = sessionToUpdate.facultyAllocation;
+          const prevLevelAllocation = sessionToUpdate.levelAllocation;
 
-        const facTotal = facultyAllocation.reduce((total, faculty) => {
-          return (total = +faculty.percentAllocation + total);
-        }, 0);
+          const facTotal = facultyAllocation.reduce((total, faculty) => {
+            return (total = +faculty.percentAllocation + total);
+          }, 0);
 
-        const levelTotal = levelAllocation.reduce((total, level) => {
-          return (total += level.percentAllocation);
-        }, 0);
+          const levelTotal = levelAllocation.reduce((total, level) => {
+            return (total += level.percentAllocation);
+          }, 0);
 
-        if (facTotal > 100 || facTotal < 100) {
-          throw new Error(
-            `Faculty total allocation should eaual 100. Value currently is ${facTotal}`
-          );
-        }
-        if (levelTotal > 100 || levelTotal < 100) {
-          throw new Error(
-            `Level total allocation should eaual 100. Value currently is ${levelTotal}`
-          );
-        }
-        const pipeline = [
-          {
-            $match: {
-              bedStatus: "vacant",
+          if (facTotal > 100 || facTotal < 100) {
+            throw new Error(
+              `Faculty total allocation should eaual 100. Value currently is ${facTotal}`
+            );
+          }
+          if (levelTotal > 100 || levelTotal < 100) {
+            throw new Error(
+              `Level total allocation should eaual 100. Value currently is ${levelTotal}`
+            );
+          }
+          const pipeline = [
+            {
+              $match: {
+                bedStatus: "vacant",
+              },
             },
-          },
-          {
-            $count: "total",
-          },
-        ];
-        const vacantBedsArray = await slowConn.models.BedSpace.aggregate(
-          pipeline
-        );
-        const total = vacantBedsArray[0].total;
-        //loop and update everything
-        const facultyArray = [];
-        const levelArray = [];
-
-        facultyAllocation.map((faculty) => {
-          const percentAllocation = (faculty.percentAllocation * +total) / 100;
-          faculty.totalAllocation = Math.floor(percentAllocation);
-          //we need to get how many bed has been given out here
-          const findPrevFacAllocation = prevFacAllocation.find(
-            (ele) =>
-              ele.facultyName.toLowerCase() ===
-              faculty.facultyName.toLowerCase()
+            {
+              $count: "total",
+            },
+          ];
+          const vacantBedsArray = await slowConn.models.BedSpace.aggregate(
+            pipeline
           );
-          if (findPrevFacAllocation) {
-            faculty.totalOccupied = findPrevFacAllocation.totalOccupied;
-          }
-          facultyArray.push(faculty);
-        });
+          const total = vacantBedsArray[0].total;
+          //loop and update everything
+          const facultyArray = [];
+          const levelArray = [];
 
-        levelAllocation.map((level) => {
-          const percentAllocation = (level.percentAllocation * +total) / 100;
-          level.totalAllocation = Math.floor(percentAllocation);
-          const findPrevLevelAllocation = prevLevelAllocation.find(
-            (ele) => ele.level.toLowerCase() === level.level.toLowerCase()
-          );
-          if (findPrevLevelAllocation) {
-            level.totalOccupied = findPrevLevelAllocation.totalOccupied;
-          }
-          levelArray.push(level);
-        });
-        sessionToUpdate.facultyAllocation = facultyArray;
-        sessionToUpdate.levelAllocation = levelArray;
-        sessionToUpdate.shouldUpdateLevel = shouldUpdateLevel;
-        await sessionToUpdate.save();
-        //save active session here in redis
+          facultyAllocation.map((faculty) => {
+            const percentAllocation =
+              (faculty.percentAllocation * +total) / 100;
+            faculty.totalAllocation = Math.floor(percentAllocation);
+            //we need to get how many bed has been given out here
+            const findPrevFacAllocation = prevFacAllocation.find(
+              (ele) =>
+                ele.facultyName.toLowerCase() ===
+                faculty.facultyName.toLowerCase()
+            );
+            if (findPrevFacAllocation) {
+              faculty.totalOccupied = findPrevFacAllocation.totalOccupied;
+            }
+            facultyArray.push(faculty);
+          });
 
-        return sessionToUpdate;
-      } catch (error) {
-        console.log(error);
-        throw error;
+          levelAllocation.map((level) => {
+            const percentAllocation = (level.percentAllocation * +total) / 100;
+            level.totalAllocation = Math.floor(percentAllocation);
+            const findPrevLevelAllocation = prevLevelAllocation.find(
+              (ele) => ele.level.toLowerCase() === level.level.toLowerCase()
+            );
+            if (findPrevLevelAllocation) {
+              level.totalOccupied = findPrevLevelAllocation.totalOccupied;
+            }
+            levelArray.push(level);
+          });
+          sessionToUpdate.facultyAllocation = facultyArray;
+          sessionToUpdate.levelAllocation = levelArray;
+          sessionToUpdate.shouldUpdateLevel = shouldUpdateLevel;
+          await sessionToUpdate.save();
+          //save active session here in redis
+
+          return sessionToUpdate;
+        } catch (error) {
+          console.log(error);
+          throw error;
+        }
       }
-    },
-    activateSession: async (_, { sessionId }, { fastConn }) => {
-      //loop through the faculty allocation array
-      //check if any session is active first. only one session can be active at a time
- 
-  
+    ),
+    activateSession: combineResolvers(
+      isAuthenticated,
+      isSuperAdmin,
+      async (_, { sessionId }, { fastConn }) => {
+        //loop through the faculty allocation array
+        //check if any session is active first. only one session can be active at a time
+
         try {
           const findActiveSession = await fastConn.models.SessionTable.findOne({
             active: true,
@@ -214,21 +233,25 @@ export default {
           console.log(err);
           throw err;
         }
-
-    },
-    deactivateSession: async (_, { sessionId }, { fastConn }) => {
-      try {
-        //loop through the faculty allocation array
-        await fastConn.models.SessionTable.updateOne(
-          { _id: sessionId },
-          { active: false }
-        );
-
-        return true;
-      } catch (error) {
-        console.log(error);
-        throw error;
       }
-    },
+    ),
+    deactivateSession: combineResolvers(
+      isAuthenticated,
+      isSuperAdmin,
+      async (_, { sessionId }, { fastConn }) => {
+        try {
+          //loop through the faculty allocation array
+          await fastConn.models.SessionTable.updateOne(
+            { _id: sessionId },
+            { active: false }
+          );
+
+          return true;
+        } catch (error) {
+          console.log(error);
+          throw error;
+        }
+      }
+    ),
   },
 };

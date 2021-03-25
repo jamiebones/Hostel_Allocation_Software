@@ -1,27 +1,42 @@
 import util from "../utils";
 import methods from "../methods";
+import { combineResolvers } from "graphql-resolvers";
+import {
+  isAuthenticated,
+  isAdmin,
+  isSuperAdmin,
+  isStudent,
+} from "./authorization";
 
 import pubsub, { EVENTS } from "../subscription";
 
 export default {
   Query: {
-    getAllBeds: async (parent, {}, { fastConn, slowConn }) => {
-      const beds = await fastConn.models.BedSpace.find({});
-      return beds;
-    },
+    getAllBeds: combineResolvers(
+      isAuthenticated,
+      isAdmin,
+      async (parent, {}, { fastConn, slowConn }) => {
+        const beds = await fastConn.models.BedSpace.find({});
+        return beds;
+      }
+    ),
 
-    getBedStatistic: async (parent, {}, { slowConn }) => {
-      //get all beds in system
-      const total = await slowConn.models.BedSpace.countDocuments();
-      const lockedBeds = await slowConn.models.BedSpace.countDocuments({
-        bedStatus: "locked",
-      });
+    getBedStatistic: combineResolvers(
+      isAuthenticated,
+      isAdmin,
+      async (parent, {}, { slowConn }) => {
+        //get all beds in system
+        const total = await slowConn.models.BedSpace.countDocuments();
+        const lockedBeds = await slowConn.models.BedSpace.countDocuments({
+          bedStatus: "locked",
+        });
 
-      return {
-        totalSpace: total,
-        reservedSpace: lockedBeds,
-      };
-    },
+        return {
+          totalSpace: total,
+          reservedSpace: lockedBeds,
+        };
+      }
+    ),
 
     getOneBed: async (parent, { bedId }, { fastConn, slowConn }) => {
       const bed = await fastConn.models.BedSpace.findOne({ _id: bedId });
@@ -70,58 +85,62 @@ export default {
       return totalSpace;
     },
 
-    getLockedBedSpace: async (parent, {}, { fastConn, slowConn }) => {
-      //where we return aggregate of bed spaces with the grouping
-      const pipeline = [
-        { $match: { bedStatus: "locked" } },
+    getLockedBedSpace: combineResolvers(
+      isAuthenticated,
+      isAdmin,
+      async (parent, {}, { fastConn, slowConn }) => {
+        //where we return aggregate of bed spaces with the grouping
+        const pipeline = [
+          { $match: { bedStatus: "locked" } },
 
-        {
-          $group: {
-            _id: {
-              hallName: "$hallName",
-              roomNumber: "$roomNumber",
-              location: "$location",
-              roomType: "$roomType",
-            },
-            beds: {
-              $push: { bedNumber: "$bedNumber", bedId: "$_id" },
+          {
+            $group: {
+              _id: {
+                hallName: "$hallName",
+                roomNumber: "$roomNumber",
+                location: "$location",
+                roomType: "$roomType",
+              },
+              beds: {
+                $push: { bedNumber: "$bedNumber", bedId: "$_id" },
+              },
             },
           },
-        },
 
-        {
-          $group: {
-            _id: {
+          {
+            $group: {
+              _id: {
+                hallName: "$_id.hallName",
+                location: "$_id.location",
+                roomType: "$_id.roomType",
+              },
+              rooms: { $push: { room: "$_id.roomNumber", beds: "$beds" } },
+            },
+          },
+
+          {
+            $project: {
               hallName: "$_id.hallName",
+              rooms: "$rooms",
               location: "$_id.location",
               roomType: "$_id.roomType",
             },
-            rooms: { $push: { room: "$_id.roomNumber", beds: "$beds" } },
           },
-        },
+          {
+            $sort: {
+              location: 1,
+              roomType: 1,
+            },
+          },
+        ];
 
-        {
-          $project: {
-            hallName: "$_id.hallName",
-            rooms: "$rooms",
-            location: "$_id.location",
-            roomType: "$_id.roomType",
-          },
-        },
-        {
-          $sort: {
-            location: 1,
-            roomType: 1,
-          },
-        },
-      ];
-
-      const totalSpace = await slowConn.models.BedSpace.aggregate(
-        pipeline
-      ).exec();
-      console.log(totalSpace);
-      return totalSpace;
-    },
+        const totalSpace = await slowConn.models.BedSpace.aggregate(
+          pipeline
+        ).exec();
+        console.log(totalSpace);
+        return totalSpace;
+      }
+    ),
 
     bedsInRoom: async (parent, { roomId }, { fastConn, slowConn }) => {
       const beds = await fastConn.models.BedSpace.find({ roomId: roomId });
@@ -146,118 +165,130 @@ export default {
     },
   },
   Mutation: {
-    lockAllBedSpace: async (parent, args, { fastConn, slowConn }) => {
-      //lock all the bed space
-      const bedUpdate = { bedStatus: "locked" };
-      try {
-        await fastConn.models.BedSpace.updateMany({}, bedUpdate);
+    lockAllBedSpace: combineResolvers(
+      isAuthenticated,
+      isSuperAdmin,
+      async (parent, args, { fastConn, slowConn }) => {
+        //lock all the bed space
+        const bedUpdate = { bedStatus: "locked" };
+        try {
+          await fastConn.models.BedSpace.updateMany({}, bedUpdate);
 
-        return true;
-      } catch (error) {
-        throw error;
+          return true;
+        } catch (error) {
+          throw error;
+        }
       }
-    },
+    ),
 
-    openAllBedSpace: async (parent, {}, { fastConn, slowConn }) => {
-      //open all the bed space
-      const bedUpdate = { bedStatus: "vacant" };
-      try {
-        await fastConn.models.BedSpace.updateMany({}, bedUpdate);
-        return true;
-      } catch (error) {
-        throw error;
+    openAllBedSpace: combineResolvers(
+      isAuthenticated,
+      isSuperAdmin,
+      async (parent, {}, { fastConn }) => {
+        //open all the bed space
+        const bedUpdate = { bedStatus: "vacant" };
+        try {
+          await fastConn.models.BedSpace.updateMany({}, bedUpdate);
+          return true;
+        } catch (error) {
+          throw error;
+        }
       }
-    },
+    ),
 
-    changeBedStatus: async (
-      parent,
-      { newStatus, bedId },
-      { fastConn, slowConn }
-    ) => {
-      const status = util.Utility.roomStatusObject[newStatus];
-      if (status === util.Utility.roomStatusObject["vacant"]) {
-        await fastConn.models.BedSpace.updateOne(
-          { _id: bedId },
-          { bedStatus: "vacant" }
-        );
-      }
-      if (status === util.Utility.roomStatusObject["occupied"]) {
-        await fastConn.models.BedSpace.updateOne(
-          { _id: bedId },
-          { bedStatus: "occupied" }
-        );
-      }
-      if (status === util.Utility.roomStatusObject["reserved"]) {
-        await fastConn.models.BedSpace.updateOne(
-          { _id: bedId },
-          { bedStatus: "reserved" }
-        );
-      }
-      if (status === util.Utility.roomStatusObject["locked"]) {
-        await fastConn.models.BedSpace.updateOne(
-          { _id: bedId },
-          { bedStatus: "locked" }
-        );
-      }
+    changeBedStatus: combineResolvers(
+      isAuthenticated,
+      isAdmin,
+      async (parent, { newStatus, bedId }, { fastConn }) => {
+        const status = util.Utility.roomStatusObject[newStatus];
+        if (status === util.Utility.roomStatusObject["vacant"]) {
+          await fastConn.models.BedSpace.updateOne(
+            { _id: bedId },
+            { bedStatus: "vacant" }
+          );
+        }
+        if (status === util.Utility.roomStatusObject["occupied"]) {
+          await fastConn.models.BedSpace.updateOne(
+            { _id: bedId },
+            { bedStatus: "occupied" }
+          );
+        }
+        if (status === util.Utility.roomStatusObject["reserved"]) {
+          await fastConn.models.BedSpace.updateOne(
+            { _id: bedId },
+            { bedStatus: "reserved" }
+          );
+        }
+        if (status === util.Utility.roomStatusObject["locked"]) {
+          await fastConn.models.BedSpace.updateOne(
+            { _id: bedId },
+            { bedStatus: "locked" }
+          );
+        }
 
-      if (status === util.Utility.roomStatusObject["timeLocked"]) {
-        const now = new Date();
-        await fastConn.models.BedSpace.updateOne(
-          { _id: bedId },
-          { bedStatus: "timeLocked", lockStart: now }
-        );
+        if (status === util.Utility.roomStatusObject["timeLocked"]) {
+          const now = new Date();
+          await fastConn.models.BedSpace.updateOne(
+            { _id: bedId },
+            { bedStatus: "timeLocked", lockStart: now }
+          );
+        }
+
+        return `status changed to ${newStatus}.`;
       }
+    ),
 
-      return `status changed to ${newStatus}.`;
-    },
-
-    allocateBedSpace: async (parent, { regNumber }, { fastConn }) => {
-     const bed = await methods.bedSpaceMethod.allocateBedSpace(
-        regNumber,
-        fastConn,
-      );
-      return bed;
-      //stats
-      // const bedStats = await slowConn.models.BedStats;
-      // pubsub.publish(EVENTS.BEDSPACE.BedSpace_Stats, {
-      //   bedStatistics: { bedStats },
-      // });
-    },
-    placeStudentInBedSpace: async (
-      parent,
-      { regNumber, bedId },
-      { fastConn, slowConn }
-    ) => {
-      try {
-        const success = await methods.bedSpaceMethod.placeStudentInBedSpace(
+    allocateBedSpace: combineResolvers(
+      isAuthenticated,
+      isStudent,
+      async (parent, { regNumber }, { fastConn }) => {
+        const bed = await methods.bedSpaceMethod.allocateBedSpace(
           regNumber,
-          bedId,
           fastConn
         );
-
-        return success;
-      } catch (error) {
-        throw error;
+        return bed;
+        //stats
+        // const bedStats = await slowConn.models.BedStats;
+        // pubsub.publish(EVENTS.BEDSPACE.BedSpace_Stats, {
+        //   bedStatistics: { bedStats },
+        // });
       }
-    },
-    dashStudentFreeBed: async (
-      parent,
-      { regNumber, bedId },
-      { user, fastConn, slowConn }
-    ) => {
-      try {
-        const success = await methods.bedSpaceMethod.dashStudentFreeBed(
-          regNumber,
-          bedId,
-          user,
-          slowConn
-        );
+    ),
+    placeStudentInBedSpace: combineResolvers(
+      isAuthenticated,
+      isAdmin,
+      async (parent, { regNumber, bedId }, { fastConn, slowConn }) => {
+        try {
+          const success = await methods.bedSpaceMethod.placeStudentInBedSpace(
+            regNumber,
+            bedId,
+            fastConn
+          );
 
-        return success;
-      } catch (error) {
-        throw error;
+          return success;
+        } catch (error) {
+          throw error;
+        }
       }
-    },
+    ),
+    dashStudentFreeBed: combineResolvers(
+      isAuthenticated,
+      isAdmin,
+      async (parent, { regNumber, bedId }, { user, slowConn }) => {
+        try {
+          const success = await methods.bedSpaceMethod.dashStudentFreeBed(
+            regNumber,
+            bedId,
+            user,
+            slowConn
+          );
+
+          return success;
+        } catch (error) {
+          throw error;
+        }
+      }
+    ),
   },
 
   Subscription: {

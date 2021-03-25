@@ -7,6 +7,7 @@ import confirmPhoneMethod from "./confirmPhoneTable";
 import userMethod from "./users";
 import messageMethod from "./message"
 
+
 export default {
   studentBioMethod,
   transactionMethod,

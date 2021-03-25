@@ -50,6 +50,8 @@ async function StartUp() {
         return new Error("Internal server error");
       }
       console.log("this is an error", err);
+      //send the email here about the error to the developer
+      
       return err;
       //return new Error("There was an error");
     },
