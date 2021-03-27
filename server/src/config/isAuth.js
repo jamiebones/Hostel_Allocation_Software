@@ -22,12 +22,17 @@ export default (req) => {
   if (!decodedToken) {
     return null;
   }
-  const { id, email, regNumber, accessLevel } = decodedToken;
+  const { id, email, regNumber, accessLevel, active } = decodedToken;
+
+  if (!active) {
+    return null;
+  }
 
   return {
     id,
     email,
     regNumber,
     accessLevel,
+    active,
   };
 };

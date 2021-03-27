@@ -28,6 +28,13 @@ export default async (userDetails, { conn, config }) => {
         };
       }
 
+      if (student.active === false) {
+        return {
+          type: "Account InActive",
+          message: `your account is inactive`,
+        };
+      }
+
       const token = jwt.sign(
         {
           regNumber: student.regNumber,
@@ -35,6 +42,7 @@ export default async (userDetails, { conn, config }) => {
           userType: student.userType,
           name: student.name,
           accessLevel: student.accessLevel,
+          active: student.active,
         },
         config.secret
       );
@@ -46,9 +54,8 @@ export default async (userDetails, { conn, config }) => {
         userType: student.userType,
         name: student.name,
         accessLevel: student.accessLevel,
+        active: student.active,
       };
-
-      
     }
 
     //we have a staff member here
@@ -77,6 +84,13 @@ export default async (userDetails, { conn, config }) => {
         };
       }
 
+      if (staff.active === false) {
+        return {
+          type: "Account InActive",
+          message: `your account is in active`,
+        };
+      }
+
       const token = jwt.sign(
         {
           email: staff.email,
@@ -84,6 +98,7 @@ export default async (userDetails, { conn, config }) => {
           userType: staff.userType,
           accessLevel: staff.accessLevel,
           name: staff.name,
+          active: staff.active,
         },
         config.secret
       );
@@ -95,6 +110,7 @@ export default async (userDetails, { conn, config }) => {
         accessLevel: staff.accessLevel,
         name: staff.name,
         token: token,
+        active: staff.active,
       };
     }
   } catch (error) {

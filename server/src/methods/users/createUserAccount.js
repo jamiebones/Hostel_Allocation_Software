@@ -6,7 +6,9 @@ export default async (accountDetails, conn) => {
     const { email, password, accessLevel, name } = accountDetails;
 
     //we have a staff
-    const staff = await conn.models.User.findOne({ email: email.toLowerCase() });
+    const staff = await conn.models.User.findOne({
+      email: email.toLowerCase(),
+    });
     if (staff) {
       throw `There is an account already registered with ${email}`;
     }
@@ -17,13 +19,13 @@ export default async (accountDetails, conn) => {
       password: hash,
       accessLevel,
       userType: "staff",
-      name: name
+      name: name,
+      active: true,
     });
-    newUser.save();
+    await newUser.save();
     return newUser;
   } catch (error) {
     console.log(error);
     throw error;
   }
 };
-

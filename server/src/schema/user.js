@@ -31,5 +31,6 @@ export default gql`
     regNumber: String
     token: String
     name: String
+    active: Boolean
   }
 `;

@@ -27,6 +27,7 @@ const CreateNewStudentAccount = async (accountDetails, conn) => {
           userType: "student",
           accessLevel: "normal",
           name: name,
+          active: true
         },
       ],
       { session }

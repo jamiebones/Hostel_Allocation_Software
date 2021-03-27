@@ -8,7 +8,8 @@ const UserSchema = new mongoose.Schema({
   userType: String,
   accessLevel: { type: String, required: false },
   regNumber: { type: String, required: false },
-  name: String
+  name: String,
+  active: Boolean,
 });
 
 export default UserSchema;

@@ -46,6 +46,7 @@ const Login = (props) => {
           token,
           name,
           accessLevel,
+          active
         } = loginUserResult.data.loginUser;
         store.set("authToken", token);
         store.set("isAuth", true);
@@ -56,9 +57,18 @@ const Login = (props) => {
           email,
           regNumber,
           accessLevel,
+          active,
         });
         setAuthState(true);
-        setCurrentUser({ id, userType, name, email, regNumber, accessLevel });
+        setCurrentUser({
+          id,
+          userType,
+          name,
+          email,
+          regNumber,
+          accessLevel,
+          active,
+        });
         setToken(token);
         setSubmitted(!submitted);
         if (accessLevel === "super-admin") {

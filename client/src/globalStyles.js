@@ -8,7 +8,8 @@ const GlobalStyle = createGlobalStyle`
 
   body {
     margin-bottom: 100px;
-    font-family: Open-Sans, Helvetica, Sans-Serif;
+    /*font-family: Open-Sans, Helvetica, Sans-Serif;*/
+    font-family: 'Dosis', sans-serif;
   }
 `;
  

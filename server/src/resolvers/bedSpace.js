@@ -170,6 +170,15 @@ export default {
       isSuperAdmin,
       async (parent, args, { fastConn, slowConn }) => {
         //lock all the bed space
+        //prevent opening bed spaces if we have an active session
+        const sessionTable = await fastConn.models.SessionTable.findOne({
+          active: true,
+        });
+        if (sessionTable) {
+          throw new Error(
+            "You can not lock all bed spaces when we have an active session. Please deactivate the session before you can continue"
+          );
+        }
         const bedUpdate = { bedStatus: "locked" };
         try {
           await fastConn.models.BedSpace.updateMany({}, bedUpdate);
@@ -185,7 +194,16 @@ export default {
       isAuthenticated,
       isSuperAdmin,
       async (parent, {}, { fastConn }) => {
-        //open all the bed space
+        //open all the bed
+        //prevent opening bed spaces if we have an active session
+        const sessionTable = await fastConn.models.SessionTable.findOne({
+          active: true,
+        });
+        if (sessionTable) {
+          throw new Error(
+            "You can not open all bed spaces when we have an active session. Please deactivate the session before you can continue"
+          );
+        }
         const bedUpdate = { bedStatus: "vacant" };
         try {
           await fastConn.models.BedSpace.updateMany({}, bedUpdate);

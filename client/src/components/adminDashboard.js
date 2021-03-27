@@ -35,7 +35,7 @@ const AdminDashboardStyles = styled.div`
   }
   .label {
     font-size: 26px;
-    color: #c0c0c0;
+    color: #eadbf1;
   }
 
   .value {
@@ -77,10 +77,11 @@ const AdminDashboard = () => {
       <div className="row">
         <div className="col-md-12">
           <div className="text-center">
+            <h3>Welcome Admin</h3>
             {errors && <p className="lead text-danger">{errors.message}</p>}
             {loading && <Loading />}
           </div>
-          <p className="lead">Welcome Admin</p>
+
           {stats && (
             <React.Fragment>
               <div className="stats account">
