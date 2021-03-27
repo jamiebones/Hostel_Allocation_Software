@@ -54,8 +54,9 @@ import state from "./applicationState";
 import EditHostelDetails from "./components/editHostelDetails";
 import SendMessageToStudent from "./components/sendMessageToStudents";
 import CustomNavbar from "./components/common/customNavbar";
-import AdminViewTransaction from "./components/adminViewTransaction"
+import AdminViewTransaction from "./components/adminViewTransaction";
 import GlobalStyle from "./globalStyles";
+import CreateStaffUserAccountByAdmin from "./components/adminCreateUserAccount";
 /**
  imports of page components ends here
  */
@@ -79,7 +80,6 @@ const App = (props) => {
   const [token, setToken] = useRecoilState(state.authToken);
   const [authenticated, setAuthenticated] = useRecoilState(state.authState);
   const [currentUser, setCurrentUser] = useRecoilState(state.currentUserState);
-
 
   useEffect(() => {
     if (!currentUser) {
@@ -128,7 +128,6 @@ const App = (props) => {
                               />
                             )}
                           />
-
                           <AuthorizedComponent
                             component={ConfirmTransaction}
                             authenticated={authenticated}
@@ -137,7 +136,6 @@ const App = (props) => {
                             exact
                             path="/confirm_transaction"
                           />
-
                           {/* student route starts here*/}
                           <AuthorizedComponent
                             component={ConfirmTransaction}
@@ -147,7 +145,6 @@ const App = (props) => {
                             exact
                             path="/confirm_transaction"
                           />
-
                           <AuthorizedComponent
                             path="/make_payment"
                             exact
@@ -157,7 +154,6 @@ const App = (props) => {
                             {...props}
                             authorizedRole={["student"]}
                           />
-
                           <AuthorizedComponent
                             path="/hostel_payment"
                             component={MakeRemitaPaymentUsingRRR}
@@ -167,7 +163,6 @@ const App = (props) => {
                             authorizedRole={["student"]}
                             exact
                           />
-
                           <AuthorizedComponent
                             path="/print_allocation_receipt"
                             exact
@@ -213,7 +208,6 @@ const App = (props) => {
                             authorizedRole={["student"]}
                             {...props}
                           />
-
                           <AuthorizedComponent
                             path="/print_receipt/:rrr"
                             exact
@@ -223,9 +217,7 @@ const App = (props) => {
                             authorizedRole={["student"]}
                             {...props}
                           />
-
                           {/* students route ends here*/}
-
                           {/* <Route
                             exact
                             path="/confirm_transaction"
@@ -261,20 +253,28 @@ const App = (props) => {
                             component={AdminViewTransaction}
                             authenticated={authenticated}
                             currentUser={currentUser}
-                            authorizedRole={["super-admin"]}
+                            authorizedRole={["super-admin", "admin"]}
                             {...props}
                           />
-
                           <AuthorizedComponent
-                            path="/admin/dashboard"
+                            path="/admin/view_transactions"
                             exact
-                            component={AdminDashboard}
+                            component={AdminViewTransaction}
+                            authenticated={authenticated}
+                            currentUser={currentUser}
+                            authorizedRole={["super-admin", "admin"]}
+                            {...props}
+                          />
+                        
+                          <AuthorizedComponent
+                            path="/admin/create_staff_account"
+                            exact
+                            component={CreateStaffUserAccountByAdmin}
                             authenticated={authenticated}
                             currentUser={currentUser}
                             authorizedRole={["super-admin"]}
                             {...props}
                           />
-
                           <AuthorizedComponent
                             path="/admin/edit_hostel"
                             exact
@@ -292,7 +292,6 @@ const App = (props) => {
                               currentUser={currentUser}
                               {...props}
                             /> */}
-
                           <AuthorizedComponent
                             path="/admin/confirm_allocation"
                             exact
@@ -302,7 +301,6 @@ const App = (props) => {
                             authorizedRole={["super-admin"]}
                             {...props}
                           />
-
                           <AuthorizedComponent
                             path="/admin/send_message"
                             exact
@@ -312,7 +310,6 @@ const App = (props) => {
                             authorizedRole={["super-admin"]}
                             {...props}
                           />
-
                           <AuthorizedComponent
                             path="/create_new_session"
                             exact
@@ -421,7 +418,6 @@ const App = (props) => {
                             authorizedRole={["super-admin"]}
                             {...props}
                           />
-
                           {/* Admin routes ends here  */}
                         </React.Fragment>
                       </div>

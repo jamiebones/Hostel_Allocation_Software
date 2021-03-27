@@ -1,4 +1,14 @@
 import methods from "../methods";
+import { combineResolvers } from "graphql-resolvers";
+import {
+  isAuthenticated,
+  isAdmin,
+  isSuperAdmin,
+  isStudent,
+} from "./authorization";
+import _ from "lodash";
+import bcrypt from "bcrypt";
+const saltRounds = 10;
 
 export default {
   Query: {
@@ -37,6 +47,34 @@ export default {
       await newUser.save();
       return newUser;
     },
+    createStaffUserAccountByAdmin: combineResolvers(
+      isAuthenticated,
+      isSuperAdmin,
+      async (parent, { email, password, role, name }, { fastConn }) => {
+        //find if we have an account with that email
+        const findAccount = await fastConn.models.User.findOne({
+          email: email.toLowerCase(),
+        });
+
+        if (findAccount) {
+          throw new Error(
+            `An account with email: ${email} already exists. Please use another email address`
+          );
+        }
+        const hash = await bcrypt.hash(password, saltRounds);
+        await fastConn.models.User.create([
+          {
+            email: email.toLowerCase(),
+            password: hash,
+            userType: "staff",
+            accessLevel: role,
+            name: name,
+            active: true,
+          },
+        ]);
+        return true;
+      }
+    ),
   },
   LoginUserResult: {
     __resolveType(obj) {

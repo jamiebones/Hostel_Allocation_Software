@@ -281,6 +281,29 @@ const Navbar = ({ authenticated, currentUser }) => {
                                   Transactions
                                 </StyledLink>
                               </li>
+
+                              <li className="nav-item dropdown">
+                                <a
+                                  className="nav-link dropdown-toggle"
+                                  data-toggle="dropdown"
+                                  href="#"
+                                  role="button"
+                                  aria-haspopup="true"
+                                  aria-expanded="false"
+                                >
+                                  User Accounts
+                                </a>
+
+                                <div className="dropdown-menu">
+                                  <StyledLink
+                                    exact
+                                    to="/admin/create_staff_account"
+                                    className="nav-link"
+                                  >
+                                    Create Staff Account
+                                  </StyledLink>
+                                </div>
+                              </li>
                             </React.Fragment>
                           )}
 

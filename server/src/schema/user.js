@@ -14,6 +14,12 @@ export default gql`
 
   extend type Mutation {
     createUser(username: String): User
+    createStaffUserAccountByAdmin(
+      email: String!
+      password: String!
+      name: String!
+      role: String!
+    ): Boolean
   }
 
   union LoginUserResult = User | Error

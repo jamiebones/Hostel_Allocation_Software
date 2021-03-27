@@ -355,7 +355,23 @@ const ConfirmStudentTransaction = gql`
   }
 `;
 
-//
+//createStaffUserAccountByAdmin
+
+const CreateStaffUserAccountByAdmin = gql`
+  mutation createStaffUserAccountByAdmin(
+    $email: String!
+    $name: String!
+    $password: String!
+    $role: String!
+  ) {
+    createStaffUserAccountByAdmin(
+      email: $email
+      name: $name
+      password: $password
+      role: $role
+    )
+  }
+`;
 
 export {
   SendSMSToStudents,
@@ -386,4 +402,5 @@ export {
   PlaceStudentInHoldBedSpace,
   DashStudentFreeRoom,
   SimulateRemitaTransaction,
+  CreateStaffUserAccountByAdmin,
 };
