@@ -104,7 +104,7 @@ const AdminCreateUserAccount = () => {
           </div>
           <form onSubmit={createUserAccountFunction}>
             <div className="form-group">
-              <label htmlFor="name">Email</label>
+              <label htmlFor="email">Email</label>
               <input
                 type="email"
                 className="form-control"

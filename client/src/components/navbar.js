@@ -302,6 +302,14 @@ const Navbar = ({ authenticated, currentUser }) => {
                                   >
                                     Create Staff Account
                                   </StyledLink>
+
+                                  <StyledLink
+                                    exact
+                                    to="/admin/student_account"
+                                    className="nav-link"
+                                  >
+                                    View Student Accounts
+                                  </StyledLink>
                                 </div>
                               </li>
                             </React.Fragment>

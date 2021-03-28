@@ -10,6 +10,7 @@ export default gql`
       password: String!
       email: String
     ): LoginUserResult
+    searchStudentAccount(regNumber: String!): [User]
   }
 
   extend type Mutation {
@@ -20,6 +21,7 @@ export default gql`
       name: String!
       role: String!
     ): Boolean
+    activateDeactivateUser(userId: String!): Boolean
   }
 
   union LoginUserResult = User | Error
@@ -38,5 +40,6 @@ export default gql`
     token: String
     name: String
     active: Boolean
+    id: ID
   }
 `;

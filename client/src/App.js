@@ -57,6 +57,7 @@ import CustomNavbar from "./components/common/customNavbar";
 import AdminViewTransaction from "./components/adminViewTransaction";
 import GlobalStyle from "./globalStyles";
 import CreateStaffUserAccountByAdmin from "./components/adminCreateUserAccount";
+import SearchUserAccount from "./components/searchStudentAccount";
 /**
  imports of page components ends here
  */
@@ -257,6 +258,16 @@ const App = (props) => {
                             {...props}
                           />
                           <AuthorizedComponent
+                            path="/admin/student_account"
+                            exact
+                            component={SearchUserAccount}
+                            authenticated={authenticated}
+                            currentUser={currentUser}
+                            authorizedRole={["super-admin", "admin"]}
+                            {...props}
+                          />
+                    
+                          <AuthorizedComponent
                             path="/admin/view_transactions"
                             exact
                             component={AdminViewTransaction}
@@ -265,7 +276,6 @@ const App = (props) => {
                             authorizedRole={["super-admin", "admin"]}
                             {...props}
                           />
-                        
                           <AuthorizedComponent
                             path="/admin/create_staff_account"
                             exact

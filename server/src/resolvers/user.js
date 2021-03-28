@@ -21,6 +21,16 @@ export default {
     me: (parent, args, { me }) => {
       return me;
     },
+    searchStudentAccount: combineResolvers(
+      isAuthenticated,
+      isSuperAdmin,
+      async (parent, { regNumber }, { fastConn }) => {
+        const users = await fastConn.models.User.find({
+          regNumber: { $regex: regNumber, $options: "i" },
+        }).limit(100);
+        return users;
+      }
+    ),
     loginUser: async (
       parent,
       { regNumber, password, email },
@@ -72,6 +82,16 @@ export default {
             active: true,
           },
         ]);
+        return true;
+      }
+    ),
+    activateDeactivateUser: combineResolvers(
+      isAuthenticated,
+      isAdmin,
+      async (parent, { userId }, { fastConn }) => {
+        const updateUser = await fastConn.models.User.findOne({ _id: userId });
+        updateUser.active = !updateUser.active;
+        await updateUser.save();
         return true;
       }
     ),

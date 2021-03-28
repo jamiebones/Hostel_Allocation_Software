@@ -355,8 +355,6 @@ const ConfirmStudentTransaction = gql`
   }
 `;
 
-//createStaffUserAccountByAdmin
-
 const CreateStaffUserAccountByAdmin = gql`
   mutation createStaffUserAccountByAdmin(
     $email: String!
@@ -373,7 +371,16 @@ const CreateStaffUserAccountByAdmin = gql`
   }
 `;
 
+//
+
+const ActivateDeactivateUser = gql`
+  mutation activateDeactivateUser($userId: String!) {
+    activateDeactivateUser(userId: $userId)
+  }
+`;
+
 export {
+  ActivateDeactivateUser,
   SendSMSToStudents,
   EditHall,
   ChangeBedStatus,

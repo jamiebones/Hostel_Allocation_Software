@@ -549,7 +549,22 @@ const GetAdminDashboardStats = gql`
   }
 `;
 
+//searchStudentAccount
+
+const SearchUserAccount = gql`
+  query searchStudentAccount($regNumber: String!) {
+    searchStudentAccount(regNumber: $regNumber) {
+      email
+      regNumber
+      active
+      name
+      id
+    }
+  }
+`;
+
 export {
+  SearchUserAccount,
   GetAdminDashboardStats,
   GetSMSCreditAvailable,
   GetHostelById,
