@@ -379,7 +379,16 @@ const ActivateDeactivateUser = gql`
   }
 `;
 
+//
+
+const ActivateGroupUsers = gql`
+  mutation activateGroupUser($groupReg: String!) {
+    activateUserInGroups(groupReg: $groupReg)
+  }
+`;
+
 export {
+  ActivateGroupUsers,
   ActivateDeactivateUser,
   SendSMSToStudents,
   EditHall,

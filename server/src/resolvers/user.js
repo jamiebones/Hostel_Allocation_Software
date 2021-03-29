@@ -95,6 +95,20 @@ export default {
         return true;
       }
     ),
+    activateUserInGroups: combineResolvers(
+      isAuthenticated,
+      isAdmin,
+      async (parent, { groupReg }, { fastConn }) => {
+        const docsToUpdate = await fastConn.models.User.find({
+          regNumber: { $regex: groupReg, $options: "i" },
+        });
+        docsToUpdate.map(async (doc) => {
+          doc.active = !doc.active;
+          await doc.save();
+        });
+        return true;
+      }
+    ),
   },
   LoginUserResult: {
     __resolveType(obj) {

@@ -248,15 +248,7 @@ const App = (props) => {
                             component={StudentAccountCreation}
                           />
                           {/* Admin routes from here  */}
-                          <AuthorizedComponent
-                            path="/admin/view_transactions"
-                            exact
-                            component={AdminViewTransaction}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin", "admin"]}
-                            {...props}
-                          />
+
                           <AuthorizedComponent
                             path="/admin/student_account"
                             exact
@@ -266,7 +258,17 @@ const App = (props) => {
                             authorizedRole={["super-admin", "admin"]}
                             {...props}
                           />
-                    
+
+                          <AuthorizedComponent
+                            path="/admin/dashboard"
+                            exact
+                            component={AdminDashboard}
+                            authenticated={authenticated}
+                            currentUser={currentUser}
+                            authorizedRole={["super-admin", "admin"]}
+                            {...props}
+                          />
+
                           <AuthorizedComponent
                             path="/admin/view_transactions"
                             exact

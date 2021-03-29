@@ -22,6 +22,7 @@ export default gql`
       role: String!
     ): Boolean
     activateDeactivateUser(userId: String!): Boolean
+    activateUserInGroups(groupReg: String!): Boolean
   }
 
   union LoginUserResult = User | Error

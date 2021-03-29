@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useLazyQuery, useMutation } from "@apollo/client";
-import { ActivateDeactivateUser } from "../graphql/mutation";
+import {
+  ActivateDeactivateUser,
+  ActivateGroupUsers,
+} from "../graphql/mutation";
 import { SearchUserAccount } from "../graphql/queries";
 import styled from "styled-components";
 import Loading from "./common/loading";
@@ -20,10 +23,14 @@ const SearchStudentAccount = () => {
     ActivateDeactivateUser
   );
 
+  const [activateGroupUser, activateGroupResult] = useMutation(
+    ActivateGroupUsers
+  );
+
   useEffect(() => {
     if (searchResult.data) {
       const users = searchResult.data.searchStudentAccount;
-      
+
       if (users.length > 0) {
         setUsers(users);
         setNoData(false);
@@ -47,6 +54,17 @@ const SearchStudentAccount = () => {
       setErrors(activateResult.error);
     }
   }, [activateResult.data, activateResult.error]);
+
+  useEffect(() => {
+    if (activateGroupResult.data) {
+      setSubmitted(!submitted);
+      window.alert("successful");
+    }
+    if (activateResult.error) {
+      setSubmitted(!submitted);
+      setErrors(activateGroupResult.error);
+    }
+  }, [activateGroupResult.data, activateGroupResult.error]);
 
   const performSearchInput = (e) => {
     const value = e.target.value;
@@ -83,6 +101,26 @@ const SearchStudentAccount = () => {
       });
     } catch (error) {}
   };
+
+  const handleActivate = () => {
+    setSubmitted(!submitted)
+    try {
+      activateGroupUser({
+        variables: {
+          groupReg: regNumber,
+        },
+        refetchQueries: [
+          {
+            query: SearchUserAccount,
+            variables: {
+              regNumber: regNumber,
+            },
+          },
+        ],
+      });
+    } catch (error) {}
+  };
+
   return (
     <SearchRecordsStyles>
       <div className="row">
@@ -114,6 +152,22 @@ const SearchStudentAccount = () => {
         <div className="col-md-12">
           <div className="text-center">
             {noData && <p className="lead">Your query returned no result!</p>}
+
+            {users.length > 1 && (
+              <div className="text-right">
+                <button
+                  disabled={submitted}
+                  className="btn btn-warning btn-sm"
+                  onClick={handleActivate}
+                >
+                  {submitted
+                    ? "please wait...."
+                    : "activate/deactivate account"}
+                </button>
+                <br />
+                <br />
+              </div>
+            )}
 
             {users.length > 0 && (
               <UsersTable

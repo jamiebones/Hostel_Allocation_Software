@@ -31,7 +31,7 @@ const AdminViewTransaction = () => {
   const [errors, setErrors] = useState(null);
   const [noData, setNoData] = useState(null);
   const [selectedColumn, setSelectedColumn] = useState([]);
-  const [submitted, setSubmitted ] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [transQuery, transResult] = useLazyQuery(GetSuccessFullTransactions, {
     variables: {
       session: selectedSession,
