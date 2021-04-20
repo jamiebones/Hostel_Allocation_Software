@@ -15,10 +15,29 @@ const ConfirmPhoneNumberStyles = styled.div`
   }
   .center {
     margin: auto;
+    border-radius: 20px;
     width: 50%;
     border: 3px solid #5d8a8b;
     padding: 10px;
     margin-top: 7%;
+  }
+  .div-flex {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    margin-top: 7%;
+  }
+  .input-form {
+    flex: 2 1 auto;
+  }
+  .btn-form {
+    flex: 1 1 auto;
+    margin-left: 10px;
+  }
+  .label-form {
+    flex: 1 1 content;
+    display: inline-block;
+    margin-right: 7px;
   }
 `;
 
@@ -77,9 +96,47 @@ const ConfirmPhoneNumber = (props) => {
       <div className="row">
         <div className="col-md-12">
           <div className="text-center">
+            <h3>Confirm phone number</h3>
             <ErrorDisplay errors={errors} />
           </div>
-          <div className="d-flex justify-content-center align-items-center">
+        </div>
+      </div>
+
+      <div className="row">
+        <div className="col-md-6 offset-md-3">
+          <form onSubmit={handleSubmit}>
+            <div className="div-flex">
+              <label className="label-form">Enter Phone Number</label>
+
+              <div className="input-form">
+                <input
+                  onChange={handlePhoneNumber}
+                  type="number"
+                  className="form-control"
+                  id="phoneNumber"
+                  placeholder="Phone number"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={submitted}
+                className="btn btn-danger btn-form"
+              >
+                {submitted
+                  ? "sending confirmation code please wait...... "
+                  : "phone number"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-md-12">
+          {/* <div className="text-center">
+            <ErrorDisplay errors={errors} />
+          </div> */}
+
+          {/* <div className="d-flex justify-content-center align-items-center">
             <div className="card-layout">
               <form className="form-inline" onSubmit={handleSubmit}>
                 <div className="form-group mb-2">
@@ -91,12 +148,12 @@ const ConfirmPhoneNumber = (props) => {
                     readOnly
                     className="form-control-plaintext font-weight-bold"
                     id="staticPhone"
-                    value="confirm your phone number"
+                    value="Confirm phone number"
                   />
                 </div>
                 <div className="form-group mx-sm-3 mb-2">
                   <label htmlFor="phoneNumber" className="sr-only">
-                    Phone Number
+                    Click to Confirm Phone Number
                   </label>
                   <input
                     onChange={handlePhoneNumber}
@@ -117,7 +174,7 @@ const ConfirmPhoneNumber = (props) => {
                 </button>
               </form>
             </div>
-          </div>
+          </div> */}
           <div className="div-button text-center center">
             <p>
               If you have received a code you can proceed to enter the code.

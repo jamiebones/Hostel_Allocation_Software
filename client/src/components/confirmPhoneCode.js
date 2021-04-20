@@ -21,6 +21,14 @@ const ConfirmphoneStyles = styled.div`
     border: 3px solid #5d8a8b;
     padding: 10px;
     margin-top: 7%;
+    border-radius: 20px;
+  }
+  .div-grid {
+    justify-content: space-around;
+    align-items: baseline;
+  }
+  .label {
+    margin-right: 10px;
   }
 `;
 
@@ -90,10 +98,53 @@ const ConfirmPhoneCode = (props) => {
       <div className="row">
         <div className="col-md-12">
           <div className="text-center">
+            <h3>Enter confirmation code </h3>
             <ErrorDisplay errors={errorArray} />
           </div>
 
-          <div className="d-flex justify-content-center align-items-center">
+          <div className="div-button text-center center">
+            <form onSubmit={handleSubmit}>
+              <div
+                className="d-flex justify-content-center 
+          align-items-center form-group row"
+              >
+                <div className="col-md-12 d-flex div-grid">
+                  <p className="label">enter confirmation code</p>
+                  <div className="input-group mb-3">
+                    <input
+                      onChange={handleChange}
+                      type="text"
+                      className="form-control"
+                      id="code"
+                      placeholder="confirmation code"
+                    />
+                    <button
+                      type="submit"
+                      disabled={submitted ? true : false}
+                      className="btn btn-primary mb-2"
+                    >
+                      {submitted
+                        ? "sending confirmation code please wait...... "
+                        : "Click to confirm"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <p>
+              If you have not received a code you can click below to try for
+              another code.
+            </p>
+            <button
+              className="btn btn-success"
+              onClick={() => props.history.push("/dashboard")}
+            >
+              proceed to confirm your phone number
+            </button>
+          </div>
+
+          {/* <div className="d-flex justify-content-center align-items-center">
             <div className="card-layout">
               <form className="form-inline" onSubmit={handleSubmit}>
                 <div className="form-group mb-2">
@@ -105,10 +156,10 @@ const ConfirmPhoneCode = (props) => {
                     readOnly
                     className="form-control-plaintext font-weight-bold"
                     id="staticPhone"
-                    value="Enter confirmation code"
+                    value="enter confirmation code"
                   />
                 </div>
-                <div className="form-group mx-sm-3 mb-2">
+                <div className="form-group mx-md-3 mb-2">
                   <label htmlFor="phoneNumber" className="sr-only">
                     Confirmation Code
                   </label>
@@ -131,7 +182,7 @@ const ConfirmPhoneCode = (props) => {
                 </button>
               </form>
             </div>
-          </div>
+          </div> 
           <div className="div-button text-center center">
             <p>
               If you have not received a code you can click below to try for
@@ -144,6 +195,7 @@ const ConfirmPhoneCode = (props) => {
               proceed to confirm your phone number
             </button>
           </div>
+          */}
         </div>
       </div>
     </ConfirmphoneStyles>
