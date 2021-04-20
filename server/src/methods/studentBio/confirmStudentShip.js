@@ -3,6 +3,8 @@ const { NODE_ENV } = process.env;
 export default (regNumber, conn) => {
   if (NODE_ENV === "development") {
     return _confirmStatusDevelopment(regNumber, conn);
+  } else{
+    return _confirmStatusDevelopment(regNumber, conn);
   }
 };
 

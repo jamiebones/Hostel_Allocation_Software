@@ -30,7 +30,7 @@ class InitTask {
           email: "jamiebones147@gmail.com",
           password: hash,
           accessLevel: "super-admin",
-          userType: "staff",
+          userType: "super-admin",
           name: "James Oshomah",
         };
         const adminUser = new models.User(admin);

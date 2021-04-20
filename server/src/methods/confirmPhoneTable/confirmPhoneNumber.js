@@ -14,7 +14,7 @@ const _setCode = () => {
 
 export default async ({ number, regNumber, conn }) => {
   const code = _setCode();
-  let msg = `your confirmation code is ${code}`;
+  let msg = `your confirmation digit is ${code}`;
 
   try {
     //await axios.post(api);
