@@ -5,6 +5,7 @@ import {
   isSuperAdmin,
   isStudent,
 } from "./authorization";
+const _ = require("lodash");
 
 export default {
   Query: {
@@ -26,7 +27,7 @@ export default {
     createSession: combineResolvers(
       isAuthenticated,
       isSuperAdmin,
-      async (_, { input }, { fastConn, slowConn }) => {
+      async (_, { input }, { fastConn }) => {
         const {
           session,
           facultyAllocation,
@@ -62,12 +63,12 @@ export default {
 
           if (facTotal > 100 || facTotal < 100) {
             throw new Error(
-              `Faculty total allocation should eaual 100. Value currently is ${facTotal}`
+              `Faculty total allocation should equal 100. Value currently is ${facTotal}`
             );
           }
           if (levelTotal > 100 || levelTotal < 100) {
             throw new Error(
-              `Level total allocation should eaual 100. Value currently is ${levelTotal}`
+              `Level total allocation should equal 100. Value currently is ${levelTotal}`
             );
           }
 
@@ -203,6 +204,8 @@ export default {
           );
           const total = vacantBedsArray[0].total;
 
+          console.log("total beds", total);
+
           //lets make all allocate spaces based on the shared criteria in the session object
           //lets find total bed spaces in rooms that are vacant and divide based on the criteria set
           const facultyAllocation = sessionTable.facultyAllocation;
@@ -211,21 +214,58 @@ export default {
           //loop and update everything
           const facultyArray = [];
           const levelArray = [];
+          let totalSpaceByFaculty = 0;
+          let totalSpaceByLevel = 0;
 
           facultyAllocation.map((faculty) => {
             const percentAllocation =
               (faculty.percentAllocation * +total) / 100;
             faculty.totalAllocation = Math.floor(percentAllocation);
+            totalSpaceByFaculty += Math.floor(percentAllocation);
             facultyArray.push(faculty);
           });
 
           levelAllocation.map((level) => {
             const percentAllocation = (level.percentAllocation * +total) / 100;
             level.totalAllocation = Math.floor(percentAllocation);
+            totalSpaceByLevel += Math.floor(percentAllocation);
             levelArray.push(level);
           });
-          sessionTable.facultyAllocation = facultyArray;
-          sessionTable.levelAllocation = levelArray;
+
+          //give the remaining space to the one with the lowest allocation
+
+          //get leftover values
+          let remainFacAllocation = total - totalSpaceByFaculty;
+          let remainLevelAllocation = total - totalSpaceByLevel;
+           
+          const _ = require("lodash");
+
+          const minFacultyAllocation = _.minBy(facultyArray, "totalAllocation");
+
+
+          const minLevelAllocation = _.minBy(levelArray, "totalAllocation");
+
+          //get and and the value to the remain one
+          const filterFacArray = facultyArray.filter(
+            (element) => element.facultyId != minFacultyAllocation.facultyId
+          );
+
+          //get and and the value to the remain one
+          const filterLevelArray = levelArray.filter(
+            (element) => element.level != minLevelAllocation.level
+          );
+
+          //update the value of the minimum allocation and add it back to the array
+          minFacultyAllocation.totalAllocation =
+            minFacultyAllocation.totalAllocation + remainFacAllocation;
+          filterFacArray.push(minFacultyAllocation);
+
+          minLevelAllocation.totalAllocation =
+            minLevelAllocation.totalAllocation + remainLevelAllocation;
+          filterLevelArray.push(minLevelAllocation);
+
+          sessionTable.facultyAllocation = filterFacArray;
+          sessionTable.levelAllocation = filterLevelArray;
           sessionTable.active = true;
           await sessionTable.save();
           return true;

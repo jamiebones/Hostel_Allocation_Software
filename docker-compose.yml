@@ -25,8 +25,8 @@ services:
       context: ./server
       dockerfile: dockerfile.dev
     volumes:
-      - /usr/app/node_modules
-      - ./server:/usr/app
+      - /app/node_modules
+      - ./server:/app
     depends_on:
       - mongo-setup_uniuyo
     restart: always

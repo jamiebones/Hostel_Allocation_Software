@@ -18,7 +18,7 @@ export default {
 
       //check if student is already registered
       const student = await fastConn.models.StudentBio.findOne({
-        regNumber: { $regex: regNumber.toLowerCase(), $options: "i" },
+        regNumber: regNumber.toLowerCase(),
       });
 
       if (student) {
@@ -64,14 +64,13 @@ export default {
         currentSession,
         sex,
       };
-      
 
       try {
         const data = await methods.studentBioMethod.createStudentAccount(
           { ...newStudent, password },
           fastConn
         );
-        console.log("data is data: ", data)
+        console.log("data is data: ", data);
         return data;
       } catch (error) {
         console.log(error);

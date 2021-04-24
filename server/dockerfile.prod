@@ -1,0 +1,33 @@
+FROM node:12.18.3-alpine AS base
+
+
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+#RUN mkdir -p /home/node/app/node_modules  && chown -R node:node /home/node/app
+
+WORKDIR /home/node/app
+
+FROM base AS builder
+
+COPY ./package*.json ./src/.babelrc ./
+
+USER node
+
+RUN npm install
+
+COPY --chown=node:node . .
+
+COPY ./src ./src
+
+RUN npm run build
+
+RUN npm prune --production
+
+FROM base AS release
+
+COPY --from=builder /home/node/app/node_modules ./node_modules
+COPY --from=builder /home/node/app/dist ./dist
+
+
+EXPOSE 8000
+
+CMD [ "node", "./dist/index.js" ]
