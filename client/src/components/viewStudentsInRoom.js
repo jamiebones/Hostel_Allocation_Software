@@ -7,6 +7,7 @@ import {
   ExtractError,
   IncrementSessionFiveYears,
   CapFirstLetterOfEachWord,
+  ISAuthorizedToView
 } from "../modules/utils";
 import RoomAllocationComponent from "./roomAllocationComponent";
 
@@ -20,7 +21,7 @@ const classNames = require("classnames");
 
 const ViewStudentInRoomsStyles = styled.div``;
 
-const ViewStudentInRooms = () => {
+const ViewStudentInRooms = ({ currentUser }) => {
   const [hostels, setHostels] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [errors, setErrors] = useState([]);
@@ -242,6 +243,9 @@ const ViewStudentInRooms = () => {
                         <th scope="col">#</th>
                         <th scope="col">Student Details</th>
                         <th scope="col">Accomodation Details</th>
+                        {ISAuthorizedToView(currentUser, ["super-admin"]) && (
+                          <th scope="col">Next of Kin Details</th>
+                        )}
                         <th scope="col">Photograph</th>
                       </tr>
                     </thead>
@@ -251,6 +255,7 @@ const ViewStudentInRooms = () => {
                           <tr key={i}>
                             <RoomAllocationComponent
                               allocation={allocation}
+                              currentUser={currentUser}
                               index={i}
                             />
                           </tr>

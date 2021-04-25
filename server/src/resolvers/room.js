@@ -31,7 +31,7 @@ export default {
           doubleBeds,
         },
       },
-      { fastConn, slowConn }
+      { fastConn }
     ) => {
       try {
         const midPoint = +doubleBeds / 2;

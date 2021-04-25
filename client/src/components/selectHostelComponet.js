@@ -41,6 +41,7 @@ const SelectHostelComponent = () => {
       setSubmitted(!submitted);
     }
     if (getHallResult.data) {
+      console.log(getHallResult.data.getHallByLocationAndType)
       setHalls(getHallResult.data.getHallByLocationAndType);
       setSubmitted(!submitted);
       setSearch(true);
@@ -87,9 +88,9 @@ const SelectHostelComponent = () => {
                 onChange={handleChange}
               >
                 <option value="0">select hostel location</option>
-                <option value="main Campus">Main Campus</option>
-                <option value="town Campus">Town Campus</option>
-                <option value="annex Campus">Annex Campus</option>
+                <option value="main campus">Main Campus</option>
+                <option value="town campus">Town Campus</option>
+                <option value="annex campus">Annex Campus</option>
               </select>
             </div>
 
@@ -116,7 +117,8 @@ const SelectHostelComponent = () => {
             <p className="lead text-center">no data</p>
           )}
           {halls.length > 0 && (
-            <table className="table table-striped">
+            <table className="table table-primary">
+             
               <thead>
                 <tr>
                   <th scope="col">#</th>
@@ -147,26 +149,26 @@ const SelectHostelComponent = () => {
                       <tr key={id}>
                         <th scope="row">{i + 1}</th>
                         <td>
-                          <p>{CapFirstLetterOfEachWord(hallName)}</p>
+                          <p>{hallName && CapFirstLetterOfEachWord(hallName)}</p>
                         </td>
                         <td>
                           {" "}
-                          <p>{CapFirstLetterOfEachWord(type)}</p>
+                          <p>{type && CapFirstLetterOfEachWord(type)}</p>
                         </td>
                         <td>
-                          <p>{CapFirstLetterOfEachWord(location)}</p>
+                          <p>{location && CapFirstLetterOfEachWord(location)}</p>
                         </td>
                         <td>
                           <p>{hostelFee}</p>
                         </td>
                         <td>
-                          {occupiedBy ? (
+                          {occupiedBy.length > 0 ? (
                             <p>
                               {occupiedBy.map(({ facultyName, levels }, i) => {
                                 return (
                                   <React.Fragment key={`${i}${facultyName}`}>
                                     <span>
-                                      {CapFirstLetterOfEachWord(facultyName)}
+                                      {facultyName && CapFirstLetterOfEachWord(facultyName)}
                                     </span>
                                     <br />
                                    
@@ -198,7 +200,7 @@ const SelectHostelComponent = () => {
                                     key={`${i - roomNumber + totalBedSpace}`}
                                   >
                                     <span>
-                                      {CapFirstLetterOfEachWord(roomNumber)} -{" "}
+                                      {roomNumber && CapFirstLetterOfEachWord(roomNumber)} -{" "}
                                       {totalBedSpace}
                                     </span>
                                     <br />

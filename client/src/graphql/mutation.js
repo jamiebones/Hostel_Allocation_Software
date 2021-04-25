@@ -238,7 +238,9 @@ const AddNewRoomMutation = gql`
 
 const ActivateSessionMutation = gql`
   mutation activateSession($sessionId: ID!) {
-    activateSession(sessionId: $sessionId)
+    activateSession(sessionId: $sessionId){
+      active
+    }
   }
 `;
 

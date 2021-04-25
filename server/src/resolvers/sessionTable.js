@@ -204,8 +204,6 @@ export default {
           );
           const total = vacantBedsArray[0].total;
 
-          console.log("total beds", total);
-
           //lets make all allocate spaces based on the shared criteria in the session object
           //lets find total bed spaces in rooms that are vacant and divide based on the criteria set
           const facultyAllocation = sessionTable.facultyAllocation;
@@ -237,11 +235,10 @@ export default {
           //get leftover values
           let remainFacAllocation = total - totalSpaceByFaculty;
           let remainLevelAllocation = total - totalSpaceByLevel;
-           
+
           const _ = require("lodash");
 
           const minFacultyAllocation = _.minBy(facultyArray, "totalAllocation");
-
 
           const minLevelAllocation = _.minBy(levelArray, "totalAllocation");
 
@@ -268,7 +265,7 @@ export default {
           sessionTable.levelAllocation = filterLevelArray;
           sessionTable.active = true;
           await sessionTable.save();
-          return true;
+          return sessionTable;
         } catch (err) {
           console.log(err);
           throw err;

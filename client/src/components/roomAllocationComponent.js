@@ -1,8 +1,7 @@
 import React from "react";
-import { CapFirstLetterOfEachWord } from "../modules/utils";
+import { CapFirstLetterOfEachWord, ISAuthorizedToView } from "../modules/utils";
 
-
-const AllocationComponent = ({ allocation, index }) => {
+const AllocationComponent = ({ allocation, index, currentUser }) => {
   const {
     hallName,
     roomNumber,
@@ -20,6 +19,7 @@ const AllocationComponent = ({ allocation, index }) => {
       profileImage,
       regNumber,
       phoneNumber,
+      nextofKin,
     },
     room: { location, roomType },
   } = allocation;
@@ -28,7 +28,7 @@ const AllocationComponent = ({ allocation, index }) => {
     <React.Fragment>
       <th scope="row">{index + 1}</th>
       <td>
-        <table className="table table-borderless table-sm">
+        <table className="table table-borderless table-sm b">
           <thead></thead>
           <tbody>
             <tr>
@@ -78,14 +78,24 @@ const AllocationComponent = ({ allocation, index }) => {
       </td>
       <td>
         <div>
+          {ISAuthorizedToView(currentUser, ["super-admin"]) && (
+            <div className="d-print-none">
+              <p>{nextofKin.name}</p>
+              <p>{nextofKin.phone}</p>
+              <p>{nextofKin.address}</p>
+            </div>
+          )}
+        </div>
+      </td>
+      <td>
+        <div>
           <img
             className="img-fluid"
             src={`http://uniuyo.edu.ng/eportals/passports/${profileImage}`}
             style={{ width: 100 + "px", height: 100 + "px" }}
-
           />
-          <br/>
-          { studentConfirmed && <span>photo confirmed</span>}
+          <br />
+          {studentConfirmed && <span>photo confirmed</span>}
         </div>
       </td>
     </React.Fragment>

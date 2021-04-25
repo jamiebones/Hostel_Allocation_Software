@@ -83,6 +83,11 @@ const GetAllocationByRoom = gql`
         profileImage
         regNumber
         phoneNumber
+        nextofKin {
+          name
+          address
+          phone
+        }
       }
       room {
         location

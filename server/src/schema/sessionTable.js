@@ -11,7 +11,7 @@ export default gql`
  extend type Mutation {
     createSession(input: SessionInput): SessionTable
     updateSession(sessionId: ID!, input: SessionInput ): SessionTable
-    activateSession(sessionId: ID!): Boolean!
+    activateSession(sessionId: ID!): SessionTable!
     deactivateSession(sessionId: ID!): Boolean!
  }
 

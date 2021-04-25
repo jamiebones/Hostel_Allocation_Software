@@ -138,16 +138,33 @@ const CapFirstLetterOfEachWord = (word) => {
   let capitalizedWord = "";
   for (let i = 0; i < wordArray.length; i++) {
     const currentWord = wordArray[i];
-    capitalizedWord +=
-      currentWord[0].toUpperCase() +
-      currentWord.substr(1, currentWord.length) +
-      " ";
+    if (currentWord) {
+      capitalizedWord +=
+        currentWord[0].toUpperCase() +
+        currentWord.substr(1, currentWord.length) +
+        " ";
+    }
   }
   return capitalizedWord;
 };
 
 const FormatDate = (date) => {
   return moment(date).format("MMMM Do YYYY, h:mm:ss a");
+};
+
+const ISAuthorizedToView = (currentUser, accessArray = []) => {
+  if (!currentUser) {
+    return false;
+  }
+  if (currentUser && currentUser.accessLevel) {
+    const index = accessArray.indexOf(currentUser.accessLevel.toLowerCase());
+    if (index !== -1) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  return false;
 };
 
 export {
@@ -162,4 +179,5 @@ export {
   LoadRemitaClientLibrary,
   Flutter_Pub_Key,
   FormatDate,
+  ISAuthorizedToView,
 };
