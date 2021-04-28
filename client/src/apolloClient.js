@@ -10,7 +10,7 @@ import store from "store";
 
 const cache = new InMemoryCache({
   possibleTypes: {
-     LoginUserResult: ["User", "Error"],
+    LoginUserResult: ["User", "Error"],
     //ActiveExamDetails: ["ActiveExamSuccessful", "Error"],
     //ExamTakenDetails: ["ExamTakenSuccess", "Error"],
   },
@@ -22,7 +22,7 @@ let httpLink = new HttpLink({ uri: `http://localhost:${port}/graphql` });
 
 if (process.env.NODE_ENV === "production") {
   httpLink = new HttpLink({
-    uri: `https://${window.location.hostname}:${port}/graphql`,
+    uri: `https://${window.location.hostname}/graphql`,
   });
 }
 

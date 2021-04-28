@@ -11,14 +11,8 @@ const Authenticated = (props) => {
     exact,
     ...rest
   } = props;
-  let isMounted = true;
-
-  useEffect(() => {
-    return () => {
-      isMounted = false;
-    };
-  });
-
+  
+  
   return (
     <Route
       {...rest}

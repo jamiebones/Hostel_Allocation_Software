@@ -57,7 +57,7 @@ const PrintAllocationBySession = (props) => {
       <div className="row">
         <div className="col-md-6 offset-md-3">
           <div className="text-center">
-            <h3 className="text-center text-info">Print Hostel Allocation Document</h3>
+            <h3 className="text-center text-info d-print-none">Print Hostel Allocation Document</h3>
             {errors && <p className="lead text-danger">{errors.message}</p>}
             {allocationResult.loading && <Loading />}
           </div>

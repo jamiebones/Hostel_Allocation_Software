@@ -6,6 +6,7 @@ import state from "../applicationState";
 import { useRecoilState } from "recoil";
 import { useHistory } from "react-router-dom";
 
+
 import store from "store";
 
 const LoginStyle = styled.div``;
@@ -35,7 +36,7 @@ const Login = (props) => {
       if (typename === "Error") {
         const message = loginUserResult.data.loginUser.message;
         setErrors(message);
-        setSubmitted(!submitted);
+        setSubmitted(false);
       } else {
         //we are good here we have the baggages here
         const {
@@ -70,7 +71,7 @@ const Login = (props) => {
           active,
         });
         setToken(token);
-        setSubmitted(!submitted);
+        setSubmitted(false);
         if (accessLevel === "super-admin") {
           history.push("/admin/dashboard");
         } else if (accessLevel === "normal") {
@@ -79,14 +80,14 @@ const Login = (props) => {
       }
     }
     if (loginUserResult.error) {
-      setSubmitted(!submitted);
+      setSubmitted(false);
       setErrors(loginUserResult.error.message);
     }
   }, [loginUserResult.data, loginUserResult.error]);
 
   const submitForm = (event) => {
     event.preventDefault();
-    setSubmitted(!submitted);
+    setSubmitted(true);
     executeLogin({
       variables: {
         regNumber,
@@ -122,6 +123,7 @@ const Login = (props) => {
             Students are required to login with their reg number and chosen
             password
           </p>
+       
           <form onSubmit={submitForm}>
             <div className="form-group">
               <label htmlFor="name">Reg Number</label>

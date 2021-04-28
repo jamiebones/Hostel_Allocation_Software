@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import "./App.css";
 import { ApolloProvider } from "@apollo/client";
 import client from "./apolloClient";
@@ -12,64 +12,290 @@ import {
 import styled from "styled-components";
 import Navigation from "./components/navbar";
 import Layout from "./components/layout";
+import LoginComponentRoute from "./components/loginComponentRoute";
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorFallback from "./components/common/errorFallback";
 import { useRecoilState } from "recoil";
-import { createGlobalStyle } from "styled-components";
 
 /**
  imports of page components starts here
  */
-import HomePage from "./components/home";
-import StudentAccountCreation from "./components/studentAccountCreation";
-import Login from "./components/login";
-import DashBoard from "./components/dashboard";
-import ConfirmTransaction from "./components/confirmRemitaTransaction";
-import PrintAllocation from "./components/printAllocation";
-
-import AdminDashboard from "./components/adminDashboard";
-import ConfirmPhoneCode from "./components/confirmPhoneCode";
-import PrintStudentHostelAllocationBySession from "./components/printAllocationBySession";
-//import CreateNewRoom from "./components/addNewRoom";
-//import ConfirmHostelAllocation from "./components/confirmHostelAccomodation";
-import ConfirmHostelAccomodation from "./components/confirmHostelAccomodation";
-import Authorized from "./components/authorized";
-import GenerateRemitaRRR from "./components/generateRRR";
-import CreateNewSession from "./components/createNewSession";
-import UpdateSessionData from "./components/updateSessionNew";
-import ActiateDeactivateSession from "./components/activateSession";
-import CreateNewHostel from "./components/addHostel";
-import SelectHostelComponent from "./components/selectHostelComponet";
-import CreateRoomInHostel from "./components/createRoomInHostel";
-import RoomBedSpaceOperation from "./components/roomOperation";
-import BedSpaceSettings from "./components/bedSpaceSettings";
-import BedSpaceStatsTotal from "./components/bedstatsTotal";
-import AssignSpaceToStudent from "./components/assignSpaceToStudent";
-import MakeRemitaPaymentUsingRRR from "./components/makeRemitaPaymentUsingRRR";
-import PrintPaymentReceipt from "./components/viewPaymentReceipt";
-import StudentTransaction from "./components/viewTransactions";
-import ViewStudentsInRooms from "./components/viewStudentsInRoom";
-import AdminAllocateFreeBed from "./components/adminAllocationEachSession";
-import AuthorizedComponent from "./components/authorized";
 import Footer from "./components/footer";
 import state from "./applicationState";
-import EditHostelDetails from "./components/editHostelDetails";
-import SendMessageToStudent from "./components/sendMessageToStudents";
-import CustomNavbar from "./components/common/customNavbar";
-import AdminViewTransaction from "./components/adminViewTransaction";
+import AuthorizedComponent from "./components/authorized";
 import GlobalStyle from "./globalStyles";
-import CreateStaffUserAccountByAdmin from "./components/adminCreateUserAccount";
-import SearchUserAccount from "./components/searchStudentAccount";
-/**
- imports of page components ends here
- */
-import { useHistory } from "react-router-dom";
+
+import Loadable from "react-loadable";
+import Loader from "./components/common/loader";
+
+//loadable content start here start of code splitting by route
+
+const LoadableBedSpaceStatsTotal = Loadable({
+  loader: () =>
+    import("./components/bedstatsTotal" /*webpackChunkName: "bedspaceStats"*/),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableAssignSpaceToStudent = Loadable({
+  loader: () =>
+    import(
+      "./components/assignSpaceToStudent" /*webpackChunkName: "assignSpaceToStudent"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableMakeRemitaPaymentUsingRRR = Loadable({
+  loader: () =>
+    import(
+      "./components/makeRemitaPaymentUsingRRR" /*webpackChunkName: "makeRemitaPaymentUsingRRR"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadablePrintPaymentReceipt = Loadable({
+  loader: () =>
+    import(
+      "./components/viewPaymentReceipt" /*webpackChunkName: "viewPaymentReceipt"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableStudentTransaction = Loadable({
+  loader: () =>
+    import(
+      "./components/viewTransactions" /*webpackChunkName: "viewTransactions"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableViewStudentsInRooms = Loadable({
+  loader: () =>
+    import(
+      "./components/viewStudentsInRoom" /*webpackChunkName: "viewStudentsInRoom"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableAdminAllocateFreeBed = Loadable({
+  loader: () =>
+    import(
+      "./components/adminAllocationEachSession" /*webpackChunkName: "adminAllocationEachSession"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableEditHostelDetails = Loadable({
+  loader: () =>
+    import(
+      "./components/editHostelDetails" /*webpackChunkName: "editHostelDetails"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableSendMessageToStudent = Loadable({
+  loader: () =>
+    import(
+      "./components/sendMessageToStudents" /*webpackChunkName: "sendMessageToStudents"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableAdminViewTransaction = Loadable({
+  loader: () =>
+    import(
+      "./components/adminViewTransaction" /*webpackChunkName: "adminViewTransaction"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableCreateStaffUserAccountByAdmin = Loadable({
+  loader: () =>
+    import(
+      "./components/adminCreateUserAccount" /*webpackChunkName: "adminCreateUserAccount"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableSearchUserAccount = Loadable({
+  loader: () =>
+    import(
+      "./components/searchStudentAccount" /*webpackChunkName: "searchStudentAccount"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableHomePage = Loadable({
+  loader: () => import("./components/home" /*webpackChunkName: "homepage"*/),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableStudentAccountCreation = Loadable({
+  loader: () =>
+    import(
+      "./components/studentAccountCreation" /*webpackChunkName: "studentAccountCreation"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableLogin = Loadable({
+  loader: () => import("./components/login" /*webpackChunkName: "login"*/),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableDashBoard = Loadable({
+  loader: () =>
+    import("./components/dashboard" /*webpackChunkName: "dashboard"*/),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableConfirmTransaction = Loadable({
+  loader: () =>
+    import(
+      "./components/confirmRemitaTransaction" /*webpackChunkName: "confirmTransaction"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadablePrintAllocation = Loadable({
+  loader: () =>
+    import(
+      "./components/printAllocation" /*webpackChunkName: "printAllocation"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableAdminDashboard = Loadable({
+  loader: () =>
+    import(
+      "./components/adminDashboard" /*webpackChunkName: "adminDashboard"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableConfirmPhoneCode = Loadable({
+  loader: () =>
+    import(
+      "./components/confirmPhoneCode" /*webpackChunkName: "confirmPhoneCode"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadablePrintStudentHostelAllocationBySession = Loadable({
+  loader: () =>
+    import(
+      "./components/printAllocationBySession" /*webpackChunkName: "printAllocation"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableConfirmHostelAccomodation = Loadable({
+  loader: () =>
+    import(
+      "./components/confirmHostelAccomodation" /*webpackChunkName: "confirmHostelAccomodation"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableGenerateRemitaRRR = Loadable({
+  loader: () =>
+    import("./components/generateRRR" /*webpackChunkName: "generateRRR"*/),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableCreateNewSession = Loadable({
+  loader: () =>
+    import(
+      "./components/createNewSession" /*webpackChunkName: "createNewSession"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableUpdateSessionData = Loadable({
+  loader: () =>
+    import(
+      "./components/updateSessionNew" /*webpackChunkName: "updateSessionNew"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableActiateDeactivateSession = Loadable({
+  loader: () =>
+    import(
+      "./components/activateSession" /*webpackChunkName: "activateDeactivateSession"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableCreateNewHostel = Loadable({
+  loader: () =>
+    import("./components/addHostel" /*webpackChunkName: "addHostel"*/),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableSelectHostelComponent = Loadable({
+  loader: () =>
+    import(
+      "./components/selectHostelComponet" /*webpackChunkName: "selectHostelComponent"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableCreateRoomInHostel = Loadable({
+  loader: () =>
+    import(
+      "./components/createRoomInHostel" /*webpackChunkName: "createRoomInHostel"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableRoomBedSpaceOperation = Loadable({
+  loader: () =>
+    import("./components/roomOperation" /*webpackChunkName: "roomOperation"*/),
+  loading: Loader,
+  delay: 300,
+});
+
+const LoadableBedSpaceSettings = Loadable({
+  loader: () =>
+    import(
+      "./components/bedSpaceSettings" /*webpackChunkName: "bedSpaceSettings"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
+/*import of component ends here */
 
 const store = require("store");
-
-// const GlobalStyle = createGlobalStyle`
-//     /* Your css reset here */
-//
-//   background-color: red;
-// `;
 
 const AppStyles = styled.div`
   .mainComponent {
@@ -95,8 +321,6 @@ const App = (props) => {
     }
   }, []);
 
-  //let didMount = false;
-
   return (
     <ApolloProvider client={client}>
       <GlobalStyle />
@@ -111,192 +335,197 @@ const App = (props) => {
             />
             {/* <CustomNavbar /> */}
 
-            <Switch>
-              <React.Fragment>
-                <div className="container-fluid">
-                  <div className="row">
-                    <div className="col-md-12">
-                      <div className="mainComponent">
+            <div className="container-fluid">
+              <div className="row">
+                <div className="col-md-12">
+                  <div className="mainComponent">
+                    <ErrorBoundary FallbackComponent={ErrorFallback}>
+                      <Switch>
                         <React.Fragment>
-                          <Route
-                            exact
-                            path="/"
-                            render={(props) => (
-                              <HomePage
-                                authenticated={authenticated}
-                                currentUser={currentUser}
-                                {...props}
-                              />
-                            )}
-                          />
-                          <AuthorizedComponent
-                            component={ConfirmTransaction}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["student"]}
-                            exact
-                            path="/confirm_transaction"
-                          />
-                          {/* student route starts here*/}
-                          <AuthorizedComponent
-                            component={ConfirmTransaction}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["student"]}
-                            exact
-                            path="/confirm_transaction"
-                          />
-                          <AuthorizedComponent
-                            path="/make_payment"
-                            exact
-                            component={GenerateRemitaRRR}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            {...props}
-                            authorizedRole={["student"]}
-                          />
-                          <AuthorizedComponent
-                            path="/hostel_payment"
-                            component={MakeRemitaPaymentUsingRRR}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            {...props}
-                            authorizedRole={["student"]}
-                            exact
-                          />
-                          <AuthorizedComponent
-                            path="/print_allocation_receipt"
-                            exact
-                            component={PrintAllocation}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            {...props}
-                            authorizedRole={["student"]}
-                          />
-                          <AuthorizedComponent
-                            path="/dashboard"
-                            exact
-                            component={DashBoard}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["student"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/confirm_code"
-                            exact
-                            component={ConfirmPhoneCode}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["student"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/print_allocation_session"
-                            exact
-                            component={PrintStudentHostelAllocationBySession}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["student"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/student_transactions"
-                            exact
-                            component={StudentTransaction}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["student"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/print_receipt/:rrr"
-                            exact
-                            component={PrintPaymentReceipt}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["student"]}
-                            {...props}
-                          />
-                          {/* students route ends here*/}
-                          {/* <Route
+                          <React.Fragment>
+                            <Route
+                              exact
+                              path="/"
+                              render={(props) => (
+                                <LoadableHomePage
+                                  authenticated={authenticated}
+                                  currentUser={currentUser}
+                                  {...props}
+                                />
+                              )}
+                            />
+
+                            {/* student route starts here*/}
+                            <AuthorizedComponent
+                              component={LoadableConfirmTransaction}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["student"]}
+                              exact
+                              path="/confirm_transaction"
+                            />
+                            <AuthorizedComponent
+                              path="/make_payment"
+                              exact
+                              component={LoadableGenerateRemitaRRR}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              {...props}
+                              authorizedRole={["student"]}
+                            />
+                            <AuthorizedComponent
+                              path="/hostel_payment"
+                              component={LoadableMakeRemitaPaymentUsingRRR}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              {...props}
+                              authorizedRole={["student"]}
+                              exact
+                            />
+                            <AuthorizedComponent
+                              path="/print_allocation_receipt"
+                              exact
+                              component={LoadablePrintAllocation}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              {...props}
+                              authorizedRole={["student"]}
+                            />
+                            <AuthorizedComponent
+                              path="/dashboard"
+                              exact
+                              component={LoadableDashBoard}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["student"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/confirm_code"
+                              exact
+                              component={LoadableConfirmPhoneCode}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["student"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/print_allocation_session"
+                              exact
+                              component={
+                                LoadablePrintStudentHostelAllocationBySession
+                              }
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["student"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/student_transactions"
+                              exact
+                              component={LoadableStudentTransaction}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["student"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/print_receipt/:rrr"
+                              exact
+                              component={LoadablePrintPaymentReceipt}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["student"]}
+                              {...props}
+                            />
+                            {/* students route ends here*/}
+                            {/* <Route
                             exact
                             path="/confirm_transaction"
                             component={ConfirmTransaction}
                           /> */}
-                          <Route
+                            {/* <Route
                             exact
                             path="/login"
                             render={(props) =>
                               !authenticated ? (
-                                <Login {...props} />
+                                <LoadableLogin {...props} />
                               ) : (
                                 <Redirect to="/" />
                               )
                             }
-                          />
-                          {/* <Authenticated
+                          /> */}
+
+                            <LoginComponentRoute
+                              path="/login"
+                              exact
+                              component={LoadableLogin}
+                              authenticated={authenticated}
+                              {...props}
+                            />
+
+                            {/* <Authenticated
                             
                             path="/dashboard"
                             exact
                             component={DashBoard}
                             authenticated={authenticated}
                           /> */}
-                          <Route
-                            exact
-                            path="/create_account/"
-                            component={StudentAccountCreation}
-                          />
-                          {/* Admin routes from here  */}
+                            <Route
+                              exact
+                              path="/create_account/"
+                              component={LoadableStudentAccountCreation}
+                            />
+                            {/* Admin routes from here  */}
 
-                          <AuthorizedComponent
-                            path="/admin/student_account"
-                            exact
-                            component={SearchUserAccount}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin", "admin"]}
-                            {...props}
-                          />
+                            <AuthorizedComponent
+                              path="/admin/student_account"
+                              exact
+                              component={LoadableSearchUserAccount}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin", "admin"]}
+                              {...props}
+                            />
 
-                          <AuthorizedComponent
-                            path="/admin/dashboard"
-                            exact
-                            component={AdminDashboard}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin", "admin"]}
-                            {...props}
-                          />
+                            <AuthorizedComponent
+                              path="/admin/dashboard"
+                              exact
+                              component={LoadableAdminDashboard}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin", "admin"]}
+                              {...props}
+                            />
 
-                          <AuthorizedComponent
-                            path="/admin/view_transactions"
-                            exact
-                            component={AdminViewTransaction}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin", "admin"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/admin/create_staff_account"
-                            exact
-                            component={CreateStaffUserAccountByAdmin}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/admin/edit_hostel"
-                            exact
-                            component={EditHostelDetails}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin"]}
-                            {...props}
-                          />
-                          {/* <Authorized
+                            <AuthorizedComponent
+                              path="/admin/view_transactions"
+                              exact
+                              component={LoadableAdminViewTransaction}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin", "admin"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/admin/create_staff_account"
+                              exact
+                              component={LoadableCreateStaffUserAccountByAdmin}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/admin/edit_hostel"
+                              exact
+                              component={LoadableEditHostelDetails}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin"]}
+                              {...props}
+                            />
+                            {/* <Authorized
                               path="/admin/create_room"
                               exact
                               component={CreateNewRoom}
@@ -304,140 +533,142 @@ const App = (props) => {
                               currentUser={currentUser}
                               {...props}
                             /> */}
-                          <AuthorizedComponent
-                            path="/admin/confirm_allocation"
-                            exact
-                            component={ConfirmHostelAccomodation}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/admin/send_message"
-                            exact
-                            component={SendMessageToStudent}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/create_new_session"
-                            exact
-                            component={CreateNewSession}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/update_session/:sessionId"
-                            exact
-                            component={UpdateSessionData}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/activate_session"
-                            exact
-                            component={ActiateDeactivateSession}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/create_hostel"
-                            exact
-                            component={CreateNewHostel}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/view_created_hostels"
-                            exact
-                            component={SelectHostelComponent}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/create_room"
-                            exact
-                            component={CreateRoomInHostel}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/view_rooms"
-                            exact
-                            component={RoomBedSpaceOperation}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/bedspace_settings"
-                            exact
-                            component={BedSpaceSettings}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/bedspace_stats"
-                            exact
-                            component={BedSpaceStatsTotal}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/assign_space"
-                            exact
-                            component={AssignSpaceToStudent}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/view_students_in_rooms"
-                            exact
-                            component={ViewStudentsInRooms}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin"]}
-                            {...props}
-                          />
-                          <AuthorizedComponent
-                            path="/view_space_given_by_admin"
-                            exact
-                            component={AdminAllocateFreeBed}
-                            authenticated={authenticated}
-                            currentUser={currentUser}
-                            authorizedRole={["super-admin"]}
-                            {...props}
-                          />
-                          {/* Admin routes ends here  */}
+                            <AuthorizedComponent
+                              path="/admin/confirm_allocation"
+                              exact
+                              component={LoadableConfirmHostelAccomodation}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/admin/send_message"
+                              exact
+                              component={LoadableSendMessageToStudent}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/create_new_session"
+                              exact
+                              component={LoadableCreateNewSession}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/update_session/:sessionId"
+                              exact
+                              component={LoadableUpdateSessionData}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/activate_session"
+                              exact
+                              component={LoadableActiateDeactivateSession}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/create_hostel"
+                              exact
+                              component={LoadableCreateNewHostel}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/view_created_hostels"
+                              exact
+                              component={LoadableSelectHostelComponent}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/create_room"
+                              exact
+                              component={LoadableCreateRoomInHostel}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/view_rooms"
+                              exact
+                              component={LoadableRoomBedSpaceOperation}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/bedspace_settings"
+                              exact
+                              component={LoadableBedSpaceSettings}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/bedspace_stats"
+                              exact
+                              component={LoadableBedSpaceStatsTotal}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/assign_space"
+                              exact
+                              component={LoadableAssignSpaceToStudent}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/view_students_in_rooms"
+                              exact
+                              component={LoadableViewStudentsInRooms}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin"]}
+                              {...props}
+                            />
+                            <AuthorizedComponent
+                              path="/view_space_given_by_admin"
+                              exact
+                              component={LoadableAdminAllocateFreeBed}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin"]}
+                              {...props}
+                            />
+                            {/* Admin routes ends here  */}
+                          </React.Fragment>
                         </React.Fragment>
-                      </div>
-                    </div>
+                      </Switch>
+                    </ErrorBoundary>
                   </div>
                 </div>
-              </React.Fragment>
-            </Switch>
+              </div>
+            </div>
+
             <Footer />
           </AppStyles>
         </Layout>

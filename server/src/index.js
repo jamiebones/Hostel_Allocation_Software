@@ -19,11 +19,32 @@ import slowConnection from "./connections/slow";
 
 const morgan = require("morgan");
 
+var whitelist = [
+  "http://uniuyo.edu.ng/",
+  "http://localhost:9000",
+  "http://localhost:9000/graphql",
+  "http://localhost:9001/graphql",
+  "https://uniuyohostel.ml",
+  "https://uniuyohostel.ml/graphql",
+  "https://remitademo.net/",
+  "http://cheapglobalsms.com/api_v1"
+];
+var corsOptions = {
+  credentials: true,
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+
 StartUp();
 
 async function StartUp() {
   const app = express();
-  app.use(cors());
+  app.use(cors(corsOptions));
   const fastConn = await fastConnection();
   const slowConn = await slowConnection();
   cron.schedule("*/10 * * * *", async function () {
@@ -51,7 +72,7 @@ async function StartUp() {
       }
       console.log("this is an error", err);
       //send the email here about the error to the developer
-      
+
       return err;
       //return new Error("There was an error");
     },
@@ -74,7 +95,7 @@ async function StartUp() {
           req,
           loaders: {
             user: new DataLoader((keys) =>
-              loaders.user.batchUsers(keys, models)
+              loaders.user.batchUsers(keys, fastConn)
             ),
           },
         };
