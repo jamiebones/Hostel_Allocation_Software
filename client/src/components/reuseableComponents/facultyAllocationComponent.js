@@ -5,33 +5,34 @@ import styled from "styled-components";
 const ComponentStyles = styled.div`
   .faculty-container {
     display: flex;
-    width: 45vw;
+    width: 40vw;
     justify-content: space-between;
     align-items: baseline;
-    flex-wrap: wrap;
-    
-
-
+    border: 1px solid #717488;
+    padding: 5px;
+    margin-bottom: 10px;
     .facultyName {
-        
-        flex: 2;
-        
-
+      flex-basis: 30%;
     }
 
     .form-control-range {
       display: inline-block;
-      flex: 8;
+      flex-basis: 70%;
+    }
   }
-  
 `;
 
-const FacultyAllocationComponent = ({ facultyName, facultyId, onChange, value }) => {
-  const [percent, setPercent] = useState(value ? value: 0);
+const FacultyAllocationComponent = ({
+  facultyName,
+  facultyId,
+  onChange,
+  value,
+}) => {
+  const [percent, setPercent] = useState(value ? value : 0);
   const handleChange = (e) => {
     const value = e.target.value;
     setPercent(+value);
-    onChange({ faculty: facultyName, value: value , facultyId});
+    onChange({ faculty: facultyName, value: value, facultyId });
   };
   return (
     <ComponentStyles>
@@ -39,7 +40,7 @@ const FacultyAllocationComponent = ({ facultyName, facultyId, onChange, value })
         <span className="lead facultyName">{facultyName}</span>
 
         <input
-          defaultValue={value ? value: 0}
+          defaultValue={value ? value : 0}
           type="range"
           className="form-control-range rangeInput"
           name="faculty"

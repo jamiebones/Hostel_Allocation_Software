@@ -293,6 +293,15 @@ const LoadableBedSpaceSettings = Loadable({
   delay: 300,
 });
 
+const LoadableGetPhoneCodeForStudent = Loadable({
+  loader: () =>
+    import(
+      "./components/getPhoneCodeForStudent" /*webpackChunkName: "bedSpaceSettings"*/
+    ),
+  loading: Loader,
+  delay: 300,
+});
+
 /*import of component ends here */
 
 const store = require("store");
@@ -507,6 +516,17 @@ const App = (props) => {
                               authorizedRole={["super-admin", "admin"]}
                               {...props}
                             />
+
+                            <AuthorizedComponent
+                              path="/admin/get_phone_code"
+                              exact
+                              component={LoadableGetPhoneCodeForStudent}
+                              authenticated={authenticated}
+                              currentUser={currentUser}
+                              authorizedRole={["super-admin", "admin"]}
+                              {...props}
+                            />
+
                             <AuthorizedComponent
                               path="/admin/create_staff_account"
                               exact

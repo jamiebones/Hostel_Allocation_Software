@@ -4,6 +4,7 @@ export default gql`
   extend type Query {
     confirmIfPhone(regNumber: String!): Boolean
     checkPhoneEnteredMoreThanThreeTimes(regNumber: String!): String
+    getPhoneCodeByRegNumber(regNumber: String!): ConfirmPhoneTable!
   }
 
   extend type Mutation {

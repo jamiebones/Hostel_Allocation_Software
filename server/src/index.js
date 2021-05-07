@@ -27,7 +27,7 @@ var whitelist = [
   "https://uniuyohostel.ml",
   "https://uniuyohostel.ml/graphql",
   "https://remitademo.net/",
-  "http://cheapglobalsms.com/api_v1"
+  "http://cheapglobalsms.com/api_v1",
 ];
 var corsOptions = {
   credentials: true,
@@ -44,7 +44,9 @@ StartUp();
 
 async function StartUp() {
   const app = express();
-  app.use(cors(corsOptions));
+  if (process.env.NODE_ENV === "production") {
+    app.use(cors(corsOptions));
+  }
   const fastConn = await fastConnection();
   const slowConn = await slowConnection();
   cron.schedule("*/10 * * * *", async function () {

@@ -263,6 +263,16 @@ const Navbar = ({ authenticated, currentUser }) => {
                         >
                           Send SMS To Students
                         </StyledLink>
+
+                        <StyledLink
+                          className="nav-link"
+                          exact
+                          to="/admin/get_phone_code"
+                        >
+                          Get Phone Code For Student
+                        </StyledLink>
+
+                        
                       </div>
                     </li>
 

@@ -41,6 +41,22 @@ export default {
         return timesEntered.toString();
       }
     ),
+    getPhoneCodeByRegNumber: combineResolvers(
+      isAuthenticated,
+      async (parent, { regNumber }, { fastConn }) => {
+        const regNumberToLower = regNumber.toLowerCase();
+        //find and return the code
+        const code = await fastConn.models.ConfirmPhoneNumber.findOne({
+          confirmStatus: false,
+          regNumber: regNumberToLower,
+        });
+        if (code) {
+          return code;
+        } else {
+          throw new Error("No code available for this reg number");
+        }
+      }
+    ),
   },
   Mutation: {
     phoneConfirmation: combineResolvers(

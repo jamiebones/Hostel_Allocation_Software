@@ -40,7 +40,7 @@ const SessionStyles = styled.div`
 
     .deleteDiv {
       display: flex;
-      padding-left: 10px;
+      padding: 5px;
     }
   }
 
@@ -54,7 +54,7 @@ const SessionStyles = styled.div`
 
   .div-marginUp {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
     height: 150px;
     background-color: gray;
@@ -411,9 +411,11 @@ export default (props) => {
 
   return (
     <SessionStyles>
-      <div className="col-md-12">
-        <div className="text-center">
-          <ErrorDisplay errors={errors} />
+      <div className="row">
+        <div className="col-md-12">
+          <div className="text-center">
+            <ErrorDisplay errors={errors} />
+          </div>
         </div>
       </div>
 
@@ -615,7 +617,7 @@ export default (props) => {
                 </div>
 
                 <div className="row">
-                  <div className="col-md-6 div-level">
+                  <div className="col-md-6">
                     {levelComponents.length > 0 &&
                       levelComponents.map(({ level }) => {
                         return (
@@ -626,7 +628,7 @@ export default (props) => {
                                 onChange={handleLevelValueChange}
                               />
                               <span
-                                className="delete"
+                                className="deleteDiv"
                                 onClick={() => handleLevelDelete(level)}
                               >
                                 <FaTrashAlt size="1.5em" color="red" />

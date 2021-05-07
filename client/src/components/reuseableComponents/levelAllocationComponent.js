@@ -3,31 +3,27 @@ import React, { useState } from "react";
 import styled from "styled-components";
 
 const ComponentStyles = styled.div`
-.faculty-container {
-  display: flex;
-  width: 45vw;
-  justify-content: space-around;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  
+  .faculty-container {
+    display: flex;
+    width: 40vw;
+    justify-content: space-between;
+    align-items: baseline;
+    border: 1px solid #717488;
+    padding: 5px;
+    margin-bottom: 10px;
+    .facultyName {
+      flex-basis: 30%;
+    }
 
-  .facultyName {
-      width: 20%;
-      flex: 2;
-      
-
+    .form-control-range {
+      display: inline-block;
+      flex-basis: 70%;
+    }
   }
-
-  .form-control-range {
-    display: inline-block;
-    width: 45%;
-    flex: 10;
-}
-
 `;
 
 const LevelAllocationComponent = ({ level, onChange, value }) => {
-  const [percent, setPercent] = useState(value ? value: 0);
+  const [percent, setPercent] = useState(value ? value : 0);
   const handleChange = (e) => {
     const value = e.target.value;
     setPercent(+value);
@@ -46,7 +42,7 @@ const LevelAllocationComponent = ({ level, onChange, value }) => {
           onChange={handleChange}
         />
 
-        <span className="value lead">{percent}</span>
+        <span className="value lead">{percent}%</span>
       </div>
     </ComponentStyles>
   );

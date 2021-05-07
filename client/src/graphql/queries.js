@@ -568,7 +568,21 @@ const SearchUserAccount = gql`
   }
 `;
 
+
+const GetPhoneCodeByRegNumber = gql`
+  query getPhoneCodeByRegNumber($regNumber: String!) {
+    getPhoneCodeByRegNumber(regNumber: $regNumber) {
+      randomCode
+      regNumber
+      timeSaved
+      phoneNumber
+    }
+  }
+`;
+
+
 export {
+  GetPhoneCodeByRegNumber,
   SearchUserAccount,
   GetAdminDashboardStats,
   GetSMSCreditAvailable,
