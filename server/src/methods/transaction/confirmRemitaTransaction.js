@@ -39,7 +39,7 @@ export default async function confirmTransaction(orderId, RRR, conn) {
     const { message, status } = response.data;
 
     console.log("response data", response.data);
-    debugger;
+    
     if (status === "01" || status === "00") {
       //we have a succesful transaction here
       if (transaction) {

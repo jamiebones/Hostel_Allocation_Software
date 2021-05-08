@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { useMutation, useLazyQuery, useQuery } from "@apollo/client";
 import { AllocateBedSpace } from "../graphql/mutation";
 import {
@@ -11,6 +11,10 @@ import {
 import Loading from "./common/loading";
 import ConfirmPhoneNumber from "./confirmPhoneNumber";
 import BedSpaceAllocationTableComponent from "./reuseableComponents/bedSpaceAllocationTableComponent";
+import { RiReservedFill } from "react-icons/ri";
+import { IoIosBed } from "react-icons/io";
+import { TiPrinter } from "react-icons/ti";
+import { AiOutlineTransaction } from "react-icons/ai";
 
 const DashBoardStyle = styled.div`
   .info-panel {
@@ -27,8 +31,25 @@ const DashBoardStyle = styled.div`
   }
   .list-group-item {
     padding: 1.75rem 1.25rem;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
   .list-group {
+    cursor: pointer;
+  }
+  .iconClass {
+    color: rgb(54 74 65);
+  }
+  .error-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #e41b1b;
+    color: #fff;
+    font-size: 24px;
   }
 `;
 
@@ -36,7 +57,6 @@ const DashBoard = (props) => {
   const { regNumber } = props.currentUser;
   const [student, setStudent] = useState("");
   const [bedSpace, setBedSpace] = useState("");
-  const [timer, setTimer] = useState(0);
   const [errors, setErrors] = useState(null);
   const [phoneConfirmed, setPhoneConfirmed] = useState(false);
 
@@ -50,6 +70,8 @@ const DashBoard = (props) => {
   const [getReserved, resultReserved] = useLazyQuery(GetReservedBedSpace);
 
   const [studentData, studentDataResult] = useLazyQuery(GetStudentData);
+
+  const history = useHistory();
 
   useEffect(() => {
     if (
@@ -75,6 +97,7 @@ const DashBoard = (props) => {
     if (studentDataResult.data) {
       //this is where we make our flutter wave payment request
       setStudent(studentDataResult.data.studentData);
+      setErrors(null);
     }
 
     if (studentData.error) {
@@ -85,6 +108,7 @@ const DashBoard = (props) => {
   useEffect(() => {
     if (result.data) {
       setBedSpace(result.data.allocateBedSpace);
+      setErrors(null);
     }
     if (result.error) {
       setErrors(result.error);
@@ -93,6 +117,7 @@ const DashBoard = (props) => {
 
   useEffect(() => {
     if (resultReserved.data) {
+      setErrors(null);
       setBedSpace(resultReserved.data.getbedSpaceReserved);
     }
     if (resultReserved.error) {
@@ -145,68 +170,69 @@ const DashBoard = (props) => {
         {phoneConfirmed ? (
           <React.Fragment>
             <div className="row">
-              <div className="col-md-5">
+              <div className="col-md-3">
                 <div className="info-panel">
                   <p className="lead text-left">
                     Hello , {regNumber && regNumber.toUpperCase()}
-                    
                   </p>
 
                   <p>
-                    You can bid for a hostel space by clicking the Bid for hostel space button.
-                    If successful payment will be via the Remita platform. Please confirm your transaction 
-                    before making a subsequent failed payment transaction.
-
+                    You can bid for a hostel space by clicking the Bid for
+                    hostel space button. If successful payment will be via the
+                    Remita platform. Please confirm your transaction before
+                    making a subsequent failed payment transaction.
                   </p>
                 </div>
 
                 <div>
                   <ul className="list-group">
-                    <li className="list-group-item">
-                      <button
-                        className="btn btn-primary"
-                        onClick={handleHostelSpaceBid}
-                      >
-                        Bid for hostel space
-                      </button>
+                    <li
+                      className="list-group-item"
+                      onClick={handleHostelSpaceBid}
+                    >
+                      <IoIosBed size="6.5rem" className="iconClass" />
+                      Bid for hostel space
                     </li>
-                    <li className="list-group-item">
-                      <button
-                        className="btn btn-primary"
-                        onClick={fetchReserveBedSpace}
-                      >
-                        View reserve bed space
-                      </button>
+                    <li
+                      className="list-group-item"
+                      onClick={fetchReserveBedSpace}
+                    >
+                      <RiReservedFill size="6.5rem" className="iconClass" />
+                      View reserve bed space
                     </li>
-                    <li className="list-group-item">
-                      <Link
-                        className="btn btn-primary"
-                        to={{
-                          pathname: "/student_transactions",
-
-                          state: {
-                            regNumber: regNumber,
-                          },
-                        }}
-                      >
-                        {" "}
-                        Confirm Transactions
-                      </Link>
+                    <li
+                      className="list-group-item"
+                      onClick={() =>
+                        history.push("/student_transactions", {
+                          regNumber: regNumber,
+                        })
+                      }
+                    >
+                      <AiOutlineTransaction
+                        size="6.5rem"
+                        className="iconClass"
+                      />
+                      Confirm Transactions
                     </li>
 
-                    <li className="list-group-item">
-                      <Link
+                    <li
+                      className="list-group-item"
+                      onClick={() => history.push("/print_allocation_session")}
+                    >
+                      <TiPrinter size="6.5rem" className="iconClass" />
+                      Print hostel allocation
+                      {/* <Link
                         to="/print_allocation_session"
                         className="btn btn-primary"
                       >
                         Print hostel allocation
-                      </Link>
+                      </Link> */}
                     </li>
                   </ul>
                 </div>
               </div>
 
-              <div className="col-md-5 offset-md-1">
+              <div className="col-md-5 offset-md-2">
                 {result.loading && (
                   <p className="lead">finding bed space.......</p>
                 )}
@@ -215,7 +241,11 @@ const DashBoard = (props) => {
                   <p className="lead">checking bed space.......</p>
                 )}
 
-                {errors && <p className="lead text-danger text-center">{errors.message}</p>}
+                {errors && (
+                  <div className="error-message">
+                    <p className="text">{errors.message}</p>
+                  </div>
+                )}
 
                 <BedSpaceAllocationTableComponent
                   {...props}

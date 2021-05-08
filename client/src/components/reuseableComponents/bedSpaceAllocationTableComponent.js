@@ -39,7 +39,7 @@ const BedSpaceAllocationTableComponent = ({ history, bedSpace, regNumber }) => {
     SimulateRemitaTransaction
   );
   useEffect(() => {
-    debugger
+    
     if (initPaymentResult.error) {
       setErrors(initPaymentResult.error);
     }

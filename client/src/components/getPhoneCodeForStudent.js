@@ -10,7 +10,7 @@ const CodeStylesRetrieval = styled.div`
     padding: 20px;
     margin-top: 80px;
     font-size: 20px;
-  }
+    border-left: 10px solid #ab0ca6;
 `;
 
 const GetPhoneCodeForStudent = () => {
