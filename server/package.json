@@ -8,7 +8,6 @@
     "clean": "rm -rf ./dist && mkdir dist",
     "dev-server": "nodemon --exec babel-node src/index.js",
     "dev": "nodemon --exec babel-node --inspect=0.0.0.0 src/index.js"
-
   },
   "keywords": [],
   "author": "",
@@ -31,6 +30,7 @@
     "graphql-redis-subscriptions": "^2.2.2",
     "graphql-resolvers": "^0.4.2",
     "graphql-subscriptions": "^1.1.0",
+    "helmet": "^4.6.0",
     "jsonwebtoken": "^8.5.1",
     "jusibe": "^1.0.3",
     "lodash": "^4.17.20",

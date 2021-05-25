@@ -1,4 +1,6 @@
 export default {
+  refreshSecret:
+    "jhhfy7ryherhrudvbbdvdggddhydygsgtsrtt7726gdhjcizbzfgzrfzfzvbdjdjdidiDDDrdaradDDDDDDDftgsysyyyygvgwtt6363788289292020dgdggfgfddzffrrrqrqtqqyykfkfkfkfkfkkfkffkfkkfkffkdggdgdggdgdgfzffzfzfzfzftsttststststf",
   secret:
     "fhfyyfyrr8888484hfnnfnfjfkkkdkddjdjuidieieejejjejh444+++++%%%%%%^^^GGGGHHHHHHsfdfdfdfdf434343434343434dbdghgggdgdteteeeyyeyeyeyeyeggddbddgdghhwwuwuwuwuwuwuuwsszzwzezdfzfzgzhzhzzjdhhyeyey77y4h4hg4g4g4g4g4fgfcdwzwsx",
 };

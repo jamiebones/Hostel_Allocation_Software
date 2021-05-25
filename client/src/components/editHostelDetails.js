@@ -83,7 +83,7 @@ const EditHostelDetails = () => {
           )}
 
           {hostels.length > 0 ? (
-            <div>
+            <div className="table-responsive">
               {/* /we loop here */}
 
               <table className="table table-striped">

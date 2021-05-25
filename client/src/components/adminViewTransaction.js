@@ -179,6 +179,7 @@ const AdminViewTransaction = () => {
                   Export To Excel
                 </button>
               </div>
+              <div className="table-responsive">
               <table className="table table-striped table-bordered">
                 <thead className="bgvi">
                   <tr>
@@ -323,6 +324,7 @@ const AdminViewTransaction = () => {
                   )}
                 </tbody>
               </table>
+              </div>
             </React.Fragment>
           )}
         </div>

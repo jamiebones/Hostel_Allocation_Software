@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
 import { useHistory } from "react-router-dom";
@@ -58,8 +58,7 @@ const Navbar = ({ authenticated, currentUser }) => {
 
   let history = useHistory();
 
-  useEffect(() => {}, [isAuth]);
-
+ 
   const handleLogOut = (e) => {
     e.preventDefault();
     setIsAuth(false);
@@ -73,7 +72,7 @@ const Navbar = ({ authenticated, currentUser }) => {
   return (
     <NavbarStyles>
       <header>
-        <nav className="navbar navbar-expand-sm bg-dark navbar-dark">
+        <nav className="navbar navbar-expand-lg bg-dark navbar-dark">
           <a className="navbar-brand" href="#">
             Hostel Allocation
           </a>
@@ -347,7 +346,7 @@ const Navbar = ({ authenticated, currentUser }) => {
                 <li className="nav-item">
                   <StyledLink
                     exact
-                    to="/"
+                    to="/logout"
                     onClick={handleLogOut}
                     className="nav-link"
                   >

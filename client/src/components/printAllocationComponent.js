@@ -170,6 +170,7 @@ const PrintAllocationComponent = ({ allocationData }) => {
       <div id="printDiv">
         <div className="row">
           <div className="col-sm-8 div_student_info">
+            
             <table className="table table-bordered table-sm">
               <thead>
                 <tr>
@@ -249,7 +250,7 @@ const PrintAllocationComponent = ({ allocationData }) => {
           <div className="col-sm-12">
             <div className="div-hostel">
               <p className="text-center lead"><b>Hostel Details</b></p>
-
+                
               <table className="table table-bordered table-sm">
                 <thead></thead>
                 <tbody>

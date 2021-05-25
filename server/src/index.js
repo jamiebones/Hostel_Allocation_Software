@@ -16,6 +16,7 @@ import cron from "node-cron";
 import utils from "./utils";
 import fastConnection from "./connections/fast";
 import slowConnection from "./connections/slow";
+import helmet from "helmet";
 
 const morgan = require("morgan");
 
@@ -31,22 +32,25 @@ var whitelist = [
 ];
 var corsOptions = {
   credentials: true,
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: "*",
+  // origin: function (origin, callback) {
+  //   if (whitelist.indexOf(origin) !== -1 || !origin) {
+  //     callback(null, true);
+  //   } else {
+  //     callback(new Error("Not allowed by CORS"));
+  //   }
+  // },
+  exposedHeaders: ["Authorization"],
 };
 
 StartUp();
 
 async function StartUp() {
   const app = express();
-  if (process.env.NODE_ENV === "production") {
-    app.use(cors(corsOptions));
-  }
+  app.use(helmet());
+  //if (process.env.NODE_ENV === "production") {
+  //  app.use(cors(corsOptions));
+  //}
   const fastConn = await fastConnection();
   const slowConn = await slowConnection();
   cron.schedule("*/10 * * * *", async function () {
@@ -54,9 +58,9 @@ async function StartUp() {
     console.log("running a task every ten minute.");
   });
 
-  if (process.env.NODE_ENV === "production") {
-    app.use(morgan("combined", { stream: config.winston.stream }));
-  }
+  //if (process.env.NODE_ENV === "production") {
+  app.use(morgan("combined", { stream: config.winston.stream }));
+  //}
 
   const server = new ApolloServer({
     typeDefs: schema,
@@ -74,12 +78,18 @@ async function StartUp() {
       }
       console.log("this is an error", err);
       //send the email here about the error to the developer
-
+      //config.winston.error(`error from graphql-resolvers ${err} -}`);
       return err;
       //return new Error("There was an error");
     },
-    context: async ({ req, connection }) => {
-      const user = config.isAuth(req);
+    context: async ({ req, connection, res }) => {
+      const { refreshToken, user } = await config.isAuth(req, config);
+      
+      console.log("this is the refresh token", refreshToken);
+      if (refreshToken) {
+        res.setHeader("Authorization", refreshToken);
+      }
+
       //const { models } = slowConn;
       if (connection) {
         console.log("connection started here please");
@@ -119,14 +129,13 @@ async function StartUp() {
     err.status = err.status || "error";
 
     config.winston.error(
-      `${err.status || 500} - ${err.message} - ${req.originalUrl} - ${
-        req.method
-      } - ${req.ip}`
+      `${err.status} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`
     );
-    res.status(err.status || 500);
+    res.status(err.status);
+    next(err);
   });
 
-  server.applyMiddleware({ app, path: "/graphql" });
+  server.applyMiddleware({ app, cors: corsOptions, path: "/graphql" });
 
   const httpServer = http.createServer(app);
   server.installSubscriptionHandlers(httpServer);

@@ -399,7 +399,7 @@ const BedStatsTotal = () => {
             </form>
 
             {student && (
-              <div>
+              <div className="table-responsive">
                 <table className="table table-borderless">
                   <thead>
                     <tr>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useQuery, useLazyQuery } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
 import { ContactUniuyoPortal } from "../graphql/queries";
 import styled from "styled-components";
 import { ExtractError } from "../modules/utils";
@@ -37,9 +37,13 @@ const HomeStyles = styled.div`
     padding: 1.5rem 1rem;
     font-size: 30px;
   }
-  .instruction{
-    font-size:1.22rem;
+  .instruction {
+    font-size: 1.22rem;
     padding: 50px;
+    text-align-last: center;
+    :first-letter {
+      font-size: 40px;
+    }
   }
 `;
 
@@ -66,11 +70,13 @@ const Home = ({ history, authenticated }) => {
     setErrors([]);
     e.preventDefault();
     try {
-      getStudentData({
-        variables: {
-          regNumber: regNumber,
-        },
-      });
+      if (regNumber) {
+        getStudentData({
+          variables: {
+            regNumber: regNumber,
+          },
+        });
+      }
     } catch (error) {}
   };
 
@@ -84,16 +90,19 @@ const Home = ({ history, authenticated }) => {
       <div className="row">
         <div className="col-sm-6 col-md-5 order-sm-12 offset-md-1 col-xs-12">
           <div className="noticeBoard">
-            <p className="lead"><b>Student Affairs Division</b></p>
+            <p className="lead">
+              <b>Student Affairs Division</b>
+            </p>
             <p className="instruction">
               This is a portal operated by the Student Affairs Division of
-              University of Uyo. This portal is used for hostel accomodation bids. Students can bid 
-              for accomodation via this portal. If successful, the bed space is placed on hold for a period
-              for a period of 24 hours after which if payment for the space is not effected, the space is recycled 
-              and offered to another student. Payment for hostel space is via the Remita platform and hostel bid 
-              are treated on a first come basics... 
+              University of Uyo. This portal is used for hostel accomodation
+              bids. Students can bid for accomodation via this portal. If
+              successful, the bed space is placed on hold for a period for a
+              period of 24 hours after which if payment for the space is not
+              effected, the space is recycled and offered to another student.
+              Payment for hostel space is via the Remita platform and hostel bid
+              are treated on a first come basics...
             </p>
-
           </div>
         </div>
 

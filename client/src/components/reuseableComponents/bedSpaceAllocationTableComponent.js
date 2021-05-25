@@ -104,7 +104,7 @@ const BedSpaceAllocationTableComponent = ({ history, bedSpace, regNumber }) => {
           {errors && <p className="lead text-danger">{errors.message}</p>}
         </div>
         {bedSpace && (
-          <div>
+          <div className="table-responsive">
             <table className="table table-borderless">
               <thead>
                 <tr>

@@ -44,8 +44,28 @@ export default async (userDetails, { conn, config }) => {
           accessLevel: student.accessLevel,
           active: student.active,
         },
-        config.secret
+        config.secret,
+        { expiresIn: "15m" }
       );
+
+      //create a refresh token for this fellow
+      const refreshToken = jwt.sign(
+        {
+          regNumber: student.regNumber,
+          id: student.id,
+          userType: student.userType,
+          name: student.name,
+          accessLevel: student.accessLevel,
+          active: student.active,
+        },
+        config.refreshSecret,
+        {
+          expiresIn: "7 days",
+        }
+      );
+
+      //save the refresh token in redisclient
+      await config.redisClient.setAsync(student.id, refreshToken);
 
       return {
         regNumber: regNumber,
@@ -61,6 +81,7 @@ export default async (userDetails, { conn, config }) => {
     //we have a staff member here
     if (emailAddress) {
       //find the account
+      //config.winston.info("this is a drill. " + emailAddress);
       const staff = await conn.models.User.findOne({ email: emailAddress });
       if (!staff) {
         return {
@@ -100,9 +121,27 @@ export default async (userDetails, { conn, config }) => {
           name: staff.name,
           active: staff.active,
         },
-        config.secret
+        config.secret,
+        { expiresIn: 15 }
       );
 
+      //create a refresh token for this fellow
+      const refreshToken = jwt.sign(
+        {
+          email: staff.email,
+          id: staff.id,
+          userType: staff.userType,
+          accessLevel: staff.accessLevel,
+          name: staff.name,
+          active: staff.active,
+        },
+        config.refreshSecret,
+        {
+          expiresIn: "7 days",
+        }
+      );
+
+      await config.redisClient.setAsync(staff.id, refreshToken);
       return {
         email: staff.email,
         id: staff.id,

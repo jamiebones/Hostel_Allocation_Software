@@ -29,6 +29,10 @@ if (process.env.NODE_ENV === "production") {
 const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
   if (graphQLErrors) {
     graphQLErrors.forEach(({ message, path }) => {
+      if (message.includes("logout")) {
+        store.clearAll();
+        window.location.reload();
+      }
       console.log(`[GraphQL Errors ] Message: ${message} Path: ${path}`);
     });
   }
@@ -42,11 +46,14 @@ const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
 
 const authLink = setContext((_, { headers, ...rest }) => {
   const token = store.get("authToken");
+  const userIdentity = store.get("userIdKey");
+
   const context = {
     ...rest,
     headers: {
       ...headers,
       authorization: token ? `Bearer ${token}` : "",
+      identity: userIdentity,
     },
   };
   return context;
@@ -67,9 +74,26 @@ const cleanTypeName = new ApolloLink((operation, forward) => {
   });
 });
 
+//create afterware to handle response object
+const afterwareLink = new ApolloLink((operation, forward) => {
+  return forward(operation).map((response) => {
+    const context = operation.getContext();
+    const authHeader = context.response.headers.get("Authorization");
+    if (authHeader) {
+      store.set("authToken", authHeader);
+    }
+    return response;
+  });
+});
+
 const client = new ApolloClient({
   cache,
-  link: ApolloLink.from([cleanTypeName, errorLink, authLink, httpLink]),
+  link: ApolloLink.from([
+    cleanTypeName,
+    errorLink,
+    authLink,
+    afterwareLink.concat(httpLink),
+  ]),
 });
 
 export default client;

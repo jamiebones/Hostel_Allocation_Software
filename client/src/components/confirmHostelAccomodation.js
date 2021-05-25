@@ -158,6 +158,7 @@ const ConfirmHostelAccomodation = () => {
           <ErrorDisplay errors={errors} />
 
           {allocation && (
+            <div className="table-responsive">
             <table className="table table-hover">
               <thead>
                 <tr>
@@ -177,6 +178,7 @@ const ConfirmHostelAccomodation = () => {
                 </tr>
               </tbody>
             </table>
+            </div>
           )}
         </div>
       </div>

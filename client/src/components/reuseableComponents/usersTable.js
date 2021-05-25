@@ -14,6 +14,7 @@ const UserTable = ({ users, activateUser, submitted }) => {
   };
   return (
     <UsersTableStyles>
+      <div className="table-responsive">
       <table className="table table-striped table-bordered">
         <thead>
           <tr>
@@ -71,6 +72,7 @@ const UserTable = ({ users, activateUser, submitted }) => {
           })}
         </tbody>
       </table>
+      </div>
     </UsersTableStyles>
   );
 };

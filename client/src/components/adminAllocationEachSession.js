@@ -81,6 +81,7 @@ const AdminAllocationEachSession = () => {
       <div className="row">
         <div className="col-md-12">
           {allocation.length > 0 && (
+            <div className="table-responsive">
             <table className="table table-bordered">
               <thead>
                 <tr>
@@ -150,6 +151,7 @@ const AdminAllocationEachSession = () => {
                 )}
               </tbody>
             </table>
+            </div>
           )}
 
           {allocation.length === "0" && <p>no data</p>}

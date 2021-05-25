@@ -104,7 +104,7 @@ const ActivateSession = ({ history }) => {
           ) : (
             <div>
               {session && session.length > 0 ? (
-                <div>
+                <div className="table-responsive">
                   {/* /we loop here */}
 
                   <table className="table table-striped">

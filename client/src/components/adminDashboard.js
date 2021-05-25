@@ -68,7 +68,7 @@ const AdminDashboard = () => {
 
     if (data) {
       setStats(data.getAdminDashBoardStats);
-      console.log(data.getAdminDashBoardStats);
+      setErrors(null);
     }
   }, [data, error]);
 

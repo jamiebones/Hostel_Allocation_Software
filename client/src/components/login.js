@@ -6,7 +6,6 @@ import state from "../applicationState";
 import { useRecoilState } from "recoil";
 import { useHistory } from "react-router-dom";
 
-
 import store from "store";
 
 const LoginStyle = styled.div``;
@@ -47,9 +46,11 @@ const Login = (props) => {
           token,
           name,
           accessLevel,
-          active
+          active,
         } = loginUserResult.data.loginUser;
+        console.log("login details: ", loginUserResult.data.loginUser);
         store.set("authToken", token);
+        store.set("userIdKey", id);
         store.set("isAuth", true);
         store.set("currentUser", {
           id,
@@ -123,7 +124,7 @@ const Login = (props) => {
             Students are required to login with their reg number and chosen
             password
           </p>
-       
+
           <form onSubmit={submitForm}>
             <div className="form-group">
               <label htmlFor="name">Reg Number</label>

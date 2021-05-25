@@ -33,6 +33,7 @@ const LoginUser = gql`
         accessLevel
         userType
         name
+        id
       }
       ... on Error {
         message

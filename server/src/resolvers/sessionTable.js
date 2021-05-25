@@ -1,4 +1,5 @@
 import { combineResolvers } from "graphql-resolvers";
+import { ForbiddenError } from "apollo-server";
 import {
   isAuthenticated,
   isAdmin,
@@ -16,6 +17,7 @@ export default {
       return sessionData;
     },
     allSessions: async (parent, {}, { fastConn, slowConn }) => {
+      //throw new ForbiddenError("you normal so..");
       const session = await fastConn.models.SessionTable.find().sort({
         session: -1,
       });
