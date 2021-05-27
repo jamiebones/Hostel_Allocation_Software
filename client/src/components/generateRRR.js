@@ -10,9 +10,9 @@ const GenerateRRRPayment = (props) => {
     
   }
   return (
-    <div className="row">
-      <div className="col-md-8 offset-md-2">
-        <p className="text-center lead font-weight-bold">Transaction Details</p>
+    <div className="row justify-content-center">
+      <div className="col-md-8">
+        <h2 className="text-center font-weight-bold">Transaction Details</h2>
         {state && (
           <RemitaTransactionComponent
             {...props}

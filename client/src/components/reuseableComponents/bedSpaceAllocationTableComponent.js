@@ -8,7 +8,8 @@ import { useMutation } from "@apollo/client";
 //import ErrorDisplay from "./common/errorDisplay";
 import { ExtractError, CapFirstLetterOfEachWord } from "../../modules/utils";
 //import Loading from "./common/loading";
-
+import { GiPersonInBed } from "react-icons/gi";
+import { GiStopSign } from "react-icons/gi";
 const BedSpaceStyles = styled.div`
   .resultBoard {
     display: flex;
@@ -30,6 +31,34 @@ const BedSpaceStyles = styled.div`
     font-size: 20px;
     font-weight: 300;
   }
+
+  .reserve-bed {
+    margin-top: 20px;
+    border: 1px solid green;
+    padding: 20px;
+    border-top: 10px solid rgb(54 74 65);
+  }
+  .reserve-details {
+    background-color: #f3f2ed;
+    margin: 20px;
+    padding: 20px;
+  }
+  .iconClass {
+    color: rgb(54 74 65);
+  }
+  .details-head {
+    color: #0a7d1e;
+    font-size: 1.5rems;
+  }
+  .iconClassRed {
+    color: red;
+  }
+  .congrats {
+    padding: 40px;
+  }
+  hr{
+    border-top: 3px solid rgba(0,0,0,.1);
+  }
 `;
 
 const BedSpaceAllocationTableComponent = ({ history, bedSpace, regNumber }) => {
@@ -39,7 +68,6 @@ const BedSpaceAllocationTableComponent = ({ history, bedSpace, regNumber }) => {
     SimulateRemitaTransaction
   );
   useEffect(() => {
-    
     if (initPaymentResult.error) {
       setErrors(initPaymentResult.error);
     }
@@ -101,105 +129,104 @@ const BedSpaceAllocationTableComponent = ({ history, bedSpace, regNumber }) => {
     <BedSpaceStyles>
       <div className="resultBoard">
         <div className="text-center">
-          {errors && <p className="lead text-danger">{errors.message}</p>}
+          {errors && (
+            <div className="error-div">
+              <GiStopSign size="1.5rem" className="iconClassRed" />{" "}
+              <p className="lead text-danger">{errors.message}</p>
+            </div>
+          )}
         </div>
+
         {bedSpace && (
-          <div className="table-responsive">
-            <table className="table table-borderless">
-              <thead>
-                <tr>
-                  <th scope="col" colSpan="2" className="text-center">
-                    <p className="lead">Reserve Room Details</p>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <p>Hostel/Hall</p>
-                  </td>
-                  <td>
-                    <p>{CapFirstLetterOfEachWord(bedSpace.hallName)}</p>
-                  </td>
-                </tr>
+          <React.Fragment>
+            <div className="text-center">
+              <GiPersonInBed size="4.5rem" className="iconClass" />
+            </div>
+            <div className="reserve-bed">
+              <div className="congrats">
+                <p>
+                  Congratulations! Your bid was successful. You can proceed to
+                  make payment via the Remita Platform. Click the button below
+                  to generate your RRR code. This bed space is reserved only for
+                  24 hours.
+                </p>
+                <hr />
+              </div>
 
-                <tr>
-                  <td>
-                    <p>Location</p>
-                  </td>
-                  <td>
-                    <p>{CapFirstLetterOfEachWord(bedSpace.location)}</p>
-                  </td>
-                </tr>
+              <div className="reserve-details">
+                <p className="text-center details-head">Reserve Room Details</p>
+                <p className="details-para">
+                  Hostel/Hall
+                  <span className="float-right details-span">
+                    {CapFirstLetterOfEachWord(bedSpace.hallName)}
+                  </span>
+                </p>
 
-                <tr>
-                  <td>
-                    <p>Room Type</p>
-                  </td>
-                  <td>
-                    <p>{CapFirstLetterOfEachWord(bedSpace.roomType)}</p>
-                  </td>
-                </tr>
+                <p className="details-para">
+                  Location
+                  <span className="float-right details-span">
+                    {CapFirstLetterOfEachWord(bedSpace.location)}
+                  </span>
+                </p>
 
-                <tr>
-                  <td>
-                    <p>Room Number</p>
-                  </td>
-                  <td>
-                    <p className="text-success">{bedSpace.roomNumber}</p>
-                  </td>
-                </tr>
+                <p className="details-para">
+                  Room Type
+                  <span className="float-right details-span">
+                    {CapFirstLetterOfEachWord(bedSpace.roomType)}
+                  </span>
+                </p>
 
-                <tr>
-                  <td>
-                    <p>Bed</p>
-                  </td>
-                  <td>
-                    <p className="text-success">
-                      <b>{bedSpace.bedNumber}</b>
-                    </p>
-                  </td>
-                </tr>
+                <p className="details-para">
+                  Room Number
+                  <span className="float-right details-span"></span>
+                </p>
 
-                <tr>
-                  <td>
-                    <p>Bed status</p>
-                  </td>
-                  <td>
-                    <p>{bedSpace.bedStatus}</p>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                <p className="details-para">
+                  Bed
+                  <span className="float-right details-span">
+                    {bedSpace.bedNumber}
+                  </span>
+                </p>
 
-            {bedSpace.bedStatus !== "occupied" && (
-              <React.Fragment>
-                <div className="text-center">
-                  <div
-                    className="btn-group"
-                    role="group"
-                    aria-label="Basic example"
-                  >
-                    <button
-                      type="button"
-                      className="btn btn-secondary btn-lg"
-                      onClick={handleRemitaPayment}
-                    >
-                      Make Payment
-                    </button>
+                <p className="details-para">
+                  Bed status
+                  <span className="float-right details-span">
+                    {bedSpace.bedStatus}
+                  </span>
+                </p>
+              </div>
 
-                    <button
-                      type="button"
-                      className="btn btn-danger btn-lg"
-                      onClick={handleSimulatedRemitaPayment}
-                    >
-                      Simulate Remita Payment
-                    </button>
-                  </div>
-                </div>
-              </React.Fragment>
-            )}
-          </div>
+              <div className="text-center">
+                {bedSpace.bedStatus !== "occupied" && (
+                  <React.Fragment>
+                    <div className="text-center">
+                      <div
+                        className="btn-group"
+                        role="group"
+                        aria-label="Basic example"
+                      >
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={handleRemitaPayment}
+                        >
+                          Make Payment
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn btn-danger"
+                          onClick={handleSimulatedRemitaPayment}
+                        >
+                          Simulate Remita Payment
+                        </button>
+                      </div>
+                    </div>
+                  </React.Fragment>
+                )}
+              </div>
+            </div>
+          </React.Fragment>
         )}
       </div>
     </BedSpaceStyles>

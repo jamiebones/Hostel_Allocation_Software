@@ -48,7 +48,7 @@ const Login = (props) => {
           accessLevel,
           active,
         } = loginUserResult.data.loginUser;
-        console.log("login details: ", loginUserResult.data.loginUser);
+
         store.set("authToken", token);
         store.set("userIdKey", id);
         store.set("isAuth", true);

@@ -15,6 +15,7 @@ import { RiReservedFill } from "react-icons/ri";
 import { IoIosBed } from "react-icons/io";
 import { TiPrinter } from "react-icons/ti";
 import { AiOutlineTransaction } from "react-icons/ai";
+import { GiStopSign } from "react-icons/gi";
 
 const DashBoardStyle = styled.div`
   .info-panel {
@@ -47,9 +48,20 @@ const DashBoardStyle = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #e41b1b;
-    color: #fff;
+    background-color: #dedbdb;
+    color: red;
     font-size: 24px;
+    padding: 20px;
+    width:max-content;
+    
+  }
+  .welcome {
+    text-align-last: center;
+  }
+  .iconClassRed {
+    color: red;
+    align-self: center;
+    margin-right: 30px;
   }
 `;
 
@@ -112,6 +124,7 @@ const DashBoard = (props) => {
     }
     if (result.error) {
       setErrors(result.error);
+      setBedSpace("");
     }
   }, [result.data, result.error]);
 
@@ -176,7 +189,7 @@ const DashBoard = (props) => {
                     Hello , {regNumber && regNumber.toUpperCase()}
                   </p>
 
-                  <p>
+                  <p className="welcome">
                     You can bid for a hostel space by clicking the Bid for
                     hostel space button. If successful payment will be via the
                     Remita platform. Please confirm your transaction before
@@ -232,7 +245,9 @@ const DashBoard = (props) => {
                 </div>
               </div>
 
-              <div className="col-md-5 offset-md-2">
+              <div className="col-lg-1 col-sm-1 col-md-1"></div>
+
+              <div className="col-lg-6 col-sm-6 col-md-6 offset-md-1">
                 {result.loading && (
                   <p className="lead">finding bed space.......</p>
                 )}
@@ -243,7 +258,11 @@ const DashBoard = (props) => {
 
                 {errors && (
                   <div className="error-message">
-                    <p className="text">{errors.message}</p>
+                    <p>
+                      <GiStopSign size="2.5rem" className="iconClassRed" />
+                    </p>
+
+                    <p className="lead text-danger">{errors.message}</p>
                   </div>
                 )}
 

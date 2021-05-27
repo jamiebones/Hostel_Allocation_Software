@@ -45,7 +45,7 @@ export default async (userDetails, { conn, config }) => {
           active: student.active,
         },
         config.secret,
-        { expiresIn: "15m" }
+        { expiresIn: "1h" }
       );
 
       //create a refresh token for this fellow
@@ -122,7 +122,7 @@ export default async (userDetails, { conn, config }) => {
           active: staff.active,
         },
         config.secret,
-        { expiresIn: 15 }
+        { expiresIn: "1h" }
       );
 
       //create a refresh token for this fellow
