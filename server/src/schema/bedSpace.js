@@ -9,10 +9,8 @@ export default gql`
     getbedSpaceReserved(regNumber: String!): BedSpace
     getLockedBedSpace: [LockedBedSpace]
     getBedStatistic: TotalBedsAndLockedBedStats
+    getStatsByHall: [TotalBedCountStatistic]
   }
-
-
-
 
   extend type Mutation {
     lockAllBedSpace: Boolean!
@@ -89,4 +87,29 @@ export default gql`
     reservedSpace: String!
   }
 
+  type HallBedStatus {
+    status: String!
+    hallName: String!
+  }
+
+  type TotalBedCountStatistic {
+    _id: HallBedStatus!
+    count: String!
+  }
 `;
+
+// db.bedspaces.aggregate([
+//   {
+//     $match: {
+//       $or: [
+//         { bedStatus: "onhold" },
+//         { bedStatus: "vacant" },
+//         { bedStatus: "occupied" },
+//         {bedStatus: "locked"}
+//       ],
+//     },
+//   },
+
+//   { $group: { _id:{status: "$bedStatus", hallName: "$hallName"}, count: { $sum: 1 } } },
+//   {$sort: {"_id.hallName": 1}}
+// ]);

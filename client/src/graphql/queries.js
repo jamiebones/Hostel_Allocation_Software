@@ -581,8 +581,21 @@ const GetPhoneCodeByRegNumber = gql`
   }
 `;
 
+const GetStatsByHall = gql`
+  query getStatsByHall {
+    getStatsByHall {
+      _id{
+        status
+        hallName
+      }
+      count
+    }
+  }
+`;
+
 
 export {
+  GetStatsByHall,
   GetPhoneCodeByRegNumber,
   SearchUserAccount,
   GetAdminDashboardStats,

@@ -29,16 +29,16 @@ export default async function makeTransaction(regNumber, conn) {
       //save new transaction here
       const bedDetails = await getReservedBedDetails(bed.bedId, conn);
       //check if there is already a transaction
-      const transaction = await checkTransactionAlreadyWithRRR(
-        regNumber,
-        activeSession.session,
-        transactionSession,
-        conn
-      );
-      if (!_.isEmpty(transaction)) {
-        await transactionSession.commitTransaction();
-        return transaction;
-      }
+      //const transaction = await checkTransactionAlreadyWithRRR(
+      //  regNumber,
+      //  activeSession.session,
+      //  transactionSession,
+      //  conn
+      //);
+     // if (!_.isEmpty(transaction)) {
+      //  await transactionSession.commitTransaction();
+      //  return transaction;
+     // }
       const newTransaction = await saveNewTransaction(
         student,
         activeSession.session,

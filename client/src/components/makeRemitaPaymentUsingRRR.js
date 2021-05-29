@@ -23,6 +23,24 @@ const RemitaPaymentStyles = styled.div`
       float: right;
     }
   }
+  p {
+    font-size: 1.3rem;
+  }
+  .remita-panel {
+    margin-top: 20px;
+    border: 1px solid green;
+    padding: 20px;
+    border-top: 10px solid rgb(54 74 65);
+  }
+  .remita-logo {
+    display: flex;
+    justify-content: center;
+  }
+  .payment-details {
+    background-color: #f3f2ed;
+    margin: 20px;
+    padding: 20px;
+  }
 `;
 
 const MakeRemitaPaymentUsingRRR = ({ history, location }) => {
@@ -70,40 +88,48 @@ const MakeRemitaPaymentUsingRRR = ({ history, location }) => {
 
   return (
     <RemitaPaymentStyles>
-      <div className="row">
-        <div className="col-md-6 offset-md-3 mt-5">
-          <div className="div-panelPayment">
-            <form action={gateway} method="POST">
-              <p>
-                Reg number:{" "}
-                <span className="font-weight-bold">
-                  {regNumber.toUpperCase()}
-                </span>
-              </p>
-              <p>
-                Amount :{" "}
-                <span className="font-weight-bold">&#8358;{amount}</span>{" "}
-              </p>
-              <p>
-                RRR : <span className="font-weight-bold">{rrr}</span>
-              </p>
-              <p className="text-center">
-                <button
-                  type="submit"
-                  disabled={submitted}
-                  className="btn btn-success"
-                >
-                  {submitted ? "redirecting to remita site" : "Pay Via Remita"}
-                </button>
-              </p>
-              <p className="mt-3">
-                <img src={remitaLogo} className="img img-fluid" />
-              </p>
-              <input name="responseurl" value={returnUrl} type="hidden" />
-              <input name="rrr" value={rrr} type="hidden" />
-              <input name="hash" value={hash} type="hidden" />
-              <input name="merchantId" value={merchantId} type="hidden" />
-            </form>
+      <div className="row justify-content-center">
+        <div className="col-6">
+          <div className="remita-panel">
+            <div className="payment-details">
+              <form action={gateway} method="POST">
+                <p>
+                  Reg number:{" "}
+                  <span className="font-weight-bold float-right">
+                    {regNumber.toUpperCase()}
+                  </span>
+                </p>
+                <p>
+                  Amount :{" "}
+                  <span className="font-weight-bold float-right">
+                    &#8358;{amount}
+                  </span>{" "}
+                </p>
+                <p>
+                  RRR :{" "}
+                  <span className="font-weight-bold float-right">{rrr}</span>
+                </p>
+                <p className="text-center">
+                  <button
+                    type="submit"
+                    disabled={submitted}
+                    className="btn btn-success"
+                  >
+                    {submitted
+                      ? "redirecting to remita site"
+                      : "Pay Via Remita"}
+                  </button>
+                </p>
+
+                <input name="responseurl" value={returnUrl} type="hidden" />
+                <input name="rrr" value={rrr} type="hidden" />
+                <input name="hash" value={hash} type="hidden" />
+                <input name="merchantId" value={merchantId} type="hidden" />
+              </form>
+            </div>
+            <div className="remita-logo">
+              <img src={remitaLogo} className="img img-fluid" />
+            </div>
           </div>
         </div>
       </div>

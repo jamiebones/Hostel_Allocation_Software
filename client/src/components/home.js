@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useLazyQuery } from "@apollo/client";
-import { ContactUniuyoPortal } from "../graphql/queries";
+import { ContactUniuyoPortal, GetStatsByHall } from "../graphql/queries";
 import styled from "styled-components";
-import { ExtractError } from "../modules/utils";
+import { ExtractError, SortAndMergeAsObjectBedStats } from "../modules/utils";
 import ErrorDisplay from "./common/errorDisplay";
+import HallSpaceStatsComponent from "./reuseableComponents/hallSpaceStats";
 import Loading from "./common/loading";
 
 const HomeStyles = styled.div`
@@ -52,6 +53,30 @@ const Home = ({ history, authenticated }) => {
   const [student, setStudentData] = useState("");
   const [errors, setErrors] = useState([]);
   const [getStudentData, result] = useLazyQuery(ContactUniuyoPortal);
+  const [hallStats, setStats] = useState([]);
+  const [statsQuery, statsResult] = useLazyQuery(GetStatsByHall);
+
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [statsError, setStatsError] = useState(null);
+
+  useEffect(() => {
+    setStatsLoading(true);
+    statsQuery();
+  }, []);
+
+  useEffect(() => {
+    if (statsResult.error) {
+      setStatsLoading(false);
+      setStatsError(statsResult.error.message);
+    }
+
+    if (statsResult.data) {
+      const statsData = statsResult.data.getStatsByHall;
+      console.log(SortAndMergeAsObjectBedStats(statsData));
+      setStatsLoading(false);
+      setStats(SortAndMergeAsObjectBedStats(statsData));
+    }
+  }, [statsResult.error, statsResult.data]);
 
   useEffect(() => {
     if (result.data) {
@@ -88,25 +113,10 @@ const Home = ({ history, authenticated }) => {
   return (
     <HomeStyles>
       <div className="row">
-        <div className="col-sm-6 col-md-5 order-sm-12 offset-md-1 col-xs-12">
-          <div className="noticeBoard">
-            <p className="lead">
-              <b>Student Affairs Division</b>
-            </p>
-            <p className="instruction">
-              This is a portal operated by the Student Affairs Division of
-              University of Uyo. This portal is used for hostel accomodation
-              bids. Students can bid for accomodation via this portal. If
-              successful, the bed space is placed on hold for a period for a
-              period of 24 hours after which if payment for the space is not
-              effected, the space is recycled and offered to another student.
-              Payment for hostel space is via the Remita platform and hostel bid
-              are treated on a first come basics...
-            </p>
-          </div>
-        </div>
-
-        <div className=" col-sm-6 order-sm-1 col-md-4 offset-md-2 col-xs-12">
+        <div
+          className="col-lg-5 offset-lg-1 order-lg-first 
+        col-sm-12 order-sm-first"
+        >
           <div className="regDiv">
             <ErrorDisplay errors={errors} />
 
@@ -127,7 +137,7 @@ const Home = ({ history, authenticated }) => {
                     className="form-control form-control-lg"
                     placeholder="enter registeration number"
                   />
-                  <div className="butDiv">
+                  <div className="butDiv mb-4">
                     <button
                       className="btn btn-primary btn-lg regButton"
                       type="submit"
@@ -139,6 +149,12 @@ const Home = ({ history, authenticated }) => {
               </React.Fragment>
             )}
           </div>
+        </div>
+        <div
+          className="col-lg-5 offset-lg-1 order-lg-last 
+        col-sm-12 order-sm-last"
+        >
+          <HallSpaceStatsComponent stats={hallStats} />
         </div>
       </div>
     </HomeStyles>

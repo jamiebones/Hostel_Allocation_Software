@@ -12,6 +12,29 @@ import pubsub, { EVENTS } from "../subscription";
 
 export default {
   Query: {
+    getStatsByHall: async (parent, {}, { slowConn }) => {
+      const hostelStats = await slowConn.models.BedSpace.aggregate([
+        {
+          $match: {
+            $or: [
+              { bedStatus: "onhold" },
+              { bedStatus: "vacant" },
+              { bedStatus: "occupied" },
+              { bedStatus: "locked" },
+            ],
+          },
+        },
+
+        {
+          $group: {
+            _id: { status: "$bedStatus", hallName: "$hallName" },
+            count: { $sum: 1 },
+          },
+        },
+      ]).allowDiskUse(true);
+      const stats = hostelStats.sort((d1, d2) => d1._id.hallName - d2._id.hallName);
+      return stats;
+    },
     getAllBeds: combineResolvers(
       isAuthenticated,
       isAdmin,

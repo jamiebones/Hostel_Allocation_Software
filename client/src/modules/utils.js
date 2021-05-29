@@ -167,7 +167,55 @@ const ISAuthorizedToView = (currentUser, accessArray = []) => {
   return false;
 };
 
+const _compareHallNameSort = (a, b) => {
+  if (a._id.hallName < b._id.hallName) {
+    return -1;
+  }
+  if (a._id.hallName < b._id.hallName) {
+    return 1;
+  }
+  return 0;
+};
+
+const SortAndMergeAsObjectBedStats = (stats = []) => {
+  //sort the stats
+  const statsCopy = [...stats];
+
+  const sortedArray = statsCopy.sort(_compareHallNameSort);
+  //merge each hall into an object
+  let array = [];
+  let group = {};
+  let startKey = false;
+  
+  for (let i = 0; i < sortedArray.length; i++) {
+    const {
+      _id: { status, hallName },
+      count,
+    } = sortedArray[i];
+
+    if (group["hall"] === hallName) {
+      group[status] = count;
+    } else if (startKey) {
+      //we dey the end here
+      array.push(group);
+      group = {};
+      group["hall"] = hallName;
+      group[status] = count;
+      if (i === sortedArray.length - 1) {
+        array.push(group);
+      }
+    } else {
+      startKey = true;
+      group["hall"] = hallName;
+      group[status] = count;
+    }
+  }
+
+  return array;
+};
+
 export {
+  SortAndMergeAsObjectBedStats,
   CapFirstLetterOfEachWord,
   ExtractError,
   RemoveSlash,
