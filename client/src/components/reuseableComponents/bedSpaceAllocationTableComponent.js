@@ -178,7 +178,7 @@ const BedSpaceAllocationTableComponent = ({ history, bedSpace, regNumber }) => {
 
                 <p className="details-para">
                   Room Number
-                  <span className="float-right details-span"></span>
+                  <span className="float-right details-span">{bedSpace.roomNumber}</span>
                 </p>
 
                 <p className="details-para">

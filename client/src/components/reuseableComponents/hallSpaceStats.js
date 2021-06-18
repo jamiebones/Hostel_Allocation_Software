@@ -47,16 +47,7 @@ const HallSpaceStats = ({ stats }) => {
   return (
     <HallSpaceStatsStyles>
       <div className="hostel-container">
-        <p className="instruction">
-          This is a portal operated by the Student Affairs Division of
-          University of Uyo. This portal is used for hostel accomodation bids.
-          Students can bid for accomodation via this portal. If successful, the
-          bed space is placed on hold for a period for a period of 24 hours
-          after which if payment for the space is not effected, the space is
-          recycled and offered to another student. Payment for hostel space is
-          via the Remita platform and hostel bid are treated on a first come
-          basics...
-        </p>
+     
 
         <h3 className="text-center">Available Hostel Spaces</h3>
         {stats.length &&

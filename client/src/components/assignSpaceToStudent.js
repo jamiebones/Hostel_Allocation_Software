@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useQuery, useLazyQuery, useMutation } from "@apollo/client";
 import Loading from "./common/loading";
-import ErrorDisplay from "./common/errorDisplay";
 import { GetLockedBedSpace, GetStudentData } from "../graphql/queries";
 import {
   PlaceStudentInHoldBedSpace,
   DashStudentFreeRoom,
 } from "../graphql/mutation";
 
-import { ExtractError, CapFirstLetterOfEachWord } from "../modules/utils";
+import { CapFirstLetterOfEachWord } from "../modules/utils";
 import styled from "styled-components";
 import {
   Accordion,
@@ -27,6 +26,7 @@ const BedStatsTotalStyles = styled.div`
     position: absolute;
     top: -10px;
     right: 10px;
+    cursor: pointer;
   }
   .bed-display {
     display: flex;
@@ -35,7 +35,6 @@ const BedStatsTotalStyles = styled.div`
   .color {
     width: 30px;
     height: 30px;
-
     display: inline-block;
   }
 
@@ -74,11 +73,15 @@ const BedStatsTotalStyles = styled.div`
     position: absolute;
     top: 2%;
     right: 2px;
+    cursor: pointer;
+  }
+  .btn-round{
+    border-radius: 40px;
   }
 `;
 
 const BedStatsTotal = () => {
-  const [errors, setErrors] = useState([]);
+  const [errors, setErrors] = useState(null);
   const [loadingData, setLoading] = useState(true);
   const [dataArray, setData] = useState([]);
   const [openModalTwo, setOpenModalTwo] = useState(false);
@@ -91,58 +94,60 @@ const BedStatsTotal = () => {
 
   const { loading, error, data } = useQuery(GetLockedBedSpace);
 
-  const [getStudentDataQuery, getStudentDataResult] = useLazyQuery(
-    GetStudentData
-  );
+  const [getStudentDataQuery, getStudentDataResult] =
+    useLazyQuery(GetStudentData);
 
   const [giveRoomToStudentMutation, giveRoomToStudentResult] = useMutation(
     PlaceStudentInHoldBedSpace
   );
 
-  const [
-    giveFreeRoomToStudentMutation,
-    giveFreeRoomToStudentResult,
-  ] = useMutation(DashStudentFreeRoom);
+  const [giveFreeRoomToStudentMutation, giveFreeRoomToStudentResult] =
+    useMutation(DashStudentFreeRoom);
 
   useEffect(() => {
     if (giveFreeRoomToStudentResult.error) {
-      setErrors(ExtractError(giveFreeRoomToStudentResult.error));
-      setSubmitted(!submitted);
+      setErrors(giveFreeRoomToStudentResult.error.message);
+      setSubmitted(false);
     }
 
     if (giveFreeRoomToStudentResult.data) {
       alert("The action was successful");
       //close the modal here
-      setSubmitted(!submitted);
+      setSubmitted(false);
       setOpenModalTwo(false);
       setSelectedBed(null);
       setStudent(null);
+      setErrors(null);
     }
   }, [giveFreeRoomToStudentResult.error, giveFreeRoomToStudentResult.data]);
 
   useEffect(() => {
     if (giveRoomToStudentResult.error) {
-      setErrors(ExtractError(giveRoomToStudentResult.error));
-      setSubmitted(!submitted);
+      setErrors(giveRoomToStudentResult.error.message);
+      setSubmitted(false);
     }
 
     if (giveRoomToStudentResult.data) {
       alert("The action was successful");
       //close the modal here
-      setSubmitted(!submitted);
+      setSubmitted(false);
       setOpenModalTwo(false);
       setSelectedBed(null);
       setStudent(null);
+      setErrors(null);
     }
   }, [giveRoomToStudentResult.error, giveRoomToStudentResult.data]);
 
   useEffect(() => {
     if (getStudentDataResult.error) {
-      setErrors(ExtractError(getStudentDataResult.error));
+      setErrors(getStudentDataResult.error.message);
+      setSubmitted(false);
     }
 
     if (getStudentDataResult.data) {
       setStudent(getStudentDataResult.data.studentData);
+      setSubmitted(false);
+      setErrors(null);
     }
   }, [getStudentDataResult.error, getStudentDataResult.data]);
 
@@ -154,8 +159,9 @@ const BedStatsTotal = () => {
       bottom: "auto",
       marginRight: "-50%",
       transform: "translate(-50%, -50%)",
-      width: "900px",
-      height: "800px",
+      width: "100%",
+      height: "100%",
+      backgroundColor: "#f0ffff",
     },
   };
 
@@ -163,13 +169,14 @@ const BedStatsTotal = () => {
     if (data) {
       setData(data.getLockedBedSpace);
       setLoading(!loadingData);
-      setSubmitted(!submitted);
+      setSubmitted(false);
+      setErrors(null);
     }
 
     if (error) {
-      setErrors(ExtractError(error));
+      setErrors(error.message);
       setLoading(!loadingData);
-      setSubmitted(!submitted);
+      setSubmitted(false);
     }
   }, [error, data]);
 
@@ -189,10 +196,10 @@ const BedStatsTotal = () => {
     setOpenModalTwo(true);
   };
 
-  const handleGetStudentData = async (e) => {
+  const handleGetStudentData = (e) => {
     e.preventDefault();
-    setSubmitted(!submitted);
-    await getStudentDataQuery({
+    setSubmitted(true);
+    getStudentDataQuery({
       variables: {
         regNumber: regNumber,
       },
@@ -225,7 +232,7 @@ const BedStatsTotal = () => {
         );
         return;
       }
-      setSubmitted(!submitted);
+      setSubmitted(true);
       await giveRoomToStudentMutation({
         variables: {
           bedId: selectedBed.bed.bedId,
@@ -264,7 +271,7 @@ const BedStatsTotal = () => {
         );
         return;
       }
-      setSubmitted(!submitted);
+      setSubmitted(true);
       await giveFreeRoomToStudentMutation({
         variables: {
           bedId: selectedBed.bed.bedId,
@@ -284,8 +291,8 @@ const BedStatsTotal = () => {
 
   if (loading) {
     return (
-      <div className="row">
-        <div className="col-md-6 offset-md-3">
+      <div className="row justify-content-center">
+        <div className="col-lg-6 col-md-6 col-sm-12">
           <Loading />
         </div>
       </div>
@@ -294,13 +301,15 @@ const BedStatsTotal = () => {
 
   return (
     <BedStatsTotalStyles>
-      <div className="row">
-        <div className="col-md-5 offset-md-3">
-          <ErrorDisplay errors={errors} />
+      <div className="row justify-content-center">
+        <div className="col-md-6 col-lg-6 col-sm-12">
+          <div className="text-center">
+            <p className="lead text-danger">{errors}</p>
+          </div>
         </div>
       </div>
-      <div className="row">
-        <div className="col-md-8 offset-md-2">
+      <div className="row justify-content-center">
+        <div className="col-md-8 col-sm-12 col-lg-8">
           {dataArray.length > 0 && (
             <p className="text-center lead">Assign room to student</p>
           )}
@@ -380,13 +389,15 @@ const BedStatsTotal = () => {
           shouldCloseOnOverlayClick={false}
         >
           <div style={{ marginTop: 50 + "px" }}>
-            <ErrorDisplay errors={errors} />
+            <div className="text-center">
+              <p className="lead text-danger">{errors}</p>
+            </div>
             <form onSubmit={handleGetStudentData}>
               <div className="input-group">
                 <input
                   type="text"
                   placeholder="enter student reg number"
-                  className="form-control"
+                  className="form-control input"
                   aria-label="student regnumber"
                   onChange={handleRegNumberChange}
                 />
@@ -519,7 +530,7 @@ const BedStatsTotal = () => {
                 <div className="text-center">
                   <div className="btn-group" style={{ margin: "60" + "px" }}>
                     <button
-                      className="btn btn-success"
+                      className="btn btn-success btn-lg btn-round"
                       disabled={submitted}
                       onClick={handleStudentRoomPlacement}
                     >
@@ -529,7 +540,7 @@ const BedStatsTotal = () => {
                     </button>
 
                     <button
-                      className="btn btn-danger"
+                      className="btn btn-danger btn-lg btn-round"
                       disabled={submitted}
                       onClick={handleFreeRoomToStudent}
                     >
@@ -546,7 +557,12 @@ const BedStatsTotal = () => {
           <p
             className="close-modal"
             onClick={handleModalTwoClose}
-            style={{ position: "absolute", top: "2" + "%", right: "2" + "px" }}
+            style={{
+              position: "absolute",
+              top: "2" + "%",
+              right: "2" + "px",
+              cursor: "pointer",
+            }}
           >
             <FaTimesCircle size="1.6rem" color="blue" />
           </p>

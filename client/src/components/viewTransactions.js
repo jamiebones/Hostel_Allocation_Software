@@ -6,7 +6,14 @@ import { useQuery } from "@apollo/client";
 import { StudentTransaction } from "../graphql/queries";
 import TransactionViewComponent from "./reuseableComponents/viewTransactionComponents";
 
-const ViewTransactionStyles = styled.div``;
+const ViewTransactionStyles = styled.div`
+  .no-transaction {
+    border: 1px solid green;
+    padding: 40px;
+    border-top: 10px solid rgb(54 74 65);
+    margin-top: 20px;
+  }
+`;
 
 const ViewTransaction = (props) => {
   const [transaction, setTransaction] = useState([]);
@@ -56,7 +63,7 @@ const ViewTransaction = (props) => {
 
           <ErrorDisplay errors={errors} />
 
-          {transaction.length && (
+          {transaction.length > 0 && (
             <TransactionViewComponent
               transactionDetails={transaction}
               history={props.history}
@@ -65,7 +72,15 @@ const ViewTransaction = (props) => {
 
           <div className="text-center">
             {noData && (
-              <p>you currently have to transaction details to view.</p>
+              <div className="row justify-content-center">
+                <div className="col-6">
+                  <div className="no-transaction">
+                    <p className="lead">
+                      you currently have to transaction details to view.
+                    </p>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>

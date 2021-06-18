@@ -23,6 +23,16 @@ const CreateAccountStyles = styled.div`
   .btn-submitstudent {
     margin-bottom: 20px;
   }
+
+  .creation-div {
+    border: 1px solid green;
+    padding: 40px;
+    border-top: 10px solid rgb(54 74 65);
+    background-color: #f0ffff;
+  }
+  hr{
+    border: 1px solid green;
+  }
 `;
 
 const StudentAccountCreation = (props) => {
@@ -35,15 +45,13 @@ const StudentAccountCreation = (props) => {
   const [loading, setLoading] = useState(false);
   //const [file, setFile] = useState("");
   useEffect(() => {
-    console.log(student);
     if (state && !state.student) {
       props.history.push("/");
     }
   }, []);
 
-  const [createNewAccount, createNewAccountResult] = useMutation(
-    CreateStudentAccount
-  );
+  const [createNewAccount, createNewAccountResult] =
+    useMutation(CreateStudentAccount);
 
   useEffect(() => {
     if (createNewAccountResult.error) {
@@ -103,183 +111,200 @@ const StudentAccountCreation = (props) => {
 
   return (
     <CreateAccountStyles>
-      <div className="text-center">
-        {errors && <p className="text-danger lead">{errors.message}</p>}
+      <div className="row justify-content-center">
+        <div className="col-lg-6 col-md-6">
+          <div className="text-center">
+            {errors && <p className="text-danger lead">{errors.message}</p>}
+          </div>
+        </div>
       </div>
 
-      <form
-        onSubmit={submitStudentDataToDatabase}
-        // action="/upload_studentData"
-        // method="POST"
-        // encType="multipart/form-data"
-      >
-        <div className="row">
-          <div className="col-md-4 offset-md-3 order-md-1">
-            <div className="noticeBoard">
-              <p className="lead">
-                Please create your account to be able to access the student
-                hostel portal
-              </p>
-            </div>
-          </div>
+      <div className="row justify-content-center">
+        <div className="col-8">
+          <div className="creation-div">
+            <form
+              onSubmit={submitStudentDataToDatabase}
+              // action="/upload_studentData"
+              // method="POST"
+              // encType="multipart/form-data"
+            >
+              <div className="row justify-content-center">
+                <div className="col-sm-12 col-lg-6 col-md-6 order-md-1">
+                  <div className="noticeBoard">
+                    <p className="lead">
+                      Please create your account to be able to access the
+                      student hostel portal
+                    </p>
+                  </div>
+                </div>
 
-          <div className="col-md-2 order-md-12">
-            <div className="float-md-right">
-              <div className="preview-images">
-                <img
-                  src={`http://uniuyo.edu.ng/eportals/passports/${
-                    student && student.profileImage
-                  }`}
-                  className="passport"
-                  id="passportImage"
-                  style={{ width: 200 + "px", height: 200 + "px" }}
-                />
+                <div className="col-md-2 col-sm-12 order-md-12">
+                  <div className="float-md-right">
+                    <div className="preview-images">
+                      <img
+                        src={`http://uniuyo.edu.ng/eportals/passports/${
+                          student && student.profileImage
+                        }`}
+                        className="passport"
+                        id="passportImage"
+                        style={{ width: 200 + "px", height: 200 + "px" }}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+
+              <hr/>
+
+              <div className="row justify-content-center">
+                <div className="col-md-8">
+                  <div className="form-group">
+                    <label htmlFor="name">Name</label>
+                    <input
+                      readOnly
+                      type="text"
+                      className="form-control"
+                      id="name"
+                      value={student.name && student.name.toUpperCase()}
+                      aria-describedby="name"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="name">Reg Number</label>
+                    <input
+                      readOnly
+                      type="text"
+                      className="form-control"
+                      id="regNumber"
+                      aria-describedby="regNumber"
+                      value={
+                        student.regNumber && student.regNumber.toUpperCase()
+                      }
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="name">Email</label>
+                    <input
+                      readOnly
+                      type="text"
+                      className="form-control"
+                      id="email"
+                      aria-describedby="email"
+                      value={student.email}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="sex">Sex</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="sex"
+                      readOnly
+                      value={student.sex && student.sex.toUpperCase()}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="dept">Department</label>
+                    <input
+                      readOnly
+                      type="text"
+                      className="form-control"
+                      id="dept"
+                      value={student.dept && student.dept.toUpperCase()}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="faculty">Faculty</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="faculty"
+                      readOnly
+                      value={student.faculty && student.faculty.toUpperCase()}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="name">Current Level</label>
+                    <input
+                      readOnly
+                      type="text"
+                      className="form-control"
+                      value={
+                        student.currentLevel &&
+                        student.currentLevel.toUpperCase()
+                      }
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="name">Current Session</label>
+                    <input
+                      readOnly
+                      type="text"
+                      className="form-control"
+                      value={student.currentSession}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="name">Entry Mode</label>
+                    <input
+                      readOnly
+                      type="text"
+                      className="form-control"
+                      value={
+                        student.entryMode && student.entryMode.toUpperCase()
+                      }
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="password">password</label>
+                    <input
+                      type="password"
+                      className="form-control"
+                      id="password"
+                      onChange={onInputChange}
+                      name="password"
+                      value={password}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="confirmPassword">confirm password</label>
+                    <input
+                      type="password"
+                      className="form-control"
+                      id="confirmPassword"
+                      onChange={onInputChange}
+                      name="confirmPassword"
+                      value={confirmPassword}
+                    />
+                  </div>
+
+                  <div className="text-center">
+                    <button
+                      type="submit"
+                      className="btn btn-primary btn-submitstudent"
+                      disabled={submitted}
+                    >
+                      {submitted
+                        ? "please wait submitting......"
+                        : "Create new account"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
-
-        <div className="row">
-          <div className="col-md-6 offset-md-3">
-            <div className="form-group">
-              <label htmlFor="name">Name</label>
-              <input
-                readOnly
-                type="text"
-                className="form-control"
-                id="name"
-                value={student.name && student.name.toUpperCase()}
-                aria-describedby="name"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="name">Reg Number</label>
-              <input
-                readOnly
-                type="text"
-                className="form-control"
-                id="regNumber"
-                aria-describedby="regNumber"
-                value={student.regNumber && student.regNumber.toUpperCase()}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="name">Email</label>
-              <input
-                readOnly
-                type="text"
-                className="form-control"
-                id="email"
-                aria-describedby="email"
-                value={student.email}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="sex">Sex</label>
-              <input
-                type="text"
-                className="form-control"
-                id="sex"
-                readOnly
-                value={student.sex && student.sex.toUpperCase()}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="dept">Department</label>
-              <input
-                readOnly
-                type="text"
-                className="form-control"
-                id="dept"
-                value={student.dept && student.dept.toUpperCase()}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="faculty">Faculty</label>
-              <input
-                type="text"
-                className="form-control"
-                id="faculty"
-                readOnly
-                value={student.faculty && student.faculty.toUpperCase()}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="name">Current Level</label>
-              <input
-                readOnly
-                type="text"
-                className="form-control"
-                value={
-                  student.currentLevel && student.currentLevel.toUpperCase()
-                }
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="name">Current Session</label>
-              <input
-                readOnly
-                type="text"
-                className="form-control"
-                value={student.currentSession}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="name">Entry Mode</label>
-              <input
-                readOnly
-                type="text"
-                className="form-control"
-                value={student.entryMode && student.entryMode.toUpperCase()}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="password">password</label>
-              <input
-                type="password"
-                className="form-control"
-                id="password"
-                onChange={onInputChange}
-                name="password"
-                value={password}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="confirmPassword">confirm password</label>
-              <input
-                type="password"
-                className="form-control"
-                id="confirmPassword"
-                onChange={onInputChange}
-                name="confirmPassword"
-                value={confirmPassword}
-              />
-            </div>
-
-            <div className="text-center">
-              <button
-                type="submit"
-                className="btn btn-primary btn-submitstudent"
-                disabled={submitted}
-              >
-                {submitted
-                  ? "please wait submitting......"
-                  : "Create new account"}
-              </button>
-            </div>
-          </div>
-        </div>
-      </form>
+      </div>
     </CreateAccountStyles>
   );
 };

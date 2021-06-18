@@ -12,6 +12,13 @@ const ConfirmHostelStyles = styled.div`
   th {
     text-align: center;
   }
+  .allocation-div {
+    padding: 40px;
+    padding-bottom: 50px;
+    border: 1px solid green;
+    margin-bottom: 10px;
+    border-top: 10px solid rgb(54 74 65);
+  }
 `;
 
 const ConfirmHostelAccomodation = () => {
@@ -109,75 +116,79 @@ const ConfirmHostelAccomodation = () => {
 
   return (
     <ConfirmHostelStyles>
-      <div className="row">
-        <div className="col-md-6 offset-md-3">
-          {submitted && <Loading />}
+      <div className="row justify-content-center">
+        <div className="col-md-5 col-lg-5 col-sm-12">
+          <dic className="text-center">
+            <h3>Confirm Hostel Allocation</h3>
+          </dic>
 
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="session">Session</label>
-              <select
-                name="session"
-                className="custom-select"
-                onChange={handleChange}
+          <div className="text-center">{submitted && <Loading />}</div>
+          <div className="allocation-div">
+            <ErrorDisplay errors={errors} />
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="session">Session</label>
+                <select
+                  name="session"
+                  className="custom-select"
+                  onChange={handleChange}
+                >
+                  {IncrementSession().map(({ value, text }, i) => {
+                    return (
+                      <option key={i} value={value}>
+                        {text}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="regNumber">Reg Number:</label>
+                <input
+                  type="text"
+                  onChange={handleChange}
+                  className="form-control"
+                  id="regNumber"
+                  name="regNumber"
+                  aria-describedby="regNumber"
+                />
+              </div>
+              <button
+                type="submit"
+                className="btn btn-danger mb-4 float-right"
+                disabled={submitted}
               >
-                {IncrementSession().map(({ value, text }, i) => {
-                  return (
-                    <option key={i} value={value}>
-                      {text}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="regNumber">Reg Number:</label>
-              <input
-                type="text"
-                onChange={handleChange}
-                className="form-control"
-                id="regNumber"
-                name="regNumber"
-                aria-describedby="regNumber"
-              />
-            </div>
-            <button
-              type="submit"
-              className="btn btn-danger mb-4"
-              disabled={submitted}
-            >
-              {submitted ? "searching........" : "search"}
-            </button>
-          </form>
+                {submitted ? "searching........" : "check allocation"}
+              </button>
+            </form>
+          </div>
         </div>
       </div>
 
-      <div className="row">
-        <div className="col-md-8 offset-md-2">
-          <ErrorDisplay errors={errors} />
-
+      <div className="row justify-content-center">
+        <div className="col-md-8 col-lg-8 col-sm-12">
           {allocation && (
             <div className="table-responsive">
-            <table className="table table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Student Details</th>
-                  <th scope="col">Accomodation Details</th>
-                  <th scope="col">Photograph</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <AllocationComponent
-                    allocation={allocation}
-                    confirmFunc={handleConfirmStudent}
-                    submitted={submitted}
-                  />
-                </tr>
-              </tbody>
-            </table>
+              <table className="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Student Details</th>
+                    <th scope="col">Accomodation Details</th>
+                    <th scope="col">Photograph</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <AllocationComponent
+                      allocation={allocation}
+                      confirmFunc={handleConfirmStudent}
+                      submitted={submitted}
+                    />
+                  </tr>
+                </tbody>
+              </table>
             </div>
           )}
         </div>

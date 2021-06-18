@@ -8,7 +8,52 @@ import { useHistory } from "react-router-dom";
 
 import store from "store";
 
-const LoginStyle = styled.div``;
+const LoginStyle = styled.div`
+   .login-container {
+    height: 600px;
+    padding: 40px;
+    border-radius: 20px;
+    box-sizing: border-box;
+    background-color: #f0ffff;
+    background-color: ;
+    margin-top: 40px;
+    box-shadow: 14px 14px 20px #cbced1, -14px -14px 20px white;
+  }
+  .brand-logo {
+    height: 100px;
+    width: 100px;
+    margin: auto;
+    border-radius: 50%;
+    box-sizing: border-box;
+    box-shadow: 7px 7px 10px #cbced1, -7px -7px 10px white;
+  }
+  .input {
+    background: #f0ffff;
+    padding: 10px;
+    padding-left: 20px;
+    height: 50px;
+    font-size: 14px;
+    border-radius: 50px;
+    box-shadow: inset 6px 6px 6px #cbced1, inset -6px -6px 6px white;
+  }
+
+  .login-button {
+    border: none;
+    margin-top: 20px;
+    background: #1da1f2;
+    height: 40px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 900;
+    transition: 0.5s;
+    box-shadow: 6px 6px 6px #cbced1, -6px -6px 6px white;
+    width: 100%;
+  }
+
+  .login-button:hover {
+    box-shadow: none;
+  }
+`;
 
 const Login = (props) => {
   const [isAuth, setAuthState] = useRecoilState(state.authState);
@@ -116,8 +161,11 @@ const Login = (props) => {
   };
   return (
     <LoginStyle>
-      <div className="row">
-        <div className="col-md-6 offset-md-3">
+      <div className="row justify-content-center">
+        <div className="col-sm-12 col-md-6 col-lg-3">
+        <div className="login-container">
+
+     
           <h3 className="text-info text-center">Login Page</h3>
           <p className="text-danger lead text-center">{error}</p>
           <p className="lead text-center">
@@ -130,7 +178,7 @@ const Login = (props) => {
               <label htmlFor="name">Reg Number</label>
               <input
                 type="text"
-                className="form-control"
+                className="form-control input"
                 name="regNumber"
                 aria-describedby="regNumber"
                 value={regNumber}
@@ -142,7 +190,7 @@ const Login = (props) => {
               <label htmlFor="name">Email</label>
               <input
                 type="email"
-                className="form-control"
+                className="form-control input"
                 name="email"
                 aria-describedby="email"
                 value={email}
@@ -154,7 +202,7 @@ const Login = (props) => {
               <label htmlFor="password">password</label>
               <input
                 type="password"
-                className="form-control"
+                className="form-control input"
                 id="password"
                 onChange={onInputChange}
                 name="password"
@@ -165,13 +213,14 @@ const Login = (props) => {
             <div className="text-center">
               <button
                 type="submit"
-                className="btn btn-primary btn-lg"
+                className="btn btn-primary btn-lg login-button"
                 disabled={submitted}
               >
                 {submitted ? "granting access....." : "login"}
               </button>
             </div>
           </form>
+        </div>
         </div>
       </div>
     </LoginStyle>

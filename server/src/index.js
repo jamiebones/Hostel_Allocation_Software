@@ -47,6 +47,7 @@ StartUp();
 
 async function StartUp() {
   const app = express();
+  app.enable("trust proxy");
   app.use(helmet());
   //if (process.env.NODE_ENV === "production") {
   //  app.use(cors(corsOptions));
@@ -78,14 +79,13 @@ async function StartUp() {
       }
       console.log("this is an error", err);
       //send the email here about the error to the developer
-      //config.winston.error(`error from graphql-resolvers ${err} -}`);
+      config.winston.error(`error from graphql-resolvers ${err} -}`);
       return err;
       //return new Error("There was an error");
     },
     context: async ({ req, connection, res }) => {
       const { refreshToken, user } = await config.isAuth(req, config);
-      
-      console.log("this is the refresh token", refreshToken);
+
       if (refreshToken) {
         res.setHeader("Authorization", refreshToken);
       }

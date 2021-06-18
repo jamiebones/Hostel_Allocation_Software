@@ -9,7 +9,7 @@ import Loading from "./common/loading";
 
 const HomeStyles = styled.div`
   .regDiv {
-    margin-top: 10vh;
+    margin-top: 10px;
   }
   .bigInput {
     padding: 20px;
@@ -21,7 +21,7 @@ const HomeStyles = styled.div`
   }
   .butDiv {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
   }
   .noticeBoard {
     background-color: #1f5f58;
@@ -45,6 +45,9 @@ const HomeStyles = styled.div`
     :first-letter {
       font-size: 40px;
     }
+  }
+
+  .login-box {
   }
 `;
 
@@ -125,27 +128,40 @@ const Home = ({ history, authenticated }) => {
               "hello i am auth level"
             ) : (
               <React.Fragment>
-                <p className="lead">
-                  Student need to create an account by entering their reg number
-                  into the text box below. If you already have an account,
-                  please proceed to login.
-                </p>
-                <form onSubmit={submitHandler}>
-                  <input
-                    onChange={handleInputChange}
-                    type="text"
-                    className="form-control form-control-lg"
-                    placeholder="enter registeration number"
-                  />
-                  <div className="butDiv mb-4">
-                    <button
-                      className="btn btn-primary btn-lg regButton"
-                      type="submit"
-                    >
-                      submit
-                    </button>
-                  </div>
-                </form>
+                <div className="login-box">
+                  <p className="instruction">
+                    This is a portal operated by the Student Affairs Division of
+                    University of Uyo. This portal is used for hostel
+                    accomodation bids. Students can bid for accomodation via
+                    this portal. If successful, the bed space is placed on hold
+                    for a period for a period of 24 hours after which if payment
+                    for the space is not effected, the space is recycled and
+                    offered to another student. Payment for hostel space is via
+                    the Remita platform and hostel bid are treated on a first
+                    come basics...
+                  </p>
+                  <p className="lead">
+                    Student need to create an account by entering their reg
+                    number into the text box below. If you already have an
+                    account, please proceed to login.
+                  </p>
+                  <form onSubmit={submitHandler}>
+                    <input
+                      onChange={handleInputChange}
+                      type="text"
+                      className="form-control form-control-lg"
+                      placeholder="enter registeration number"
+                    />
+                    <div className="butDiv mb-4">
+                      <button
+                        className="btn btn-primary btn-lg regButton"
+                        type="submit"
+                      >
+                        submit
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </React.Fragment>
             )}
           </div>
