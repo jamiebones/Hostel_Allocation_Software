@@ -1,5 +1,6 @@
+import config from "../../config"
 const nodemailer = require("nodemailer");
-const { DeveloperBugsEmailSupport, DeveloperBugsEmailPassword } = process.env;
+const { DeveloperBugsEmailSupport, DeveloperBugsEmailPassword } = config.config;
 
 const transporter = nodemailer.createTransport({
   service: "gmail",

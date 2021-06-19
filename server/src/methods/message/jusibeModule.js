@@ -1,4 +1,5 @@
-const { JusibePublicKey, JusibeAccessToken } = process.env;
+import config from "../../config"
+const { JusibePublicKey, JusibeAccessToken } = config.config;
 
 const Jusibe = require("jusibe");
 

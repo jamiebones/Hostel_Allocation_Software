@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import config from "../../config"
 import {
   findTransaction,
   markRoomAsOccupied,
@@ -21,7 +21,7 @@ export default async function confirmTransaction(orderId, RRR, conn) {
   const transactionSession = await conn.startSession();
   transactionSession.startTransaction();
   try {
-    const { MerchantId, Api_Key, CheckStatusUrl } = process.env;
+    const { MerchantId, Api_Key, CheckStatusUrl } = config.config;
 
     const hash = CryptoJS.SHA512(RRR + Api_Key + MerchantId).toString();
 

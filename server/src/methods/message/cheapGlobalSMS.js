@@ -1,9 +1,10 @@
 import axios from "axios";
+import config from "../../config"
 const {
   CheapGlobalSmsGateway,
   CheapGlobalSmsSubAccount,
   CheapGlobalSmsSubAccountPassword,
-} = process.env;
+} = config.config;
 
 //http://cheapglobalsms.com/api_v1?sub_account=001_mysub1&sub_account_pass=pa55w0Rd&action=account_info
 

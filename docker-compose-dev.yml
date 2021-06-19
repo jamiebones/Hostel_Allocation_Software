@@ -31,9 +31,9 @@ services:
     ports:
       - 8000:8000
     environment:
-      replicaSetOne: mongo_DB1:27017
-      replicaSetTwo: mongo_DB2:27018
-      replicaSetThree: mongo_DB3:27019
+      Replica_Set_One: mongo_DB1:27017
+      Replica_Set_Two: mongo_DB2:27018
+      Replica_Set_Three: mongo_DB3:27019
       DB_HOST: mongo ## same as the database service name
       DB_PORT: 27017
       DB_USER: uniuyo

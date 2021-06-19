@@ -1,6 +1,6 @@
 import axios from "axios";
-
-const { EBulkSMSAPIKey, EBulkSMSUsername, EBulkSMSGateWay } = process.env;
+import config from "../../config"
+const { EBulkSMSAPIKey, EBulkSMSUsername, EBulkSMSGateWay } = config.config;
 
 //https://api.ebulksms.com:4433/sendsms?username={your_email_address}&api
 //key={your_api_key}&sender={your_sender_name}&messagetext={your_message_

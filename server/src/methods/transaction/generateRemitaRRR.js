@@ -3,6 +3,7 @@ import sessionTableMethod from "../sessionTable";
 import bedSpaceMethod from "../bedspace";
 import CryptoJS from "crypto-js";
 import axios from "axios";
+import config from "../../config"
 var _ = require("lodash");
 
 const { getStudentData } = studentBioMethod.common;
@@ -118,9 +119,10 @@ const _compileRemitaDataToSend = ({
   phoneNumber,
   bedDetails,
 }) => {
-  const merchantId = process.env.MerchantId;
-  const api_key = process.env.Api_Key;
-  const serviceType = process.env.ServiceTypeId;
+  const {MerchantId,Api_Key, ServiceTypeId} = config.config
+  const merchantId = MerchantId;
+  const api_key = Api_Key;
+  const serviceType = ServiceTypeId;
 
   const hash = _generateHash(
     merchantId + serviceType + transactionId + total + api_key
@@ -142,8 +144,9 @@ const _compileRemitaDataToSend = ({
 };
 
 const _contactRemita = async (data) => {
-  const gateway = process.env.Gateway;
-  const merchantId = process.env.MerchantId;
+  const {Gateway, MerchantId } = config.config;
+  const gateway = Gateway;
+  const merchantId = MerchantId;
   const apiHash = data.hash;
 
   delete data.hash;

@@ -4,6 +4,7 @@ import redis from "./redis-client";
 import isAuth from "./isAuth";
 import createCollection from "./createCollection";
 import checkAccessRight from "./checkAccessRight";
+import config from "./config"
 
 export default {
   ...key,
@@ -12,4 +13,5 @@ export default {
   isAuth,
   createCollection,
   checkAccessRight,
+  config
 };

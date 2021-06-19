@@ -17,9 +17,9 @@ services:
     #    ports:
     #     - 3000:3000
     environment:
-      VIRTUAL_HOST: uniuyohostel.ml
-      LETSENCRYPT_HOST: uniuyohostel.ml
-      LETSENCRYPT_EMAIL: jamiebones147@gmail.com
+      VIRTUAL_HOST: ${VIRTUAL_HOST}
+      LETSENCRYPT_HOST: ${LETSENCRYPT_HOST}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
   graphql_api:
     hostname: graphql_api
     # container_name: graphql_api
@@ -31,39 +31,39 @@ services:
     ports:
       - "8000-8001:8000"
     environment:
-      replicaSetOne: mongo_DB1:27017
-      replicaSetTwo: mongo_DB2:27018
-      replicaSetThree: mongo_DB3:27019
-      DB_HOST: mongo ## same as the database service name
-      DB_PORT: 27017
-      DB_USER: uniuyo
-      DB_DATABASE: hostelDBProduction
-      DB_PASSWORD: blazing147server
-      REDIS_URL: redis://redis_cache
+      Replica_Set_One: ${Replica_Set_One}
+      Replica_Set_Two: ${Replica_Set_Two}
+      Replica_Set_Three: ${Replica_Set_Three}
+      DB_HOST: ${DB_HOST} ## same as the database service name
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_URL: ${REDIS_URL}
       NODE_ENV: production
-      REDIS_HOST: redis_cache
-      REDIS_PORT: 6379
-      SMS_API: https://www.bulksmsnigeria.com/api/v1/sms/create
-      SMS_Token: KXZT7nxbjkYZruyJJ4jUVa9urbVPNqj3stgBOgGmjufPNfuDyDdLIpr9uhT9
-      REMITA_PUBLIC_KEY: QzAwMDAyNDEyMDJ8NTE5NjY0MjF8NDI4NDgxOGI1NWMyNjYyMTk1OGIxM2QzYTEyMjU3MDVhMTcyMDc0ZTMxNTljMDY4NTM0NTljMmFlY2RlYWM3NTkyMTI2N2Q5NTMwOTFkZmFkOTYzZDk3YzhkNTU2ODc4OGM2MDAxZTQ5ZDFiODNkZGM1NGI4NzU2OWFiYWFkNDQ=
-      REMITA_SECRET_KEY: 34632297d15074622d575a3be181ac3185ff816ac753d4c476a6f2a30b73bd527b7b69e4d0300f89472529f49f474ccb129a19849306dd8c256e440c25b78e63
-      MerchantId: 2547916
-      Api_Key: 1946
-      ServiceTypeId: 4430731
-      Gateway: https://remitademo.net/remita/exapp/api/v1/send/api/echannelsvc/merchant/api/paymentinit
-      CheckStatusUrl: https://remitademo.net/remita/ecomm
-      ReturnRemitaUrl: https://uniuyohostel.ml/confirm_transaction
-      RRRGateWayPaymentUrl: https://remitademo.net/remita/ecomm/finalize.reg
-      JusibePublicKey: 425f0a0373eb462bb90fb1ce5bf99796
-      JusibeAccessToken: 22c26cb42ca32a6cb80a08616e99362b
-      EBulkSMSAPIKey: d4b76664b41984137091f955aa010812c5c30f03
-      EBulkSMSUsername: jamiebones2000@yahoo.co.uk
-      EBulkSMSGateWay: https://api.ebulksms.com:4433
-      CheapGlobalSmsGateway: http://cheapglobalsms.com/api_v1
-      CheapGlobalSmsSubAccount: 9540_uniuyo
-      CheapGlobalSmsSubAccountPassword: blazing147
-      DeveloperBugsEmailSupport: bugsreport2021@gmail.com
-      DeveloperBugsEmailPassword: blazing147
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      SMS_API: ${SMS_API}
+      SMS_Token: ${SMS_Token}
+      REMITA_PUBLIC_KEY: ${REMITA_PUBLIC_KEY}
+      REMITA_SECRET_KEY: ${REMITA_SECRET_KEY}
+      MerchantId: ${MerchantId}
+      Api_Key: ${Api_Key}
+      ServiceTypeId: ${ServiceTypeId}
+      Gateway: ${Gateway}
+      CheckStatusUrl: ${CheckStatusUrl}
+      ReturnRemitaUrl: ${ReturnRemitaUrl}
+      RRRGateWayPaymentUrl: ${RRRGateWayPaymentUrl}
+      JusibePublicKey: ${JusibePublicKey}
+      JusibeAccessToken: ${JusibeAccessToken}
+      EBulkSMSAPIKey: ${EBulkSMSAPIKey}
+      EBulkSMSUsername: ${EBulkSMSUsername}
+      EBulkSMSGateWay: ${EBulkSMSGateWay}
+      CheapGlobalSmsGateway: ${CheapGlobalSmsGateway}
+      CheapGlobalSmsSubAccount: ${CheapGlobalSmsSubAccount}
+      CheapGlobalSmsSubAccountPassword: ${CheapGlobalSmsSubAccountPassword}
+      DeveloperBugsEmailSupport: ${DeveloperBugsEmailSupport}
+      DeveloperBugsEmailPassword: ${DeveloperBugsEmailPassword}
   mongo-setup_uniuyo:
     container_name: mongo-setup_uniuyo
     image: mongo
@@ -166,11 +166,11 @@ services:
     depends_on:
       - mongo_DB1
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongo_DB1,mongo_DB2,mmongo_DB3
-      ME_CONFIG_MONGODB_ADMINUSERNAME: jamiebones
-      ME_CONFIG_MONGODB_ADMINPASSWORD: blazing147
-      ME_CONFIG_BASICAUTH_USERNAME: jamiebones
-      ME_CONFIG_BASICAUTH_PASSWORD: blazing147
+      ME_CONFIG_MONGODB_SERVER: ${ME_CONFIG_MONGODB_SERVER}
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${ME_CONFIG_MONGODB_ADMINUSERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${ME_CONFIG_MONGODB_ADMINPASSWORD}
+      ME_CONFIG_BASICAUTH_USERNAME: ${ME_CONFIG_BASICAUTH_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${ME_CONFIG_BASICAUTH_PASSWORD}
 
   redis:
     image: redis
