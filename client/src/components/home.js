@@ -75,7 +75,8 @@ const Home = ({ history, authenticated }) => {
 
     if (statsResult.data) {
       const statsData = statsResult.data.getStatsByHall;
-      console.log(SortAndMergeAsObjectBedStats(statsData));
+      console.log(statsData)
+      //console.log(SortAndMergeAsObjectBedStats(statsData));
       setStatsLoading(false);
       setStats(SortAndMergeAsObjectBedStats(statsData));
     }

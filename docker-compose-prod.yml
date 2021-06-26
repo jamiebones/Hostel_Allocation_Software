@@ -72,13 +72,13 @@ services:
       - ./scripts:/scripts
     entrypoint: ["/scripts/setup.sh"] # Make sure this file exists (see below for the setup.sh)
     depends_on:
-      - mongo_DB1
-      - mongo_DB2
-      - mongo_DB3
+      - mongo_db1
+      - mongo_db2
+      - mongo_db3
 
-  mongo_DB1:
-    hostname: mongo_DB1
-    container_name: mongo_DB1
+  mongo_db1:
+    hostname: mongo_db1
+    container_name: mongo_db1
     image: mongo
     expose:
       - 27456
@@ -103,9 +103,9 @@ services:
       - $HOME/app_data/uniuyo_hostel/data1/configdb:/data/configdb
       #- $HOME/keys:/data/file.key
       - ./scripts/createAdmin.sh:/scripts/createAdmin.sh
-  mongo_DB2:
-    hostname: mongo_DB2
-    container_name: mongo_DB2
+  mongo_db2:
+    hostname: mongo_db2
+    container_name: mongo_db2
     image: mongo
     expose:
       - 28765
@@ -130,9 +130,9 @@ services:
       - $HOME/app_data/uniuyo_hostel/data2/configdb:/data/configdb
       #- $HOME/keys:/data/file.key
 
-  mongo_DB3:
-    hostname: mongo_DB3
-    container_name: mongo_DB3
+  mongo_db3:
+    hostname: mongo_db3
+    container_name: mongo_db3
     image: mongo
     # networks:
     #  - webproxy
@@ -164,7 +164,7 @@ services:
     ports:
       - 9081:8081
     depends_on:
-      - mongo_DB1
+      - mongo_db1
     environment:
       ME_CONFIG_MONGODB_SERVER: ${ME_CONFIG_MONGODB_SERVER}
       ME_CONFIG_MONGODB_ADMINUSERNAME: ${ME_CONFIG_MONGODB_ADMINUSERNAME}

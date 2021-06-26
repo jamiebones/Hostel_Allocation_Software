@@ -31,9 +31,9 @@ services:
     ports:
       - 8000:8000
     environment:
-      Replica_Set_One: mongo_DB1:27017
-      Replica_Set_Two: mongo_DB2:27018
-      Replica_Set_Three: mongo_DB3:27019
+      Replica_Set_One: mongo_db1:27017
+      Replica_Set_Two: mongo_db2:27018
+      Replica_Set_Three: mongo_db3:27019
       DB_HOST: mongo ## same as the database service name
       DB_PORT: 27017
       DB_USER: uniuyo
@@ -64,7 +64,7 @@ services:
       CheapGlobalSmsSubAccountPassword: blazing147
       DeveloperBugsEmailSupport: bugsreport2021@gmail.com
       DeveloperBugsEmailPassword: blazing147
-      
+
   mongo-setup_uniuyo:
     container_name: mongo-setup_uniuyo
     image: mongo
@@ -75,13 +75,13 @@ services:
       - ./scripts:/scripts
     entrypoint: ["/scripts/setup.sh"] # Make sure this file exists (see below for the setup.sh)
     depends_on:
-      - mongo_DB1
-      - mongo_DB2
-      - mongo_DB3
+      - mongo_db1
+      - mongo_db2
+      - mongo_db3
 
-  mongo_DB1:
-    hostname: mongo_DB1
-    container_name: mongo_DB1
+  mongo_db1:
+    hostname: mongo_db1
+    container_name: mongo_db1
     image: mongo
     expose:
       - 27017
@@ -106,9 +106,9 @@ services:
       #- $HOME/keys/file.key:/data/file.key
       - ./scripts/createAdmin.sh:/scripts/createAdmin.sh
 
-  mongo_DB2:
-    hostname: mongo_DB2
-    container_name: mongo_DB2
+  mongo_db2:
+    hostname: mongo_db2
+    container_name: mongo_db2
     image: mongo
     expose:
       - 27017
@@ -132,9 +132,9 @@ services:
       - $HOME/hostel_data/data2/configdb:/data/configdb
       #- $HOME/keys/file.key:/data/file.key
 
-  mongo_DB3:
-    hostname: mongo_DB3
-    container_name: mongo_DB3
+  mongo_db3:
+    hostname: mongo_db3
+    container_name: mongo_db3
     image: mongo
     expose:
       - 27017
@@ -165,13 +165,26 @@ services:
     ports:
       - 8081:8081
     depends_on:
-      - mongo_DB1
+      - mongo_db1
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongo_DB1,mongo_DB2,mmongo_DB3
+      ME_CONFIG_MONGODB_SERVER: mongo_db1,mongo_db2,mongo_db3
       ME_CONFIG_MONGODB_ADMINUSERNAME: jamiebones
       ME_CONFIG_MONGODB_ADMINPASSWORD: blazing147
       ME_CONFIG_BASICAUTH_USERNAME: jamiebones
       ME_CONFIG_BASICAUTH_PASSWORD: blazing147
+
+  mongo_backup:
+    image: stefanprodan/mgob:1.1
+    ports: 
+      - 8090:8090
+    volumes:
+      - $HOME/mongo_backup_dev/config:/config
+      - $HOME/mongo_backup_dev/storage:/storage
+      - $HOME/mongo_backup_dev/data:/data
+      - $HOME/mongo_backup_dev/tmp:/tmp
+    environment:
+      LogLevel: info
+      
 
   redis:
     image: redis

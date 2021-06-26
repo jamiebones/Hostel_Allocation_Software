@@ -23,7 +23,7 @@ const checkSMSCredit = async () => {
 
 const sendMessage = async ({ receipents, sender, message }) => {
   const smsRequest = await axios.get(
-    `${CheapGlobalSmsGateway}?sub_account=${CheapGlobalSmsSubAccount}&sub_account_pass=${CheapGlobalSmsSubAccountPassword}&action=send_sms&sender_id=${sender}&message=${message}&recipients=${receipents}&type=0&route=1`
+    `${CheapGlobalSmsGateway}?sub_account=${CheapGlobalSmsSubAccount}&sub_account_pass=${CheapGlobalSmsSubAccountPassword}&action=send_sms&sender_id=${sender}&message=${message}&recipients=${receipents}&type=0&route=0`
   );
 
   const response = smsRequest.data;

@@ -1,7 +1,8 @@
 import models from "../models";
 import mongoose from "mongoose";
-import config from "../config"
+import config from "../config";
 
+let timesTried = 0;
 export default async () => {
   const {
     DB_DATABASE,
@@ -19,6 +20,19 @@ export default async () => {
   if (process.env.NODE_ENV === "production") {
     url = `mongodb://admin:${DB_PASSWORD}@${Replica_Set_One},${Replica_Set_Two},${Replica_Set_Three}/${DB_DATABASE}`;
   }
+  try {
+    const conn = await runConnection(url);
+    return models(conn);
+  } catch (error) {
+    while (timesTried < 3) {
+      timesTried++;
+      const conn = await runConnection(url);
+      return models(conn);
+    }
+  }
+};
+
+const runConnection = async function (url) {
   const conn = await mongoose.createConnection(url, {
     useNewUrlParser: true,
     useFindAndModify: false,
@@ -29,5 +43,5 @@ export default async () => {
     poolSize: 10,
     replicaSet: "rs0",
   });
-  return models(conn);
+  return conn;
 };

@@ -23,9 +23,8 @@ const SearchStudentAccount = () => {
     ActivateDeactivateUser
   );
 
-  const [activateGroupUser, activateGroupResult] = useMutation(
-    ActivateGroupUsers
-  );
+  const [activateGroupUser, activateGroupResult] =
+    useMutation(ActivateGroupUsers);
 
   useEffect(() => {
     if (searchResult.data) {
@@ -67,6 +66,7 @@ const SearchStudentAccount = () => {
   }, [activateGroupResult.data, activateGroupResult.error]);
 
   const performSearchInput = (e) => {
+    e.preventDefault();
     const value = e.target.value;
     setRegNumber(value);
     if (value.length > 1) {
@@ -103,7 +103,7 @@ const SearchStudentAccount = () => {
   };
 
   const handleActivate = () => {
-    setSubmitted(!submitted)
+    setSubmitted(!submitted);
     try {
       activateGroupUser({
         variables: {
@@ -133,7 +133,7 @@ const SearchStudentAccount = () => {
       </div>
       <div className="row">
         <div className="col-md-6 offset-md-3">
-          <form>
+          <form onSubmit={(e) => e.preventDefault()}>
             <div className="form-group">
               <label htmlFor="regNumber">Reg Number</label>
               <input

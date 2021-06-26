@@ -4,9 +4,9 @@
 #MONGODB2=`ping -c 1 mongo2 | head -1  | cut -d "(" -f 2 | cut -d ")" -f 1`
 #MONGODB3=`ping -c 1 mongo3 | head -1  | cut -d "(" -f 2 | cut -d ")" -f 1`
 
-MONGODB1=mongo_DB1
-MONGODB2=mongo_DB2
-MONGODB3=mongo_DB3
+MONGODB1=mongo_db1
+MONGODB2=mongo_db2
+MONGODB3=mongo_db3
 
 echo "**********************************************" ${MONGODB1}
 echo "Waiting for startup.."

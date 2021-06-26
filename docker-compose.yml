@@ -7,11 +7,11 @@ services:
 
   mongo-setup_uniuyo:
 
-  mongo_DB1:
+  mongo_db1:
 
-  mongo_DB2:
+  mongo_db2:
 
-  mongo_DB3:
+  mongo_db3:
 
   mongo-express:
 

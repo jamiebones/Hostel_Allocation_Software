@@ -300,7 +300,6 @@ export const checkAvailableSpace = async ({ level, faculty, conn }) => {
     return fac.facultyName.toLowerCase() == faculty.toLowerCase();
   });
 
-
   if (!facultyData) {
     //return saying no allocation for your faculty
     throw new Error(`No hostel allocation reserved for ${faculty} students.`);
@@ -377,9 +376,10 @@ export const incrementRoomStats = async ({
 
 export const specialHostelCheck = async (student, session, conn) => {
   //get all hostels mark as special
-  const { faculty, currentLevel } = student;
+  const { faculty, currentLevel, sex } = student;
   const specialHostel = await conn.models.Hostel.find({
     status: "special",
+    type: sex,
   }).session(session);
 
   //find if the student is the one that are to stay in a special hostel

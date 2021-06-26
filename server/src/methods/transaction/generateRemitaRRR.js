@@ -165,6 +165,7 @@ const _contactRemita = async (data) => {
   );
 
   let jsonData = response.data;
+  console.log("response is : ", response.data)
   jsonData = jsonData.replace(")", "");
   jsonData = jsonData.replace("jsonp (", "");
   return jsonData;
