@@ -21,7 +21,7 @@ const PrintAllocationBySession = (props) => {
   const [selectedSession, setSelectedSession] = useState("");
   const [data, setData] = useState(null);
   const [errors, setErrors] = useState([]);
-  const [noData, setNoData] = useState(null);
+  const [noData, setNoData] = useState("");
 
   const [allocationQuery, allocationResult] = useLazyQuery(AllocationToStudent);
 
@@ -32,7 +32,7 @@ const PrintAllocationBySession = (props) => {
       if (result) {
         setData(result);
       } else {
-        setNoData(true);
+        setNoData("No data found");
       }
     }
     if (allocationResult.error) {
@@ -57,7 +57,9 @@ const PrintAllocationBySession = (props) => {
       <div className="row">
         <div className="col-md-6 offset-md-3">
           <div className="text-center">
-            <h3 className="text-center text-info d-print-none">Print Hostel Allocation Document</h3>
+            <h3 className="text-center text-info d-print-none">
+              Print Hostel Allocation Document
+            </h3>
             {errors && <p className="lead text-danger">{errors.message}</p>}
             {allocationResult.loading && <Loading />}
           </div>
@@ -84,10 +86,12 @@ const PrintAllocationBySession = (props) => {
               <PrintAllocationComponent allocationData={data} />
             </div>
           )}
+        </div>
 
-          {noData && (
-            <div>
-              <p div className="lead">
+        <div className="col-md-6 offset-md-3">
+          {noData == "No data found" && (
+            <div className="card">
+              <p className="lead text-center">
                 You do not have any hostel allocation
               </p>
             </div>

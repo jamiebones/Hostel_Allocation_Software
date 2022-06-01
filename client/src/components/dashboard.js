@@ -87,10 +87,7 @@ const DashBoard = (props) => {
 
   useEffect(() => {
     if (
-      props &&
-      props.location &&
-      props.location.state &&
-      props.location.state.confirmStatus
+      props?.location?.state?.confirmStatus
     ) {
       setPhoneConfirmed(true);
     }
