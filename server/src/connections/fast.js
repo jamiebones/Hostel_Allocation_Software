@@ -18,6 +18,7 @@ export default async () => {
   let url;
   url = `mongodb://admin:${DB_PASSWORD}@${Replica_Set_One},${Replica_Set_Two},${Replica_Set_Three}/${DB_DATABASE}`;
   // mongodb://<HOSTNAME>:27017,<HOSTNAME>:27018,<HOSTNAME>:27019/<DBNAME>
+  console.log("the url:", url)
   if (process.env.NODE_ENV === "production") {
     url = `mongodb://admin:${DB_PASSWORD}@${Replica_Set_One},${Replica_Set_Two},${Replica_Set_Three}/${DB_DATABASE}`;
   }

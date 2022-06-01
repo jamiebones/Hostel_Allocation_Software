@@ -2,8 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
 import { useHistory } from "react-router-dom";
-import { useRecoilState } from "recoil";
-import state from "../applicationState";
+import { useAuth } from "../context/authContext";
 import client from "../apolloClient";
 import store from "store";
 
@@ -52,21 +51,19 @@ const isAuthorizedToView = (currentUser, accessArray = []) => {
 };
 
 const Navbar = ({ authenticated, currentUser }) => {
-  const [isAuth, setIsAuth] = useRecoilState(state.authState);
-  const [user, setCurrentUser] = useRecoilState(state.currentUserState);
-  const [token, setToken] = useRecoilState(state.authToken);
 
+  const { setAuthState, setCurrentUser, setToken } = useAuth();
   let history = useHistory();
 
  
   const handleLogOut = (e) => {
     e.preventDefault();
-    setIsAuth(false);
+    setAuthState(false);
     setCurrentUser({});
     setToken("");
     store.clearAll();
     client.clearStore();
-    history.replace("/");
+    history.replace("/"); //refresh the page to wipe 
   };
 
   return (

@@ -2,14 +2,15 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
-import { RecoilRoot } from "recoil";
+import { AuthProvider } from "./context/authContext";
 
 ReactDOM.render(
-  <RecoilRoot>
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  </RecoilRoot>,
+  <AuthProvider>
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+
+  </AuthProvider>,
   document.getElementById("root")
 );
 

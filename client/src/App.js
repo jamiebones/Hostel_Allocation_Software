@@ -10,11 +10,10 @@ import Layout from "./components/layout";
 import LoginComponentRoute from "./components/loginComponentRoute";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./components/common/errorFallback";
-import { useRecoilState } from "recoil";
 import Footer from "./components/footer";
-import state from "./applicationState";
 import AuthorizedComponent from "./components/authorized";
 import GlobalStyle from "./globalStyles";
+import { useAuth } from "./context/authContext";
 
 import Loader from "./components/common/loader";
 
@@ -205,9 +204,8 @@ const AppStyles = styled.div`
 `;
 
 const App = (props) => {
-  const [token, setToken] = useRecoilState(state.authToken);
-  const [authenticated, setAuthenticated] = useRecoilState(state.authState);
-  const [currentUser, setCurrentUser] = useRecoilState(state.currentUserState);
+  const { token, setToken, currentUser, setCurrentUser, isAuth, setAuthState } =
+    useAuth();
 
   useEffect(() => {
     if (!currentUser) {
@@ -216,7 +214,7 @@ const App = (props) => {
       const user = store.get("currentUser");
       if (user) {
         setCurrentUser(user);
-        setAuthenticated(true);
+        setAuthState(true);
         setToken(token);
       }
     }
@@ -231,7 +229,7 @@ const App = (props) => {
           <AppStyles>
             <Navigation
               token={token}
-              authenticated={authenticated}
+              authenticated={isAuth}
               currentUser={currentUser}
             />
             {/* <CustomNavbar /> */}
@@ -250,7 +248,7 @@ const App = (props) => {
                                 path="/"
                                 render={(props) => (
                                   <LoadableHomePage
-                                    authenticated={authenticated}
+                                    authenticated={isAuth}
                                     currentUser={currentUser}
                                     {...props}
                                   />
@@ -260,7 +258,7 @@ const App = (props) => {
                               {/* student route starts here*/}
                               <AuthorizedComponent
                                 component={LoadableConfirmTransaction}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["student"]}
                                 exact
@@ -270,7 +268,7 @@ const App = (props) => {
                                 path="/make_payment"
                                 exact
                                 component={LoadableGenerateRemitaRRR}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 {...props}
                                 authorizedRole={["student"]}
@@ -278,7 +276,7 @@ const App = (props) => {
                               <AuthorizedComponent
                                 path="/hostel_payment"
                                 component={LoadableMakeRemitaPaymentUsingRRR}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 {...props}
                                 authorizedRole={["student"]}
@@ -288,7 +286,7 @@ const App = (props) => {
                                 path="/print_allocation_receipt"
                                 exact
                                 component={LoadablePrintAllocation}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 {...props}
                                 authorizedRole={["student"]}
@@ -297,7 +295,7 @@ const App = (props) => {
                                 path="/dashboard"
                                 exact
                                 component={LoadableDashBoard}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["student"]}
                                 {...props}
@@ -306,7 +304,7 @@ const App = (props) => {
                                 path="/confirm_code"
                                 exact
                                 component={LoadableConfirmPhoneCode}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["student"]}
                                 {...props}
@@ -317,7 +315,7 @@ const App = (props) => {
                                 component={
                                   LoadablePrintStudentHostelAllocationBySession
                                 }
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["student"]}
                                 {...props}
@@ -326,7 +324,7 @@ const App = (props) => {
                                 path="/student_transactions"
                                 exact
                                 component={LoadableStudentTransaction}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["student"]}
                                 {...props}
@@ -335,7 +333,7 @@ const App = (props) => {
                                 path="/print_receipt/:rrr"
                                 exact
                                 component={LoadablePrintPaymentReceipt}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["student"]}
                                 {...props}
@@ -362,7 +360,7 @@ const App = (props) => {
                                 path="/login"
                                 exact
                                 component={LoadableLogin}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 {...props}
                               />
 
@@ -384,7 +382,7 @@ const App = (props) => {
                                 path="/admin/student_account"
                                 exact
                                 component={LoadableSearchUserAccount}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin", "admin"]}
                                 {...props}
@@ -394,7 +392,7 @@ const App = (props) => {
                                 path="/admin/dashboard"
                                 exact
                                 component={LoadableAdminDashboard}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin", "admin"]}
                                 {...props}
@@ -404,7 +402,7 @@ const App = (props) => {
                                 path="/admin/view_transactions"
                                 exact
                                 component={LoadableAdminViewTransaction}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin", "admin"]}
                                 {...props}
@@ -414,7 +412,7 @@ const App = (props) => {
                                 path="/admin/get_phone_code"
                                 exact
                                 component={LoadableGetPhoneCodeForStudent}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin", "admin"]}
                                 {...props}
@@ -426,7 +424,7 @@ const App = (props) => {
                                 component={
                                   LoadableCreateStaffUserAccountByAdmin
                                 }
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin"]}
                                 {...props}
@@ -435,7 +433,7 @@ const App = (props) => {
                                 path="/admin/edit_hostel"
                                 exact
                                 component={LoadableEditHostelDetails}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin"]}
                                 {...props}
@@ -452,7 +450,7 @@ const App = (props) => {
                                 path="/admin/confirm_allocation"
                                 exact
                                 component={LoadableConfirmHostelAccomodation}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin"]}
                                 {...props}
@@ -461,7 +459,7 @@ const App = (props) => {
                                 path="/admin/send_message"
                                 exact
                                 component={LoadableSendMessageToStudent}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin"]}
                                 {...props}
@@ -470,7 +468,7 @@ const App = (props) => {
                                 path="/create_new_session"
                                 exact
                                 component={LoadableCreateNewSession}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin"]}
                                 {...props}
@@ -479,7 +477,7 @@ const App = (props) => {
                                 path="/update_session/:sessionId"
                                 exact
                                 component={LoadableUpdateSessionData}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin"]}
                                 {...props}
@@ -488,7 +486,7 @@ const App = (props) => {
                                 path="/activate_session"
                                 exact
                                 component={LoadableActiateDeactivateSession}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin"]}
                                 {...props}
@@ -497,7 +495,7 @@ const App = (props) => {
                                 path="/create_hostel"
                                 exact
                                 component={LoadableCreateNewHostel}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin"]}
                                 {...props}
@@ -506,7 +504,7 @@ const App = (props) => {
                                 path="/view_created_hostels"
                                 exact
                                 component={LoadableSelectHostelComponent}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin"]}
                                 {...props}
@@ -515,7 +513,7 @@ const App = (props) => {
                                 path="/create_room"
                                 exact
                                 component={LoadableCreateRoomInHostel}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin"]}
                                 {...props}
@@ -524,7 +522,7 @@ const App = (props) => {
                                 path="/view_rooms"
                                 exact
                                 component={LoadableRoomBedSpaceOperation}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin"]}
                                 {...props}
@@ -533,7 +531,7 @@ const App = (props) => {
                                 path="/bedspace_settings"
                                 exact
                                 component={LoadableBedSpaceSettings}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin"]}
                                 {...props}
@@ -542,7 +540,7 @@ const App = (props) => {
                                 path="/bedspace_stats"
                                 exact
                                 component={LoadableBedSpaceStatsTotal}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin"]}
                                 {...props}
@@ -551,7 +549,7 @@ const App = (props) => {
                                 path="/assign_space"
                                 exact
                                 component={LoadableAssignSpaceToStudent}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin"]}
                                 {...props}
@@ -560,7 +558,7 @@ const App = (props) => {
                                 path="/view_students_in_rooms"
                                 exact
                                 component={LoadableViewStudentsInRooms}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin"]}
                                 {...props}
@@ -569,7 +567,7 @@ const App = (props) => {
                                 path="/view_space_given_by_admin"
                                 exact
                                 component={LoadableAdminAllocateFreeBed}
-                                authenticated={authenticated}
+                                authenticated={isAuth}
                                 currentUser={currentUser}
                                 authorizedRole={["super-admin"]}
                                 {...props}

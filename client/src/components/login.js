@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useLazyQuery } from "@apollo/client";
 import { LoginUser } from "../graphql/queries";
-import state from "../applicationState";
-import { useRecoilState } from "recoil";
+import { useAuth } from "../context/authContext"
 import { useHistory } from "react-router-dom";
 
 import store from "store";
@@ -56,9 +55,8 @@ const LoginStyle = styled.div`
 `;
 
 const Login = (props) => {
-  const [isAuth, setAuthState] = useRecoilState(state.authState);
-  const [currentUser, setCurrentUser] = useRecoilState(state.currentUserState);
-  const [token, setToken] = useRecoilState(state.authToken);
+ 
+  const {  isAuth, setAuthState, currentUser, setCurrentUser, token, setToken } = useAuth();
 
   const [regNumber, setRegNumber] = useState("");
   const [password, setPassword] = useState("");
@@ -93,7 +91,7 @@ const Login = (props) => {
           accessLevel,
           active,
         } = loginUserResult.data.loginUser;
-
+        //set local storage here
         store.set("authToken", token);
         store.set("userIdKey", id);
         store.set("isAuth", true);

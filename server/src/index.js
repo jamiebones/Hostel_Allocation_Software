@@ -49,9 +49,9 @@ async function StartUp() {
   const app = express();
   app.enable("trust proxy");
   app.use(helmet());
-  //if (process.env.NODE_ENV === "production") {
-  //  app.use(cors(corsOptions));
-  //}
+  if (process.env.NODE_ENV === "production") {
+   app.use(cors(corsOptions));
+  }
   const fastConn = await fastConnection();
   const slowConn = await slowConnection();
   cron.schedule("*/10 * * * *", async function () {
