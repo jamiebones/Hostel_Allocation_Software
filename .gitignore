@@ -4,6 +4,6 @@ node_modules
 node_modules
 .git
 .dockerignore
-docker-compose-backup.yml
-docker-compose.yml
-docker-compose-prod.yml
+./docker-compose-backup.yml
+./docker-compose.yml
+./docker-compose-prod.yml
