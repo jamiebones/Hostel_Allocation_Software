@@ -54,16 +54,16 @@ services:
       CheckStatusUrl: https://remitademo.net/remita/ecomm
       ReturnRemitaUrl: http://localhost:3001/confirm_transaction
       RRRGateWayPaymentUrl: https://remitademo.net/remita/ecomm/finalize.reg
-      JusibePublicKey: ""
-      JusibeAccessToken: ""
-      EBulkSMSAPIKey: ""
+      JusibePublicKey: "testapikey"
+      JusibeAccessToken: "testapikey"
+      EBulkSMSAPIKey: "testapikey"
       EBulkSMSUsername: jamiebones2000@yahoo.co.uk
       EBulkSMSGateWay: https://api.ebulksms.com:4433
       CheapGlobalSmsGateway: http://cheapglobalsms.com/api_v1
-      CheapGlobalSmsSubAccount: ""
-      CheapGlobalSmsSubAccountPassword: ""
+      CheapGlobalSmsSubAccount: "testapikey"
+      CheapGlobalSmsSubAccountPassword: "testapikey"
       DeveloperBugsEmailSupport: bugsreport2021@gmail.com
-      DeveloperBugsEmailPassword: ""
+      DeveloperBugsEmailPassword: "testapikey"
 
   mongo-setup_uniuyo:
     container_name: mongo-setup_uniuyo
