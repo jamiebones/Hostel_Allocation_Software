@@ -3,4 +3,4 @@
 /server/logs
 .git
 .gitignore
-docker-compose*
+
