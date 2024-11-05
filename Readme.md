@@ -37,4 +37,7 @@ To build and start the project run:
 >  docker compose -f "docker-compose-dev.yml" up -d --build 
 
 
+Login as an admin using the credentials below:
+
+> username: jamiebones147@gmail.com | password: blazing147
 

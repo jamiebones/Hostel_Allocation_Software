@@ -25,15 +25,15 @@ services:
       - /app/node_modules
       - ./server:/app
     depends_on:
-      - mongo-setup_uniuyo
+      - setup
     restart: always
     ports:
       - 8000:8000
     environment:
-      Replica_Set_One: mongo_db1:27017
-      Replica_Set_Two: mongo_db2:27017
-      Replica_Set_Three: mongo_db3:27017
-      DB_HOST: mongo_db1 ## same as the database service name
+      Replica_Set_One: mongo1:27017
+      Replica_Set_Two: mongo2:27017
+      Replica_Set_Three: mongo3:27017
+      DB_HOST: mongo1 ## same as the database service name
       DB_PORT: 27017
       DB_USER: uniuyo
       DB_DATABASE: hostelDBProduction
@@ -62,223 +62,61 @@ services:
       DeveloperBugsEmailSupport: bugsreport2021@gmail.com
       DeveloperBugsEmailPassword: "testapikey"
 
-  # mongo-setup_uniuyo:
-  #   container_name: mongo-setup_uniuyo
-  #   image: mongo:5.0
-  #   restart: on-failure
-    
-  #   volumes:
-  #     - ./scripts:/scripts
-  #   networks:
-  #     - mongo_network
-    
-  #   entrypoint: ["/scripts/setup.sh"] # Make sure this file exists (see below for the setup.sh)
-  #   depends_on:
-  #     - mongo_db1
-  #     - mongo_db2
-  #     - mongo_db3
-  mongo-setup_uniuyo:
-    container_name: mongo-setup_uniuyo
+  mongo1:
     image: mongo:5.0
-    volumes:
-      - ./scripts:/scripts
-    depends_on:
-      mongo_db1:
-        condition: service_healthy
-      mongo_db2:
-        condition: service_healthy
-      mongo_db3:
-        condition: service_healthy
-    command: ["sh", "-c", "sleep 30 && /scripts/setup.sh"] 
-
-  # mongo_db1:
-  #   hostname: mongo_db1
-  #   container_name: mongo_db1
-  #   image: mongo:5.0
-  #   expose:
-  #     - 27080
-  #   ports:
-  #     - 27080:27017
-  #   restart: always
-  #   entrypoint:
-  #     [
-  #       "/usr/bin/mongod",
-  #       "--bind_ip_all",
-  #       "--replSet",
-  #       "rs0",
-  #       # "--journal",
-  #       "--dbpath",
-  #       "/data/db",
-  #     ]
-  #   volumes:
-  #     - $HOME/hostel_data/data1/db:/data/db # This is where your volume will persist. e.g. VOLUME-DIR = ./volumes/mongodb
-  #     - $HOME/hostel_data/data1/configdb:/data/configdb
-  #     #- $HOME/keys/file.key:/data/file.key
-  #     - ./scripts:/scripts
-  #   networks:
-  #     - mongo_network
-
-  mongo_db1:
-    hostname: mongo_db1
-    container_name: mongo_db1
-    image: mongo:5.0
+    container_name: mongo1
     ports:
-      - 27080:27017
-    restart: always
-    entrypoint:
-      [
-        "/usr/bin/mongod",
-        "--bind_ip_all",
-        "--replSet",
-        "rs0",
-        "--dbpath",
-        "/data/db"
-      ]
-    volumes:
-      - $HOME/hostel_data/data1/db:/data/db
-      - $HOME/hostel_data/data1/configdb:/data/configdb
-      - ./scripts:/scripts
-    healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.getMongo().setSlaveOk(); db.version()"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
-      
-  # mongo_db2:
-  #   hostname: mongo_db2
-  #   container_name: mongo_db2
-  #   image: mongo:5.0
-  #   expose:
-  #     - 27081
-  #   ports:
-  #     - 27081:27017
-  #   restart: always
-  #   entrypoint:
-  #     [
-  #       "/usr/bin/mongod",
-  #       "--bind_ip_all",
-  #       "--replSet",
-  #       "rs0",
-  #       # "--journal",
-  #       "--dbpath",
-  #       "/data/db"
-  #     ]
-  #   volumes:
-  #     - $HOME/hostel_data/data2/db:/data/db # This is where your volume will persist. e.g. VOLUME-DIR = ./volumes/mongodb
-  #     - $HOME/hostel_data/data2/configdb:/data/configdb
-  #     #- $HOME/keys/file.key:/data/file.key
-  #   networks:
-  #     - mongo_network
-
-  mongo_db2:
-    hostname: mongo_db2
-    container_name: mongo_db2
-    image: mongo:5.0
-    ports:
-      - 27081:27017
-    restart: always
-    entrypoint:
-      [
-        "/usr/bin/mongod",
-        "--bind_ip_all",
-        "--replSet",
-        "rs0",
-        "--dbpath",
-        "/data/db"
-      ]
-    volumes:
-      - $HOME/hostel_data/data2/db:/data/db
-      - $HOME/hostel_data/data2/configdb:/data/configdb
-      - ./scripts:/scripts
-    healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.getMongo().setSlaveOk(); db.version()"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
-
-  # mongo_db3:
-  #   hostname: mongo_db3
-  #   container_name: mongo_db3
-  #   image: mongo:5.0
-  #   expose:
-  #     - 27082
-  #   ports:
-  #     - 27082:27017
-  #   restart: always
-  #   entrypoint:
-  #     [
-  #       "/usr/bin/mongod",
-  #       "--bind_ip_all",
-  #       "--replSet",
-  #       "rs0",
-  #       # "--journal",
-  #       "--dbpath",
-  #       "/data/db"
-  #     ]
-  #   volumes:
-  #     - $HOME/hostel_data/data3/db:/data/db # This is where your volume will persist. e.g. VOLUME-DIR = ./volumes/mongodb
-  #     - $HOME/hostel_data/data3/configdb:/data/configdb
-  #     #- $HOME/keys/file.key:/data/file.key
-  #   networks:
-  #     - mongo_network
-
-  mongo_db3:
-    hostname: mongo_db3
-    container_name: mongo_db3
-    image: mongo:5.0
-    ports:
-      - 27082:27017
-    restart: always
-    entrypoint:
-      [
-        "/usr/bin/mongod",
-        "--bind_ip_all",
-        "--replSet",
-        "rs0",
-        "--dbpath",
-        "/data/db"
-      ]
-    volumes:
-      - $HOME/hostel_data/data3/db:/data/db
-      - $HOME/hostel_data/data3/configdb:/data/configdb
-      - ./scripts:/scripts
-    healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.getMongo().setSlaveOk(); db.version()"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
-
-  mongo-express:
-    image: mongo-express
-    container_name: mongo-express_uniuyo
-    restart: always
-    ports:
-      - 9080:8085
-    depends_on:
-      - mongo_db1
+      - "27017:27017"
     environment:
-      ME_CONFIG_MONGODB_SERVER: mongo_db1,mongo_db2,mongo_db3
-      ME_CONFIG_MONGODB_ADMINUSERNAME: jamiebones
-      ME_CONFIG_MONGODB_ADMINPASSWORD: blazing147
-      ME_CONFIG_BASICAUTH_USERNAME: jamiebones
-      ME_CONFIG_BASICAUTH_PASSWORD: blazing147
+      - MONGO_REPLICA_SET_NAME=rs0
+    volumes:
+      - mongo1_data:/data/db
+    command: ["--replSet", "rs0", "--bind_ip_all"]
 
-  # mongo_backup:
-  #   image: stefanprodan/mgob:1.1
-  #   ports: 
-  #     - 8090:8090
-  #   volumes:
-  #     - $HOME/mongo_backup_dev/config:/config
-  #     - $HOME/mongo_backup_dev/storage:/storage
-  #     - $HOME/mongo_backup_dev/data:/data
-  #     - $HOME/mongo_backup_dev/tmp:/tmp
+  mongo2:
+    image: mongo:5.0
+    container_name: mongo2
+    environment:
+      - MONGO_REPLICA_SET_NAME=rs0
+    volumes:
+      - mongo2_data:/data/db
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+
+  mongo3:
+    image: mongo:5.0
+    container_name: mongo3
+    environment:
+      - MONGO_REPLICA_SET_NAME=rs0
+    volumes:
+      - mongo3_data:/data/db
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+
+  setup:
+    image: mongo:5.0
+    container_name: setup
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    volumes:
+      - ./scripts:/scripts
+    entrypoint: ["bash", "/scripts/setup.sh"]
+ 
+  # mongo-express:
+  #   image: mongo-express
+  #   container_name: mongo-express_uniuyo
+  #   restart: always
+  #   ports:
+  #     - 9080:8085
+  #   depends_on:
+  #     - mongo1
   #   environment:
-  #     LogLevel: info
+  #     ME_CONFIG_MONGODB_SERVER: mongo1,mongo2,mongo3
+  #     ME_CONFIG_MONGODB_ADMINUSERNAME: jamiebones
+  #     ME_CONFIG_MONGODB_ADMINPASSWORD: blazing147
+  #     ME_CONFIG_BASICAUTH_USERNAME: jamiebones
+  #     ME_CONFIG_BASICAUTH_PASSWORD: blazing147
       
-
   redis:
     image: redis
     container_name: redis_cache
@@ -288,17 +126,11 @@ services:
     ports:
       - 6900:6379
     volumes:
-      - $HOME/hostel_data/redis_data:/data
+      - redis_data:/data
   
-# networks:
-#     default:
-#       external: true
-#       name: mongo_network
+volumes:
+  mongo1_data:
+  mongo2_data:
+  mongo3_data:
+  redis_data:
 
-# networks:
-#   mongo_network:
-#     driver: bridge
-
-networks:
-  default:
-    driver: bridge
