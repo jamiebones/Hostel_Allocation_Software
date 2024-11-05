@@ -2,7 +2,6 @@ import models from "../models";
 import mongoose from "mongoose";
 import config from "../config";
 
-let timesTried = 0;
 export default async () => {
   const {
     DB_DATABASE,
@@ -12,36 +11,25 @@ export default async () => {
     Replica_Set_Three,
   } = config.config;
 
-  //url = `mongodb://mongo1:27017,mongo2:27018,mongo3:27019/${DB_DATABASE}`;
+  const username = 'admin';
+  const password = DB_PASSWORD;
+  const replicaSetName = 'rs0';
+  const dbName = DB_DATABASE;
 
-  let url;
-  url = `mongodb://admin:${DB_PASSWORD}@${Replica_Set_One},${Replica_Set_Two},${Replica_Set_Three}/${DB_DATABASE}`;
-  // mongodb://<HOSTNAME>:27017,<HOSTNAME>:27018,<HOSTNAME>:27019/<DBNAME>
-  if (process.env.NODE_ENV === "production") {
-    url = `mongodb://admin:${DB_PASSWORD}@${Replica_Set_One},${Replica_Set_Two},${Replica_Set_Three}/${DB_DATABASE}`;
-  }
+  // Connection URI with replica set and authentication
+  const uri = `mongodb://${username}:${password}@${Replica_Set_One},${Replica_Set_Two},${Replica_Set_Three}/${dbName}?replicaSet=${replicaSetName}&authSource=admin`;
+
   try {
-    const conn = await runConnection(url);
+    console.log("Establishing slow tunnel connection:")
+    const conn = await mongoose.createConnection(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    console.log("connection to DB established::")
     return models(conn);
   } catch (error) {
-    while (timesTried < 3) {
-      timesTried++;
-      const conn = await runConnection(url);
-      return models(conn);
-    }
+    console.log("Error while connecting ", error);
   }
-};
+}
 
-const runConnection = async function (url) {
-  const conn = await mongoose.createConnection(url, {
-    useNewUrlParser: true,
-    useFindAndModify: false,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    keepAlive: true,
-    authSource: "admin",
-    poolSize: 10,
-    replicaSet: "rs0",
-  });
-  return conn;
-};
+

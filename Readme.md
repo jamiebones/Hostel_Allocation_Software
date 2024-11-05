@@ -16,6 +16,23 @@ The application was created using the following technologies:
 
 Install Docker and Docker-Compose on your development machine. 
 
+Create a network for the services to be run in the docker-compose configurarion file:
+
+> docker network create mongo_network
+
+Check if the ports used in the servise are opened in your dev machine:
+
+You can check like this in :
+
+On Linux / macOS
+
+> lsof -i :<port-number
+
+On Windows:
+
+> netstat -an | findstr :<port-number>
+
+
 To build and start the project run: 
 >  docker compose -f "docker-compose-dev.yml" up -d --build 
 

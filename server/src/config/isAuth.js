@@ -10,7 +10,7 @@ const _saveRefreshToken = async (tokenData, config) => {
     expiresIn: "7 days",
   });
   //add the refresh token to redis
-  await config.redisClient.setAsync(tokenData.id, newRefreshToken);
+  config.redisClient.setAsync(tokenData.id, newRefreshToken);
   return newToken;
 };
 

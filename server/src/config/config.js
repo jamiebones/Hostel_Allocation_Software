@@ -21,8 +21,6 @@ export default {
   CheckStatusUrl: process.env.CheckStatusUrl,
   ReturnRemitaUrl: process.env.ReturnRemitaUrl,
   RRRGateWayPaymentUrl: process.env.RRRGateWayPaymentUrl,
-  JusibePublicKey: process.env.JusibePublicKey,
-  JusibeAccessToken: process.env.JusibeAccessToken,
   EBulkSMSAPIKey: process.env.EBulkSMSAPIKey,
   EBulkSMSUsername: process.env.EBulkSMSUsername,
   EBulkSMSGateWay: process.env.EBulkSMSGateWay,

@@ -54,8 +54,6 @@ services:
       CheckStatusUrl: https://remitademo.net/remita/ecomm
       ReturnRemitaUrl: http://localhost:3001/confirm_transaction
       RRRGateWayPaymentUrl: https://remitademo.net/remita/ecomm/finalize.reg
-      JusibePublicKey:
-      JusibeAccessToken:
       EBulkSMSAPIKey:
       EBulkSMSUsername: jamiebones2000@yahoo.co.uk
       EBulkSMSGateWay: https://api.ebulksms.com:4433

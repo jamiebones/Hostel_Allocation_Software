@@ -43,7 +43,13 @@ var corsOptions = {
   exposedHeaders: ["Authorization"],
 };
 
-StartUp();
+try {
+  console.log("starting application:::")
+  StartUp();
+} catch (error) {
+  console.log("error on start-up::: ", error)
+}
+
 
 async function StartUp() {
   const app = express();
@@ -119,11 +125,14 @@ async function StartUp() {
       },
     },
   });
-
+  
+  console.log("initing task starting:");
   await initTask(fastConn);
+  console.log("initing task complete:");
   //create the collection models if it does not already exists
+  console.log("start creating collection:");
   await config.createCollection(fastConn);
-
+  console.log("end creating collection:");
   app.use((err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || "error";
@@ -131,6 +140,7 @@ async function StartUp() {
     config.winston.error(
       `${err.status} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`
     );
+    console.log("Error from start-up ", err);
     res.status(err.status);
     next(err);
   });

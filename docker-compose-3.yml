@@ -1,0 +1,45 @@
+services:
+  mongo1:
+    image: mongo:5.0
+    container_name: mongo1
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_REPLICA_SET_NAME=rs0
+    volumes:
+      - mongo1_data:/data/db
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+
+  mongo2:
+    image: mongo:5.0
+    container_name: mongo2
+    environment:
+      - MONGO_REPLICA_SET_NAME=rs0
+    volumes:
+      - mongo2_data:/data/db
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+
+  mongo3:
+    image: mongo:5.0
+    container_name: mongo3
+    environment:
+      - MONGO_REPLICA_SET_NAME=rs0
+    volumes:
+      - mongo3_data:/data/db
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+
+  setup:
+    image: mongo:5.0
+    container_name: setup
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    volumes:
+      - ./scripts:/scripts
+    entrypoint: ["bash", "/scripts/setup.sh"]
+
+volumes:
+  mongo1_data:
+  mongo2_data:
+  mongo3_data:

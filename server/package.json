@@ -1,13 +1,13 @@
 {
   "name": "server_app_for_uniuyo_hostel_application",
   "version": "1.0.0",
-  "description": "",
+  "description": "Graphql server to manage the Hostel Management Application",
   "main": "index.js",
   "scripts": {
     "build": "npm run clean && babel ./src --out-dir dist",
     "clean": "rm -rf ./dist && mkdir dist",
-    "dev-server": "nodemon --exec babel-node src/index.js",
-    "dev": "nodemon --exec babel-node --inspect=0.0.0.0 src/index.js"
+    "dev-server2": "nodemon --verbose --exec babel-node src/index.js",
+    "dev-server": "node -r @babel/register src/index.js"
   },
   "keywords": [],
   "author": "",
@@ -32,7 +32,6 @@
     "graphql-subscriptions": "^1.1.0",
     "helmet": "^4.6.0",
     "jsonwebtoken": "^8.5.1",
-    "jusibe": "^1.0.3",
     "lodash": "^4.17.20",
     "mongodb": "^3.6.4",
     "mongoose": "^5.12.0",

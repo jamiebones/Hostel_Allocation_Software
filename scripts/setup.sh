@@ -1,54 +1,82 @@
+# #!/bin/bash
+
+# echo "Waiting 20 seconds for MongoDB instances to start..."
+# sleep 20
+
+# # Retry function to check MongoDB connection
+# function wait_for_mongo() {
+#   until mongosh --host mongo1 --eval "print(\"MongoDB is available\")" &>/dev/null; do
+#     echo "Waiting for mongo1 to be ready..."
+#     sleep 5
+#   done
+# }
+
+# # Wait for MongoDB nodes to start and become reachable
+# wait_for_mongo
+
+# # Initialize the replica set with retries
+# echo "Initializing MongoDB replica set..."
+# until mongosh --host mongo1 --eval 'rs.initiate({
+#   _id: "rs0",
+#   members: [
+#     { _id: 0, host: "mongo1:27017" },
+#     { _id: 1, host: "mongo2:27017" },
+#     { _id: 2, host: "mongo3:27017" }
+#   ]
+# })' || sleep 5; do
+#   echo "Retrying replica set initiation..."
+# done
+
+# # Confirm replica set status
+# echo "Replica set initiated. Checking status..."
+# mongosh --host mongo1 --eval 'rs.status()'
+
 #!/bin/bash
 
-#MONGODB1=`ping -c 1 mongo1 | head -1  | cut -d "(" -f 2 | cut -d ")" -f 1`
-#MONGODB2=`ping -c 1 mongo2 | head -1  | cut -d "(" -f 2 | cut -d ")" -f 1`
-#MONGODB3=`ping -c 1 mongo3 | head -1  | cut -d "(" -f 2 | cut -d ")" -f 1`
+echo "Waiting 20 seconds for MongoDB instances to start..."
+sleep 20
 
-MONGODB1=mongo_db1
-MONGODB2=mongo_db2
-MONGODB3=mongo_db3
+# Retry function to check MongoDB connection
+function wait_for_mongo() {
+  until mongosh --host mongo1 --eval "print(\"MongoDB is available\")" &>/dev/null; do
+    echo "Waiting for mongo1 to be ready..."
+    sleep 5
+  done
+}
 
-echo "**********************************************" ${MONGODB1}
-echo "Waiting for startup.."
-until curl http://${MONGODB1}:27017/serverStatus\?text\=1 2>&1 | grep uptime | head -1; do
-  printf '.'
-  sleep 1
+# Wait for MongoDB nodes to start and become reachable
+wait_for_mongo
+
+# Initialize the replica set with retries
+echo "Initializing MongoDB replica set..."
+until mongosh --host mongo1 --eval 'rs.initiate({
+  _id: "rs0",
+  members: [
+    { _id: 0, host: "mongo1:27017" },
+    { _id: 1, host: "mongo2:27017" },
+    { _id: 2, host: "mongo3:27017" }
+  ]
+})' || sleep 5; do
+  echo "Retrying replica set initiation..."
 done
 
-# echo curl http://${MONGODB1}:28017/serverStatus\?text\=1 2>&1 | grep uptime | head -1
-# echo "Started.."
+# Confirm replica set status
+echo "Replica set initiated. Checking status..."
+mongosh --host mongo1 --eval 'rs.status()'
 
+# Wait for the primary node to be elected
+echo "Waiting for primary node election..."
+sleep 10
 
-echo SETUP.sh time now: `date +"%T" `
-mongo --host ${MONGODB1}:27017 <<EOF
-var cfg = {
-    "_id": "rs0",
-    "protocolVersion": 1,
-    "version": 1,
-    "members": [
-        {
-            "_id": 0,
-            "host": "${MONGODB1}:27017",
-            "priority": 2
-        },
-        {
-            "_id": 1,
-            "host": "${MONGODB2}:27017",
-            "priority": 0
-        },
-        {
-            "_id": 2,
-            "host": "${MONGODB3}:27017",
-            "priority": 0
-        }
-    ],settings: {chainingAllowed: true}
-};
-rs.initiate(cfg, { force: true });
-rs.reconfig(cfg, { force: true });
-rs.secondaryOk();
-db.getMongo().setReadPref('nearest');
-db.getMongo().setSecondaryOk(); 
-EOF
+# Create admin user
+echo "Creating admin user..."
+mongosh --host mongo1 --eval '
+  db = db.getSiblingDB("admin");
+  db.createUser({
+    user: "admin",
+    pwd: "blazing147_DB",
+    roles: [{ role: "root", db: "admin" }]
+  });
+'
 
-
-
+echo "Admin user created successfully."
